@@ -112,6 +112,9 @@ $RECYCLE.BIN/
 # Windows shortcuts
 *.lnk
 
+#vsCode files
+.vscode/
+
 # kumodd
 downloaded/
 localdata/
