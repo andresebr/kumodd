@@ -4,6 +4,7 @@ __author__ = 'andrsebr@gmail.com (Andres Barreto)'
 
 import sys 
 import os
+import logging
 import gflags
 import ConfigParser
 import modules.gdrive as gdrive
@@ -28,12 +29,14 @@ def main(argv):
 		
 	if FLAGS.destination == 'downloaded/': 
 		if not os.path.exists(FLAGS.destination):
-			log( "Creating directory: %s" % directory )
+			directory = FLAGS.destination
+			logging.info( "Creating directory: %s" % directory )
 			os.makedirs(FLAGS.destination)
 			
 	if FLAGS.list_items != None: 
 		if not os.path.exists('localdata/'):
-			log( "Creating directory: %s" % directory )
+			directory = 'localdata/'
+			logging.info( "Creating directory: %s" % directory )
 			os.makedirs('localdata/')
 	
 	if FLAGS.service == 'gdrive':
