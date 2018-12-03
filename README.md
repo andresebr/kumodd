@@ -20,7 +20,7 @@ Google Drive is currently supported. Other services coming soon.
 
 ### Account authentication
 
-When kumodd is used for the first time to connect to a cloud service, the respective driver will initiate the authorization process which requires the user to provide access credentials (user/password) for the account to be analyzed. The tool provides the user with a URL that needs to be opened in a web browser, where the standard authentication interface for the service will request the account username and password.  If the authentication is successful, the provided access token is cached persistently in a `.dat` file is saved under `/config` with the name of the service. Future requests will use the generated token and will not prompt the user for credentials again until the token expires or the generated file is deleted.
+When kumodd is used for the first time to connect to a cloud service, the respective driver will initiate the authorization process which requires the user to provide access credentials (user/password) for the account to be analyzed. The tool provides the user with a URL that needs to be opened in a web browser, where the standard authentication interface for the service will request the account username and password.  If the authentication is successful, the provided access token is cached persistently in a `.dat` file saved under `/config` with the name of the service. Future requests will use the generated token and will not prompt the user for credentials again until the token expires or the generated file is deleted.
 
 
 ### Usage
