@@ -17,7 +17,7 @@ To get detailed log output run:
 
 __author__ = 'andrsebr@gmail.com (Andres Barreto)'
 
-import gflags
+from absl import flags
 import httplib2
 import logging
 import os
@@ -25,7 +25,7 @@ import pprint
 import sys
 import re
 import time
-import ConfigParser
+import configparser
 import csv
 from googleapiclient.discovery import build
 from oauth2client.file import Storage
@@ -43,8 +43,8 @@ log_template = "{:>5} {:>5} {:>5} {:>5} {:>5} {:>5} {:>5} {:>5}"
 list_counter =  0
 download_counter = 0
 update_counter = 0
-FLAGS = gflags.FLAGS
-config = ConfigParser.ConfigParser()
+FLAGS = flags.FLAGS
+config = configparser.ConfigParser()
 config.read('config/config.cfg')
 TOKENS = config.get('gdrive', 'tokenfile')
 CSV_FILE = config.get('gdrive', 'csvfile')
@@ -75,7 +75,7 @@ FLOW = flow_from_clientsecrets(CLIENT_SECRETS,
     message=MISSING_CLIENT_SECRETS_MESSAGE)
 
 
-# The gflags module makes defining command-line options easy for
+# The flags module makes defining command-line options easy for
 # applications. Run this program with the '--help' argument to see
 # all the flags that it understands.
 
@@ -175,7 +175,7 @@ def get_items(service, drive_file, dest_path):
 			save_metadata(drive_file)
 			if is_file_new:
 				output_row = log_template.format(str(current_time), app_version, username, file_id, remote_path, revisions, full_path, file_hash)
-				print output_row
+				print( output_row )
 				log(output_row)
 			else:
 				print( "Updated %s" % full_path )
@@ -199,8 +199,8 @@ def get_user_info(service):
 	try:
 		about = service.about().get().execute()
 		return about
-	except errors.HttpError, error:
-		print 'An error occurred: %s' % error
+	except errors.HttpError as error:
+		print( 'An error occurred: %s' % error )
 		return None
 		
 def reset_file(filename):
@@ -227,7 +227,7 @@ def get_folder_contents( service, http, folder, base_path='./', depth=0 ):
 			if not page_token:
 				flag = False
 		except:
-			print 'trapped'
+			print( 'trapped' )
 			log( "ERROR: Couldn't get contents of folder %s. Retrying..." % folder['title'] )
 			get_folder_contents( service, http, folder, base_path, depth )
 			return
@@ -246,27 +246,27 @@ def get_folder_contents( service, http, folder, base_path='./', depth=0 ):
 				mimetype = item['mimeType']
 				
 				if FLAGS.list_items == 'doc' and FLAGS.list_items == check_file_type(mimetype):
-					print list_items(service, item, dest_path)
+					print( list_items(service, item, dest_path) )
 				if FLAGS.list_items == 'xls' and FLAGS.list_items == check_file_type(mimetype):
-					print list_items(service, item, dest_path)
+					print( list_items(service, item, dest_path) )
 				if FLAGS.list_items == 'ppt' and FLAGS.list_items == check_file_type(mimetype):
-					print list_items(service, item, dest_path)
+					print( list_items(service, item, dest_path) )
 				if FLAGS.list_items == 'text' and FLAGS.list_items == check_file_type(mimetype):
-					print list_items(service, item, dest_path)
+					print( list_items(service, item, dest_path) )
 				if FLAGS.list_items == 'pdf' and FLAGS.list_items == check_file_type(mimetype):
-					print list_items(service, item, dest_path)
+					print( list_items(service, item, dest_path) )
 				if (FLAGS.list_items == 'officedocs') and (check_file_type(mimetype) == 'doc' or check_file_type(mimetype) == 'xls' or check_file_type(mimetype) == 'ppt'):
-					print list_items(service, item, dest_path)
+					print( list_items(service, item, dest_path) )
 				if FLAGS.list_items == 'image' and FLAGS.list_items == check_file_type(mimetype):
-					print list_items(service, item, dest_path)
+					print( list_items(service, item, dest_path) )
 				if FLAGS.list_items == 'audio' and FLAGS.list_items == check_file_type(mimetype):
-					print list_items(service, item, dest_path)
+					print( list_items(service, item, dest_path) )
 				if FLAGS.list_items == 'video' and FLAGS.list_items == check_file_type(mimetype):
-					print list_items(service, item, dest_path)
+					print( list_items(service, item, dest_path) )
 				if FLAGS.list_items == 'other' and FLAGS.list_items == check_file_type(mimetype):
-					print list_items(service, item, dest_path)
+					print( list_items(service, item, dest_path) )
 				if FLAGS.list_items == 'all':
-					print list_items(service, item, dest_path)
+					print( list_items(service, item, dest_path) )
 				
 		if FLAGS.get_items != None:	
 			ensure_dir( dest_path )
@@ -346,7 +346,7 @@ def get_csv_contents(service, http, base_path='./'):
 				finally:
 					f.close()
 			else:	
-				print 'ERROR! Incorrect index: ' + item + ' type all to download <all> files listed in the csv file'
+				print( 'ERROR! Incorrect index: ' + item + ' type all to download <all> files listed in the csv file' )
 		
 def download_revision(service, drive_file, revision_id, dest_path):
 	"""Print information about the specified revision.
@@ -360,8 +360,8 @@ def download_revision(service, drive_file, revision_id, dest_path):
 	
 	try:
 		revision = service.revisions().get(fileId=file_id, revisionId=revision_id).execute()
-	except errors.HttpError, error:
-		print 'An error occurred: %s' % error
+	except errors.HttpError as error:
+		print( 'An error occurred: %s' % error )
 		
 	file_location = dest_path + "(" + revision['modifiedDate'] + ")" + drive_file['title'].replace( '/', '_' )
 	if is_google_doc(drive_file):
@@ -411,7 +411,7 @@ def retrieve_revisions(service, file_id):
 		if len(revisions.get('items', [])) > 1:
 			return revisions.get('items', [])
 		return None	
-	except errors.HttpError, error:
+	except errors.HttpError as error:
 		return None
 
 
@@ -470,11 +470,11 @@ def download_file( service, drive_file, dest_path ):
 
 
 def main(argv):
-	# Let the gflags module process the command-line arguments
+	# Let the flags module process the command-line arguments
 	try:
 		argv = FLAGS(argv)
-	except gflags.FlagsError, e:
-		print '%s\\nUsage: %s ARGS\\n%s' % (e, argv[0], FLAGS)
+	except flags.FlagsError as e:
+		print( '%s\\nUsage: %s ARGS\\n%s' % (e, argv[0], FLAGS) )
 		sys.exit(1)
 
 	# Set the logging according to the command-line flag
@@ -509,27 +509,27 @@ def main(argv):
 	
 	try:
 		start_time = datetime.now()
-		print "Working..."
+		print( "Working..." )
 		
 		if FLAGS.list_items:
 			list_file = CSV_FILE + '-' + username + '.csv'
 			reset_file(list_file)
 			header = list_template.format(OUTPUT_HEADER[9], OUTPUT_HEADER[3], OUTPUT_HEADER[4], OUTPUT_HEADER[5], OUTPUT_HEADER[7])
-			print header
+			print( header )
 			start_folder = service.files().get( fileId=FLAGS.drive_id ).execute()
 			get_folder_contents( service, http, start_folder, FLAGS.destination + username + '/')
 			print('\n' + str(list_counter) + ' files found in ' + username + ' drive')
 		
 		elif FLAGS.get_items:
 			header = log_template.format(OUTPUT_HEADER[0], OUTPUT_HEADER[1], OUTPUT_HEADER[2], OUTPUT_HEADER[3], OUTPUT_HEADER[4], OUTPUT_HEADER[5], OUTPUT_HEADER[6], OUTPUT_HEADER[7])
-			print header
+			print( header )
 			start_folder = service.files().get( fileId=FLAGS.drive_id ).execute()
 			get_folder_contents( service, http, start_folder, FLAGS.destination + username + '/')
 			print('\n' + str(download_counter) + ' files downloaded and ' + str(update_counter) + ' updated from ' + username + ' drive')
 		
 		elif FLAGS.usecsv:
 			header = log_template.format(OUTPUT_HEADER[0], OUTPUT_HEADER[1], OUTPUT_HEADER[2], OUTPUT_HEADER[3], OUTPUT_HEADER[4], OUTPUT_HEADER[5], OUTPUT_HEADER[6], OUTPUT_HEADER[7])
-			print header
+			print( header )
 			get_csv_contents(service, http, FLAGS.destination + username + '/')
 			print('\n' + str(download_counter) + ' files downloaded and ' + str(update_counter) + ' updated from ' + username + ' drive')
 		end_time = datetime.now()

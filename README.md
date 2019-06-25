@@ -4,15 +4,11 @@ Google Drive is currently supported. Other services coming soon.
 
 ### Setup
 
-1. Install required packages
+1. Install required packages for Python 3
 
-
-   `sudo pip install python-gflags`
-   
-   `sudo pip install --upgrade google-api-python-client`
-   
-   `sudo pip install --upgrade oauth2client`
-
+   `pip3 install --user --upgrade absl-py`
+   `pip3 install --user --upgrade google-api-python-client`
+   `pip3 install --user --upgrade oauth2client`
 
 2. Create a new project in the [Google API Console](https://console.cloud.google.com/projectcreate). Use localhost as the redirect URI in the project configuration step. Once the project is created, a Client ID and Client secret will be generated.
 
@@ -25,7 +21,7 @@ When kumodd is used for the first time to connect to a cloud service, the respec
 
 ### Usage
 
-`python kumodd.py -s [service] [action] [filter]`
+`python3 kumodd.py -s [service] [action] [filter]`
 
 **[service]**
 
@@ -75,16 +71,16 @@ The filter parameter specifies the subset of files to be listed/downloaded based
 
 List all files stored in a Google Drive account:
 
-`python kumodd.py -s gdrive -l all`
+`python3 kumodd.py -s gdrive -l all`
 
 List only images stored in the service: 
 
-`python kumodd.py -s gdrive -l image`
+`python3 kumodd.py -s gdrive -l image`
 
 Download only PDF files and save the in the Desktop folder:
 
-`python kumodd.py -s gdrive -d all -l /home/user/Desktop/`
+`python3 kumodd.py -s gdrive -d all -l /home/user/Desktop/`
 
 Download files from Google Drive using files listed in a CSV file stored in /home/user/Desktop/
 
-`python kumodd.py -s gdrive -csv /home/user/Desktop/gdrive_list.csv`
+`python3 kumodd.py -s gdrive -csv /home/user/Desktop/gdrive_list.csv`

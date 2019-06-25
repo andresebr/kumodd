@@ -1,30 +1,30 @@
-#!/usr/bin/python
-
-__author__ = 'andrsebr@gmail.com (Andres Barreto)'
+#!/usr/bin/env python3
+# -*- compile-command: "./kumodd.py -s gdrive --list_items doc"; -*-
+__author__ = 'andrsebr@gmail.com (Andres Barreto), rich.murphey@gmail.com'
 
 import sys 
 import os
 import logging
-import gflags
-import ConfigParser
+from absl import flags
+import configparser
 import modules.gdrive as gdrive
 
-FLAGS = gflags.FLAGS
+FLAGS = flags.FLAGS
 
-gflags.DEFINE_enum('logging_level', 'ERROR', ['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL'],'Set the level of logging detail.')
-gflags.DEFINE_enum('service', None, ['gdrive','dropbox','box','onedrive'], 'Service to use', short_name='s' )
-gflags.DEFINE_enum('list_items', None, ['all', 'doc', 'xls', 'ppt', 'text', 'pdf', 'officedocs', 'image', 'audio', 'video', 'other'], 'List files and directories from the selected service', short_name='l')
-gflags.DEFINE_enum('get_items', None, ['all', 'doc', 'xls', 'ppt', 'text', 'pdf', 'officedocs', 'image', 'audio', 'video', 'other'], 'Download files and create directories from the selected service', short_name='d')
-gflags.DEFINE_list('usecsv', None, 'Download files from the service using a previously generated csv file', short_name='csv')
-gflags.DEFINE_string('destination', 'downloaded/', 'Destination folder location', short_name='p')
-gflags.DEFINE_string('metadata_destination', 'metadata/', 'Destination folder for metadata information', short_name='m')
-gflags.DEFINE_boolean('debug', False, 'Log folder contents as being fetched' )
+flags.DEFINE_enum('logging_level', 'ERROR', ['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL'],'Set the level of logging detail.')
+flags.DEFINE_enum('service', None, ['gdrive','dropbox','box','onedrive'], 'Service to use', short_name='s' )
+flags.DEFINE_enum('list_items', None, ['all', 'doc', 'xls', 'ppt', 'text', 'pdf', 'officedocs', 'image', 'audio', 'video', 'other'], 'List files and directories from the selected service', short_name='l')
+flags.DEFINE_enum('get_items', None, ['all', 'doc', 'xls', 'ppt', 'text', 'pdf', 'officedocs', 'image', 'audio', 'video', 'other'], 'Download files and create directories from the selected service', short_name='d')
+flags.DEFINE_list('usecsv', None, 'Download files from the service using a previously generated csv file', short_name='csv')
+flags.DEFINE_string('destination', 'downloaded/', 'Destination folder location', short_name='p')
+flags.DEFINE_string('metadata_destination', 'metadata/', 'Destination folder for metadata information', short_name='m')
+flags.DEFINE_boolean('debug', False, 'Log folder contents as being fetched' )
 
 def main(argv):
 	try:
 		argv = FLAGS(argv)
-	except gflags.FlagsError, e:
-		print '%s\\nUsage: %s ARGS\\n%s' % (e, argv[0], FLAGS)
+	except flags.FlagsError as e:
+		print( f'{e}\\nUsage: {argv[0]} ARGS\\n{FLAGS}' )
 		sys.exit(1)
 		
 	if FLAGS.destination == 'downloaded/': 
@@ -40,17 +40,17 @@ def main(argv):
 			os.makedirs('localdata/')
 	
 	if FLAGS.service == 'gdrive':
-		gflags.DEFINE_string('logfile', 'gdrive.log', 'Location of file to write the log' )
-		gflags.DEFINE_string('drive_id', 'root', 'ID of the folder whose contents are to be fetched' )
+		flags.DEFINE_string('logfile', 'gdrive.log', 'Location of file to write the log' )
+		flags.DEFINE_string('drive_id', 'root', 'ID of the folder whose contents are to be fetched' )
 		gdrive.main(argv)
 	elif FLAGS.service == 'dropbox':
-		print 'Coming soon...'
+		print( 'Coming soon...' )
 	elif FLAGS.service == 'box':
-		print 'Coming soon...'
+		print( 'Coming soon...' )
 	elif FLAGS.service == 'onedrive':
-		print 'Coming soon...'
+		print( 'Coming soon...' )
 	else:
-		print 'No service selected'
+		print( 'No service selected' )
 	
 if __name__ == '__main__':
 	main(sys.argv)
