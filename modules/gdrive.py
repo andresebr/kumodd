@@ -1,3 +1,4 @@
+# -*- compile-command: "cd .. ;./kumodd.py -s gdrive --list_items doc"; -*-
 """Simple command-line sample for the Google Drive API.
 
 Command-line application that retrieves the list of files in google drive.
@@ -19,6 +20,7 @@ __author__ = 'andrsebr@gmail.com (Andres Barreto)'
 
 from absl import flags
 import httplib2
+import socks
 import logging
 import os
 import pprint
@@ -40,7 +42,7 @@ from datetime import datetime
 OUTPUT_HEADER = ['TIME (UTC)', 'APPLICATION', 'USER', 'FILE ID', 'REMOTE PATH', 'REVISION', 'LOCAL PATH', 'HASH(MD5)', 'MIMETYPE', 'INDEX']
 list_template = "{0:4} {1:50} {2:70} {3:10} {4:20}"
 log_template = "{:>5} {:>5} {:>5} {:>5} {:>5} {:>5} {:>5} {:>5}"
-list_counter =  0
+list_counter =	0
 download_counter = 0
 update_counter = 0
 FLAGS = flags.FLAGS
@@ -74,7 +76,6 @@ FLOW = flow_from_clientsecrets(CLIENT_SECRETS,
     scope='https://www.googleapis.com/auth/drive',
     message=MISSING_CLIENT_SECRETS_MESSAGE)
 
-
 # The flags module makes defining command-line options easy for
 # applications. Run this program with the '--help' argument to see
 # all the flags that it understands.
@@ -87,7 +88,7 @@ def open_logfile():
 	LOG_FILE = open( FLAGS.logfile, 'a' )
 	
 def log(str):
-	LOG_FILE.write( (str + '\n').encode('utf8') )
+	LOG_FILE.write( (str + '\n') )
 
 def ensure_dir(directory):
 	if not os.path.exists(directory):
@@ -474,7 +475,7 @@ def main(argv):
 	try:
 		argv = FLAGS(argv)
 	except flags.FlagsError as e:
-		print( '%s\\nUsage: %s ARGS\\n%s' % (e, argv[0], FLAGS) )
+		print( f'{e}\\nUsage: {argv[0]} ARGS\\n{FLAGS}' )
 		sys.exit(1)
 
 	# Set the logging according to the command-line flag
@@ -488,10 +489,32 @@ def main(argv):
 
 	if credentials is None or credentials.invalid:
 		oflags = argparser.parse_args([])
+		oflags.noauth_local_webserver = FLAGS.noauth_local_webserver
 		credentials = run_flow(FLOW, storage, oflags)
 
 	# Create an httplib2.Http object to handle our HTTP requests and authorize it
 	# with our good Credentials.
+
+
+	if FLAGS.debug:
+	    print('_'*66)
+	    config.write(sys.stdout)
+	    print('_'*66)
+	if config['proxy']:
+	    proxy = config['proxy']
+	    pprint.pprint( proxy )
+	    http = httplib2.Http(
+		proxy_info = httplib2.ProxyInfo(
+		    socks.PROXY_TYPE_HTTP,
+		    proxy.get('host'), proxy.get('port'), 
+		    proxy_user = proxy.get('user'), proxy_pass = proxy.get('pass') ))
+	else:
+	    http = httplib2.Http()
+
+
+	resp, content = http.request("http://google.com", "GET")
+
+
 	http = httplib2.Http()
 	http = credentials.authorize(http)
 

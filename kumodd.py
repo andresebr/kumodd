@@ -19,6 +19,8 @@ flags.DEFINE_list('usecsv', None, 'Download files from the service using a previ
 flags.DEFINE_string('destination', 'downloaded/', 'Destination folder location', short_name='p')
 flags.DEFINE_string('metadata_destination', 'metadata/', 'Destination folder for metadata information', short_name='m')
 flags.DEFINE_boolean('debug', False, 'Log folder contents as being fetched' )
+flags.DEFINE_string('proxy', None, 'URL of web proxy', short_name='q')
+flags.DEFINE_boolean('noauth_local_webserver', False, 'disable launching a web browser to authorize access to a google drive account' )
 
 def main(argv):
 	try:

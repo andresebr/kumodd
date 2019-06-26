@@ -9,6 +9,7 @@ Google Drive is currently supported. Other services coming soon.
    `pip3 install --user --upgrade absl-py`
    `pip3 install --user --upgrade google-api-python-client`
    `pip3 install --user --upgrade oauth2client`
+   `pip3 install --user --upgrade socksipy-branch`
 
 2. Create a new project in the [Google API Console](https://console.cloud.google.com/projectcreate). Use localhost as the redirect URI in the project configuration step. Once the project is created, a Client ID and Client secret will be generated.
 
@@ -84,3 +85,22 @@ Download only PDF files and save the in the Desktop folder:
 Download files from Google Drive using files listed in a CSV file stored in /home/user/Desktop/
 
 `python3 kumodd.py -s gdrive -csv /home/user/Desktop/gdrive_list.csv`
+
+To relay HTTP though a proxy, specify the proxy in config/config.cfg:
+
+    ```[proxy]
+    host = proxy.host.com
+    port = 8888
+    user = username
+    pass = password
+    ```
+
+To use kumodd without local web browser, invoke it with the --noauth_local_webserver
+option:
+
+`python3 kumodd.py --noauth_local_webserver -s gdrive -l all`
+
+Kumod will print the URL.
+Paste the URL into a browser, and complete the web login to obtain a token.
+Paste the token into kumodd.
+Then, kumodd is configured to access the specified google drive account.
