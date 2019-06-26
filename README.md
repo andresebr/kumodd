@@ -1,6 +1,6 @@
 # kumodd
 
-Google Drive is currently supported. Other services coming soon.
+Google Drive is the only supported cloud service currently.
 
 ### Setup
 
