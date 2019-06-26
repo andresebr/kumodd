@@ -471,18 +471,18 @@ def main(argv):
     # If the Credentials don't exist or are invalid run through the native client
     # flow. The Storage object will ensure that if successful the good
     # Credentials will get written back to a file.
-    storage = Storage(TOKENS)
-    credentials = storage.get()
-
-    if credentials is None or credentials.invalid:
+    try:
+        storage = Storage(TOKENS)
+        credentials = storage.get()
+    except:
         oflags = argparser.parse_args([])
         oflags.noauth_local_webserver = FLAGS.noauth_local_webserver
         credentials = run_flow(FLOW, storage, oflags)
 
-        # Set up a Flow object to be used if we need to authenticate.
-        FLOW = flow_from_clientsecrets(CLIENT_SECRETS,
-                                       scope= 'https://www.googleapis.com/auth/drive',
-                                       message= f"""
+    # Set up a Flow object to be used if we need to authenticate.
+    FLOW = flow_from_clientsecrets(CLIENT_SECRETS,
+                                   scope= 'https://www.googleapis.com/auth/drive',
+                                   message= f"""
 WARNING: Please configure OAuth 2.0
 
 To make this sample run you will need to populate the config/gdrive_config.json file
