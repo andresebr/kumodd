@@ -468,22 +468,6 @@ def main(argv):
     #CLIENT_SECRETS = 'config/client_secrets.json'
     CLIENT_SECRETS = config.get('gdrive', 'configurationfile')
 
-    # If the Credentials don't exist or are invalid run through the native client
-    # flow. The Storage object will ensure that if successful the good
-    # Credentials will get written back to a file.
-    try:
-        storage = Storage(TOKENS)
-        credentials = storage.get()
-    except:
-        storage = None
-        credentials = None
-
-    if credentials is None or credentials.invalid:
-        oflags = argparser.parse_args([])
-        oflags.noauth_local_webserver = FLAGS.noauth_local_webserver
-        credentials = run_flow(FLOW, storage, oflags)
-
-
     # Set up a Flow object to be used if we need to authenticate.
     FLOW = flow_from_clientsecrets(CLIENT_SECRETS,
                                    scope= 'https://www.googleapis.com/auth/drive',
@@ -500,6 +484,22 @@ with information from the APIs Console <https://code.google.com/apis/console>.
 """)
     # Create an httplib2.Http object to handle our HTTP requests and authorize it
     # with our good Credentials.
+
+    # If the Credentials don't exist or are invalid run through the native client
+    # flow. The Storage object will ensure that if successful the good
+    # Credentials will get written back to a file.
+    try:
+        storage = Storage(TOKENS)
+        credentials = storage.get()
+    except:
+        storage = None
+        credentials = None
+
+    if credentials is None or credentials.invalid:
+        oflags = argparser.parse_args([])
+        oflags.noauth_local_webserver = FLAGS.noauth_local_webserver
+        credentials = run_flow(FLOW, storage, oflags)
+
 
     if config.get('proxy', 'host', fallback=False):
         proxy = config['proxy']
