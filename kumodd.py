@@ -19,40 +19,38 @@ flags.DEFINE_list('usecsv', None, 'Download files from the service using a previ
 flags.DEFINE_string('destination', 'downloaded/', 'Destination folder location', short_name='p')
 flags.DEFINE_string('metadata_destination', 'metadata/', 'Destination folder for metadata information', short_name='m')
 flags.DEFINE_boolean('debug', False, 'Log folder contents as being fetched' )
-flags.DEFINE_string('proxy', None, 'URL of web proxy', short_name='q')
-flags.DEFINE_boolean('noauth_local_webserver', False, 'disable launching a web browser to authorize access to a google drive account' )
 
 def main(argv):
-	try:
-		argv = FLAGS(argv)
-	except flags.FlagsError as e:
-		print( f'{e}\\nUsage: {argv[0]} ARGS\\n{FLAGS}' )
-		sys.exit(1)
-		
-	if FLAGS.destination == 'downloaded/': 
-		if not os.path.exists(FLAGS.destination):
-			directory = FLAGS.destination
-			logging.info( "Creating directory: %s" % directory )
-			os.makedirs(FLAGS.destination)
-			
-	if FLAGS.list_items != None: 
-		if not os.path.exists('localdata/'):
-			directory = 'localdata/'
-			logging.info( "Creating directory: %s" % directory )
-			os.makedirs('localdata/')
-	
-	if FLAGS.service == 'gdrive':
-		flags.DEFINE_string('logfile', 'gdrive.log', 'Location of file to write the log' )
-		flags.DEFINE_string('drive_id', 'root', 'ID of the folder whose contents are to be fetched' )
-		gdrive.main(argv)
-	elif FLAGS.service == 'dropbox':
-		print( 'Coming soon...' )
-	elif FLAGS.service == 'box':
-		print( 'Coming soon...' )
-	elif FLAGS.service == 'onedrive':
-		print( 'Coming soon...' )
-	else:
-		print( 'No service selected' )
-	
+    try:
+        argv = FLAGS(argv)
+    except flags.FlagsError as e:
+        print( f'{e}\\nUsage: {argv[0]} ARGS\\n{FLAGS}' )
+        sys.exit(1)
+        
+    if FLAGS.destination == 'downloaded/': 
+        if not os.path.exists(FLAGS.destination):
+            directory = FLAGS.destination
+            logging.info( "Creating directory: %s" % directory )
+            os.makedirs(FLAGS.destination)
+            
+    if FLAGS.list_items != None: 
+        if not os.path.exists('localdata/'):
+            directory = 'localdata/'
+            logging.info( "Creating directory: %s" % directory )
+            os.makedirs('localdata/')
+    
+    if FLAGS.service == 'gdrive':
+        flags.DEFINE_string('logfile', 'gdrive.log', 'Location of file to write the log' )
+        flags.DEFINE_string('drive_id', 'root', 'ID of the folder whose contents are to be fetched' )
+        gdrive.main(argv)
+    elif FLAGS.service == 'dropbox':
+        print( 'Coming soon...' )
+    elif FLAGS.service == 'box':
+        print( 'Coming soon...' )
+    elif FLAGS.service == 'onedrive':
+        print( 'Coming soon...' )
+    else:
+        print( 'No service selected' )
+    
 if __name__ == '__main__':
-	main(sys.argv)
+    main(sys.argv)
