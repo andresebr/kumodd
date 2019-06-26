@@ -1,4 +1,4 @@
-# -*- compile-command: "cd .. ;./kumodd.py -s gdrive --list_items doc"; -*-
+# -*- compile-command: "cd .. ;./kumodd.py -c config/test.cfg -s gdrive -l doc"; -*-
 """Simple command-line sample for the Google Drive API.
 
 Command-line application that retrieves the list of files in google drive.
@@ -496,8 +496,8 @@ with information from the APIs Console <https://code.google.com/apis/console>.
     # Create an httplib2.Http object to handle our HTTP requests and authorize it
     # with our good Credentials.
 
-    proxy = config['proxy']
-    if proxy:
+    if config.get('proxy', 'host', fallback=False):
+        proxy = config['proxy']
         http = httplib2.Http(
             proxy_info = httplib2.ProxyInfo(
                 socks.PROXY_TYPE_HTTP,

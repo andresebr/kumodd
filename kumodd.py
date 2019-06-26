@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# -*- compile-command: "./kumodd.py -s gdrive --list_items doc"; -*-
+# -*- compile-command: "./kumodd.py -c config/test.cfg -s gdrive -l doc"; -*-
 __author__ = 'andrsebr@gmail.com (Andres Barreto), rich.murphey@gmail.com'
 
 import sys 
