@@ -91,8 +91,8 @@ To relay HTTP though a proxy, specify the proxy in config/config.cfg:
     [proxy]
     host = proxy.host.com
     port = 8888
-    user = username
-    pass = password
+    user = username (optional)
+    pass = password (optional)
 
 To use kumodd without local web browser, invoke it with the --noauth_local_webserver
 option:
