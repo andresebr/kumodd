@@ -8,7 +8,8 @@ Google Drive is the only supported cloud service currently.
 
     git clone https://github.com/rich-murphey/kumodd.git
     cd kumodd
-    pip3 install -r requirements.txt
+    python3 -m pip install -r requirements.txt
+
 
 2. Create a new project in the [Google API Console](https://console.cloud.google.com/projectcreate). Use localhost as the redirect URI in the project configuration step. Once the project is created, a Client ID and Client secret will be generated.
 
