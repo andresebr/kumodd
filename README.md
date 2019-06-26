@@ -88,19 +88,18 @@ Download files from Google Drive using files listed in a CSV file stored in /hom
 
 To relay HTTP though a proxy, specify the proxy in config/config.cfg:
 
-    ```[proxy]
+    [proxy]
     host = proxy.host.com
     port = 8888
     user = username
     pass = password
-    ```
 
 To use kumodd without local web browser, invoke it with the --noauth_local_webserver
 option:
 
 `python3 kumodd.py --noauth_local_webserver -s gdrive -l all`
 
-Kumod will print the URL.
-Paste the URL into a browser, and complete the web login to obtain a token.
-Paste the token into kumodd.
-Then, kumodd is configured to access the specified google drive account.
+- Kumod will print the URL.
+- Paste the URL into a browser, and complete the web login to obtain a token.
+- Paste the token into kumodd.
+- Then, kumodd is configured to access the specified google drive account.
