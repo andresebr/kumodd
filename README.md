@@ -4,12 +4,11 @@ Google Drive is currently supported. Other services coming soon.
 
 ### Setup
 
-1. Install required packages for Python 3
+1. Download kumodd and install the required packages.
 
-   `pip3 install --user --upgrade absl-py`
-   `pip3 install --user --upgrade google-api-python-client`
-   `pip3 install --user --upgrade oauth2client`
-   `pip3 install --user --upgrade socksipy-branch`
+    git clone https://github.com/rich-murphey/kumodd.git
+    cd kumodd
+    pip3 install -r requirements.txt
 
 2. Create a new project in the [Google API Console](https://console.cloud.google.com/projectcreate). Use localhost as the redirect URI in the project configuration step. Once the project is created, a Client ID and Client secret will be generated.
 
