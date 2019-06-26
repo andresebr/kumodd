@@ -22,11 +22,16 @@ https://cloud.google.com/billing/docs/how-to/manage-billing-account#create_a_new
     1. In "Authorized redirect URIs", enter: `http://localhost:8080`
     1. Click "create".  A dialog "OAuth client will pop up.  Click OK.
     1.  Under "Oauth 2.0 client IDs", to the far right of the new ID, is a down arrow icon. Click the down arrow icon to download it.
-    1. rename it to gdrive.json, and move it to the config directory inside the kumodd directory created in step 1.
+    1. Rename it to gdrive.json, and move it to the config directory inside the kumodd directory created in step 1.
 
-### Account authentication
+1. Authorize kumodd to access the cloud account:
 
-When kumodd is used for the first time to connect to a cloud service, it will open a browser web page to the login page of the cloud account (e.g. google drive).  After the user logs into the cloud account, the page will request approval for the web service to access the cloud account.  When that access is approvied, kumodd stores the credentials in the config directory.  Later use of kumodd will not prompt for login details.
+When kumodd is used for the first time to connect to a cloud service:
+    ```
+    python3 kumod.py -s gdrive -l all
+    ```
+
+It will open a browser web page to the login page of the cloud account (e.g. google drive).  After the user logs into the cloud account, the page will request approval for the web service to access the cloud account.  When that access is approvied, kumodd stores the credentials in the config directory.  Later use of kumodd will not prompt for login details.
 
 If there is no local browser, kumod prints the URL which the user must open in a web browser to obtain approval. Paste the URL into a browser, and perform the approval.  After the user approves, the web page will show an access token.    Kumodd will  be waiting for input. Copy and paste that token into kumodd and press enter. Kumod then saves the token in config/gdrive.dat, for later  use. Future requests will use the generated token and will not prompt the user for credentials again until the token expires or the generated file is deleted.
 
