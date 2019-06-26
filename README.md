@@ -6,9 +6,9 @@ Google Drive is the only supported cloud service currently.
 
 1. Download kumodd and install the required packages.
 
-	git clone https://github.com/rich-murphey/kumodd.git
-	cd kumodd
-	python3 -m pip install --user -r requirements.txt 
+'''git clone https://github.com/rich-murphey/kumodd.git
+cd kumodd
+python3 -m pip install --user -r requirements.txt'''
 
 2. Obtain a Google Oauth client ID:
 	a. If you do not have a free google cloud account, create one as described in [Create a new billing account](
