@@ -5,26 +5,25 @@ Google Drive is the only supported cloud service currently.
 ### Setup
 
 1. Download kumodd and install the required packages.
-
 ```
 git clone https://github.com/rich-murphey/kumodd.git
 cd kumodd
 python3 -m pip install --user -r requirements.txt'''
 ```
 
-2. Obtain a Google Oauth client ID:
-	a. If you do not have a free google cloud account, create one as described in [Create a new billing account](
+1. Obtain a Google Oauth client ID:
+    1. If you do not have a free google cloud account, create one as described in [Create a new billing account](
 https://cloud.google.com/billing/docs/how-to/manage-billing-account#create_a_new_billing_account).  
-	b. Login to your [Google cloud account](https://console.cloud.google.com)
-	c. Create a project: [Google API Console](https://console.cloud.google.com/projectcreate).
-	c. Then create API credentials. Select APIs & Services, then Credentials, or go here: [Credentials](https://console.cloud.google.com/apis/credentials).
-	d. Click "Create Credentials" and select "Oauth client ID".
-	e. Select the radio button "Web Application".
-	f. In :Authorized redirect URIs", enter the text:
-	g. http://localhost:8080
-	h. Then click "create".  A dialog "OAuth client will pop up.  Click OK.
-	i.  Under "Oauth 2.0 client IDs", to the far right of the new ID, is a down arrow icon. Click the down arrow icon to download it.
-	j, rename it to gdrive.json, and move it to the config directory inside the kumodd directory created in step 1.
+    1. Login to your [Google cloud account](https://console.cloud.google.com)
+    1. Create a project: [Google API Console](https://console.cloud.google.com/projectcreate).
+    1. Then create API credentials. Select APIs & Services, then Credentials, or go here: [Credentials](https://console.cloud.google.com/apis/credentials).
+    1. Click "Create Credentials" and select "Oauth client ID".
+    1. Select the radio button "Web Application".
+    1. In :Authorized redirect URIs", enter the text:
+    1. http://localhost:8080
+    1. Then click "create".  A dialog "OAuth client will pop up.  Click OK.
+    1.  Under "Oauth 2.0 client IDs", to the far right of the new ID, is a down arrow icon. Click the down arrow icon to download it.
+    1. rename it to gdrive.json, and move it to the config directory inside the kumodd directory created in step 1.
 
 ### Account authentication
 
