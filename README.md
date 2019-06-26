@@ -15,12 +15,12 @@ python3 -m pip install --user -r requirements.txt'''
     1. If you do not have a free google cloud account, create one as described in [Create a new billing account](
 https://cloud.google.com/billing/docs/how-to/manage-billing-account#create_a_new_billing_account).  
     1. Login to your [Google cloud account](https://console.cloud.google.com)
-    1. Create a project: [Google API Console](https://console.cloud.google.com/projectcreate).
-    1. Then create API credentials. Select APIs & Services, then Credentials, or go here: [Credentials](https://console.cloud.google.com/apis/credentials).
+    1. Create a project: [Create Project](https://console.cloud.google.com/projectcreate).
+    1. Then create API credentials. Select APIs & Services, then Credentials, or go to: [Credentials](https://console.cloud.google.com/apis/credentials).
     1. Click "Create Credentials" and select "Oauth client ID".
     1. Select the radio button "Web Application".
-    1. In :Authorized redirect URIs", enter the text:
-    1. http://localhost:8080
+    1. In "Authorized redirect URIs", enter the text:
+    1. `http://localhost:8080`
     1. Then click "create".  A dialog "OAuth client will pop up.  Click OK.
     1.  Under "Oauth 2.0 client IDs", to the far right of the new ID, is a down arrow icon. Click the down arrow icon to download it.
     1. rename it to gdrive.json, and move it to the config directory inside the kumodd directory created in step 1.
