@@ -103,3 +103,10 @@ option:
 - Paste the URL into a browser, and complete the web login to obtain a token.
 - Paste the token into kumodd.
 - Then, kumodd is configured to access the specified google drive account.
+
+At the time of writing (June 2019), the following default API limits are show in the
+[Google Cloud Platform Quotas page](https://console.cloud.google.com/apis/api/drive.googleapis.com/quotas).
+
+- 1,000,000,000 queries per day
+- 1,000 queries per 100 seconds per user
+- 10,000 queries per 100 seconds
