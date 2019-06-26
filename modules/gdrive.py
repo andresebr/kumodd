@@ -459,27 +459,28 @@ def main(argv):
     logging.getLogger().setLevel(getattr(logging, FLAGS.logging_level))
 
     config.read(FLAGS.config)
-    TOKENS = config.get('gdrive', 'tokenfile')
+    tokenfile = config.get('gdrive', 'tokenfile')
+    open(tokenfile, 'a').close() # create token file if it does not exist
     csv_file = config.get('gdrive', 'csvfile')
-    # CLIENT_SECRETS, name of a file containing the OAuth 2.0 information for this
+    # api_credentials_file, name of a file containing the OAuth 2.0 information for this
     # application, including client_id and client_secret, which are found
     # on the API Access tab on the Google APIs
     # Console <http://code.google.com/apis/console>
-    #CLIENT_SECRETS = 'config/client_secrets.json'
-    CLIENT_SECRETS = config.get('gdrive', 'configurationfile')
+    #api_credentials_file = 'config/client_secrets.json'
+    api_credentials_file = config.get('gdrive', 'configurationfile')
 
     # Set up a Flow object to be used if we need to authenticate.
-    FLOW = flow_from_clientsecrets(CLIENT_SECRETS,
+    FLOW = flow_from_clientsecrets(api_credentials_file,
                                    scope= 'https://www.googleapis.com/auth/drive',
                                    message= f"""
-WARNING: Please configure OAuth 2.0
+ERROR: missing OAuth 2.0 credentials.
 
-To make this sample run you will need to populate the config/gdrive_config.json file
-found at:
+To use kumodd, you must download a Google a API credentials file and store it as:
 
-   {os.path.join(os.path.dirname(__file__), CLIENT_SECRETS)}
+{os.path.join(os.path.dirname(__file__), api_credentials_file)}
 
-with information from the APIs Console <https://code.google.com/apis/console>.
+To obtain a credentials file, refer to the kumodd README, and visit the Google APIs Console at:
+https://code.google.com/apis/console
 
 """)
     # Create an httplib2.Http object to handle our HTTP requests and authorize it
@@ -489,7 +490,7 @@ with information from the APIs Console <https://code.google.com/apis/console>.
     # flow. The Storage object will ensure that if successful the good
     # Credentials will get written back to a file.
     try:
-        storage = Storage(TOKENS)
+        storage = Storage(tokenfile)
         credentials = storage.get()
     except:
         storage = None
