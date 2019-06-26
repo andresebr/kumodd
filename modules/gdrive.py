@@ -475,9 +475,14 @@ def main(argv):
         storage = Storage(TOKENS)
         credentials = storage.get()
     except:
+        storage = None
+        credentials = None
+
+    if credentials is None or credentials.invalid:
         oflags = argparser.parse_args([])
         oflags.noauth_local_webserver = FLAGS.noauth_local_webserver
         credentials = run_flow(FLOW, storage, oflags)
+
 
     # Set up a Flow object to be used if we need to authenticate.
     FLOW = flow_from_clientsecrets(CLIENT_SECRETS,
