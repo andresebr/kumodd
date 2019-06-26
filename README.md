@@ -6,9 +6,9 @@ Google Drive is currently supported. Other services coming soon.
 
 1. Download kumodd and install the required packages.
 
-    ```git clone https://github.com/rich-murphey/kumodd.git
+    git clone https://github.com/rich-murphey/kumodd.git
     cd kumodd
-    pip3 install -r requirements.txt```
+    pip3 install -r requirements.txt
 
 2. Create a new project in the [Google API Console](https://console.cloud.google.com/projectcreate). Use localhost as the redirect URI in the project configuration step. Once the project is created, a Client ID and Client secret will be generated.
 
