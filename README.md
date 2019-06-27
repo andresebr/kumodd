@@ -126,6 +126,7 @@ To relay HTTP though a proxy, specify the proxy in config/config.cfg:
     user = username (optional)
     pass = password (optional)
     ```
+
 The default config file is config/config.dat.  To select an alternate config file, use the `-c` option:
 
 `./kumodd.py -c config/alternate.dat`
