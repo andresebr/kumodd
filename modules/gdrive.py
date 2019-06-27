@@ -488,10 +488,12 @@ https://code.google.com/apis/console
 
     if config.get('proxy', 'host', fallback=False):
         proxy = config['proxy']
+        pprint.pprint(['proxy:', socks.PROXY_TYPE_HTTP,
+            proxy.get('host'), int(proxy.get('port')) ])
         http = httplib2.Http(
             proxy_info = httplib2.ProxyInfo(
                 socks.PROXY_TYPE_HTTP,
-		proxy.get('host'), proxy.get('port') ))
+		proxy.get('host'), int(proxy.get('port')) ))
     else:
         http = httplib2.Http()
 
