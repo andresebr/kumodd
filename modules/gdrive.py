@@ -489,19 +489,14 @@ https://code.google.com/apis/console
     # with our good Credentials.
 
     if config.get('proxy', 'host', fallback=False):
-        proxy = config['proxy']
-        if platform.system() == 'Windows':
-            http = httplib2.Http(
-                disable_ssl_certificate_validation=True,
-                proxy_info = httplib2.ProxyInfo(
-                    httplib2.socks.PROXY_TYPE_HTTP,
-                    proxy_host = proxy.get('host'),
-                    proxy_port = int(proxy.get('port')),
-                    proxy_user = proxy.get('user'),
-                    proxy_pass = proxy.get('pass') ))
-        else:
-            os.environ["https_proxy"] = "http://" + proxy.get('host') + ':' + proxy.get('port')
-            http = httplib2.Http(disable_ssl_certificate_validation=True)
+        http = httplib2.Http(
+            disable_ssl_certificate_validation=True,
+            proxy_info = httplib2.ProxyInfo(
+                httplib2.socks.PROXY_TYPE_HTTP,
+                proxy_host = proxy.get('host'),
+                proxy_port = int(proxy.get('port')),
+                proxy_user = proxy.get('user'),
+                proxy_pass = proxy.get('pass') ))
     else:
         http = httplib2.Http()
 

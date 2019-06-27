@@ -147,3 +147,5 @@ cd kumodd
 python -m pip install --user -r requirements.txt
 .\kumod.py -l doc
 ```
+
+HTTP proxying does not work on Windows due to unresolved issues in httplib2.
