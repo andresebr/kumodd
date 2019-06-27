@@ -2,10 +2,10 @@
 
 Google Drive is the only supported cloud service currently.
 
-### Setup
+## Setup
 
 To setup kumodd, 1) install kumodd and requirements, 2) obtain a Google Oauth
-client ID, and 3) authorize access to the specific cloud account.
+client ID, and 3) authorize access to a specified cloud account.
 
 1. Download kumodd and install the required packages.
     ```
@@ -56,7 +56,7 @@ https://cloud.google.com/billing/docs/how-to/manage-billing-account#create_a_new
     python3 kumodd.py --noauth_local_webserver -l all
     ```
 
-### Usage
+## Usage
 
 `python3 kumodd.py [-s service] [action] [filter]`
 
@@ -96,7 +96,7 @@ audio	| Audio files
 video	| Video files
 
 
-### Usage examples
+## Usage examples
 
 List all files stored in a Google Drive account:
 
@@ -127,7 +127,7 @@ The default config file is config/config.dat.  To select an alternate config fil
 
 `python3 kumodd.py -c config/alternate.dat`
 
-### Notes
+## Notes
 
 At the time of writing (June 2019), the following default API limits are imposed by [Google Cloud Platform Quotas](https://console.cloud.google.com/apis/api/drive.googleapis.com/quotas).
 
