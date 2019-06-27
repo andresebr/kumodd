@@ -498,6 +498,7 @@ https://code.google.com/apis/console
         http = httplib2.Http()
 
     resp, content = http.request("http://google.com", "GET")
+    print('got: http://google.com;)
 
     # If the Credentials don't exist or are invalid run through the native client
     # flow. The Storage object will ensure that if successful the good
