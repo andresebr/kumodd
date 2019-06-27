@@ -491,9 +491,9 @@ https://code.google.com/apis/console
         proxy = config['proxy']
         http = httplib2.Http(
             proxy_info = httplib2.ProxyInfo(
-                socks.PROXY_TYPE_HTTP,
-		proxy.get('host'), int(proxy.get('port')) ))
-        httplib2.socket.socket = socket.socket
+                httplib2.socks.PROXY_TYPE_HTTP,
+                proxy_host = proxy.get('host'),
+                proxy_port = int(proxy.get('port')) ))
     else:
         http = httplib2.Http()
     try:
