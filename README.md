@@ -48,7 +48,7 @@ https://cloud.google.com/billing/docs/how-to/manage-billing-account#create_a_new
     Later use of kumodd will not prompt for login details again until the token expires
     or the generated file is deleted.
 
-    To force kumodd to not use a local web browser, invoke it with the `--noauth_local_webserver` option:
+    To force kumodd to ignore a local web browser, and instead print the URL, invoke it with the `--noauth_local_webserver` option:
     ```
     python3 kumodd.py --noauth_local_webserver -l all
     ```
