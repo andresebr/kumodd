@@ -38,11 +38,12 @@ https://cloud.google.com/billing/docs/how-to/manage-billing-account#create_a_new
     will not prompt for login details again until the token expires or the generated
     file is deleted.
 
-    If there is no local browser, kumod prints the URL. Copy the URL and paste it into a
-    browser.  Login to the cloud account.  It will ask for approval of the web
-    app. Click "Approve". After clicking approve, the web page will show an access
-    token.  Kumodd will be waiting for input. Copy and paste that token into kumodd and
-    press enter. Kumod then saves the token in config/gdrive.dat, for later use.
+    If there is no local browser, kumod prints a URL for the login page of the cloud
+    service. Copy the URL and paste it into a browser.  Login to the cloud account.  It
+    will ask for approval of the web app. Click "Approve". After clicking approve, the
+    web page will show an access token.  Kumodd will be waiting for input. Copy and
+    paste that token into kumodd and press enter. Kumod then saves the token in
+    config/gdrive.dat, for later use.
 
 ### Usage
 
