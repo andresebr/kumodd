@@ -58,9 +58,9 @@ https://cloud.google.com/billing/docs/how-to/manage-billing-account#create_a_new
 
 **[service]**
 
-    Specify the cloud service.
+    Select the cloud service.
 
-    `-s gdrive` access a Google Drive account. (This is the default action.)
+    `-s gdrive` access a Google Drive account. This is the default service.
 
 **[action]**
 
@@ -109,13 +109,13 @@ Download files from Google Drive using files listed in a CSV file stored in /hom
 
 To relay HTTP though a proxy, specify the proxy in config/config.cfg.
 
-    ```
-    [proxy]
-    host = proxy.host.com
-    port = 8888
-    user = username (optional)
-    pass = password (optional)
-    ```
+```
+[proxy]
+host = proxy.host.com
+port = 8888
+user = username (optional)
+pass = password (optional)
+```
 
 The default config file is config/config.dat.  To select an alternate config file, use the `-c` option:
 
