@@ -54,7 +54,7 @@ https://cloud.google.com/billing/docs/how-to/manage-billing-account#create_a_new
 
 ### Usage
 
-`./kumodd.py -s [service] [action] [filter]`
+`python3 kumodd.py -s [service] [action] [filter]`
 
 **[service]**
 
@@ -104,21 +104,21 @@ The filter parameter specifies the subset of files to be listed/downloaded based
 
 List all files stored in a Google Drive account:
 
-`./kumodd.py -l all`
+`python3 kumodd.py -l all`
 
 List only images stored in the service: 
 
-`./kumodd.py -l image`
+`python3 kumodd.py -l image`
 
 Download only PDF files and save the in the Desktop folder:
 
-`./kumodd.py -d all -l /home/user/Desktop/`
+`python3 kumodd.py -d all -l /home/user/Desktop/`
 
 Download files from Google Drive using files listed in a CSV file stored in /home/user/Desktop/
 
-`./kumodd.py -csv /home/user/Desktop/gdrive_list.csv`
+`python3 kumodd.py -csv /home/user/Desktop/gdrive_list.csv`
 
-To relay HTTP though a proxy, specify the proxy in config/config.cfg:
+To relay HTTP though a proxy, specify the proxy in config/config.cfg.
 
     ```
     [proxy]
@@ -130,7 +130,7 @@ To relay HTTP though a proxy, specify the proxy in config/config.cfg:
 
 The default config file is config/config.dat.  To select an alternate config file, use the `-c` option:
 
-`./kumodd.py -c config/alternate.dat`
+`python3 kumodd.py -c config/alternate.dat`
 
 At the time of writing (June 2019), the following default API limits are imposed by [Google Cloud Platform Quotas](https://console.cloud.google.com/apis/api/drive.googleapis.com/quotas).
 
