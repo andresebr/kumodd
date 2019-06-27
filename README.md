@@ -77,7 +77,7 @@ https://cloud.google.com/billing/docs/how-to/manage-billing-account#create_a_new
 
 **[filter]**
 
-    The filter parameter limits access to a selected category of files:
+    The filter parameter limits access to a selected category of files: >
 
 | Filter	| Description  |
 | :------	| :----------- |
