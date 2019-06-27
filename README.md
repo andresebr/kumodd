@@ -58,9 +58,9 @@ https://cloud.google.com/billing/docs/how-to/manage-billing-account#create_a_new
 
 **[service]**
 
-The type of cloud service being accessed.  The default service is Google Drive, which is the only service supported currently.
+    The type of cloud service being accessed.  The default service is Google Drive, which is the only service supported currently.
 
-`-s gdrive` access a Google Drive account. (This is the default action). 
+    `-s gdrive` access a Google Drive account. (This is the default action). 
 
 **[action]**
 
@@ -76,7 +76,7 @@ The type of cloud service being accessed.  The default service is Google Drive, 
 
 **[filter]**
 
-The filter parameter specifies the subset of files to be listed/downloaded based on file type: 
+    The filter parameter specifies the subset of files to be listed/downloaded based on file type: 
 
   - `all` all files stored in the account
   - `doc` .doc, .docx, and .odf files
