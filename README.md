@@ -76,16 +76,16 @@ The action to be performed using the selected service:
 
 The filter parameter specifies the subset of files to be listed/downloaded based on file type: 
 
-`all` All files stored in the account
-`doc` .doc, .docx, .odf files
-`xls` spreadsheets
-`ppt` presentation files
-`text` text/source code files
-`pdf` PDF files
-`officedocs` All document, spreadsheet and presentation files
-`image` images files
-`audio` audio files
-`video` video files
+  - `all` All files stored in the account
+  - `doc` .doc, .docx, .odf files
+  - `xls` spreadsheets
+  - `ppt` presentation files
+  - `text` text/source code files
+  - `pdf` PDF files
+  - `officedocs` All document, spreadsheet and presentation files
+  - `image` images files
+  - `audio` audio files
+  - `video` video files
 
 `-csv <file>` specifies a CSV file containing the list of files to be downloaded.
 
