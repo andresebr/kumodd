@@ -58,10 +58,9 @@ https://cloud.google.com/billing/docs/how-to/manage-billing-account#create_a_new
 
 **[service]**
 
-    The type of cloud service being accessed.  The default service is Google
-    Drive, which is the only service supported currently.
+    Specify the cloud service.
 
-    `-s gdrive` access a Google Drive account. (This is the default action).
+    `-s gdrive` access a Google Drive account. (This is the default action.)
 
 **[action]**
 
