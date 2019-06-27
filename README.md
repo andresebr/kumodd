@@ -81,16 +81,16 @@ https://cloud.google.com/billing/docs/how-to/manage-billing-account#create_a_new
 
 filter	| Description
 :------	| :-----------
-all	| all files stored in the account
+all	| All files stored in the account
 doc	| .doc, .docx, and .odf files
-xls	| spreadsheets
-ppt	| presentation files
-text	| text/source code files
+xls	| Spreadsheets
+ppt	| Presentation files
+text	| Text/source code files
 pdf	| PDF files
 officedocs	| All document, spreadsheet and presentation files
-image	| image files
-audio	| audio files
-video	| video files
+image	| Image files
+audio	| Audio files
+video	| Video files
 
 ### Usage examples
 
