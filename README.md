@@ -68,28 +68,26 @@ The action to be performed using the selected service:
 
 `-l` List files stored in an account drive as a plain text table.
 
-`-d` Download files stored in an account drive in an specified location. 
+`-d` download files stored in an account.
 
-`-csv` Use a CSV file to specify which files to download.
+`-csv <file>` specifies a CSV file containing the list of selected files.
+
+`-p <path>` specifies a path where the files will be downloaded.
 
 **[filter]**
 
 The filter parameter specifies the subset of files to be listed/downloaded based on file type: 
 
-  - `all` All files stored in the account
-  - `doc` .doc, .docx, .odf files
+  - `all` all files stored in the account
+  - `doc` .doc, .docx, and .odf files
   - `xls` spreadsheets
   - `ppt` presentation files
   - `text` text/source code files
   - `pdf` PDF files
   - `officedocs` All document, spreadsheet and presentation files
-  - `image` images files
+  - `image` image files
   - `audio` audio files
   - `video` video files
-
-`-csv <file>` specifies a CSV file containing the list of files to be downloaded.
-
-`-p <path>` specifies a path where the files will be downloaded.
 
 ### Usage examples
 
