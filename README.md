@@ -31,12 +31,12 @@ https://cloud.google.com/billing/docs/how-to/manage-billing-account#create_a_new
     python3 kumod.py -s gdrive -l all
     ```
 
-    It will open a browser web page to the login page of the cloud account (e.g. google
-    drive).  After the user logs into the cloud account, the page will request approval
-    for the web service to access the cloud account.  When that access is approvied,
-    kumodd stores the credentials in the config directory.  Later use of kumodd will not
-    prompt for login details again until the token expires or the generated file is
-    deleted.
+    It will open a web browser to the login page of the cloud service (e.g. google
+    drive).  Login to the cloud account. After logging in, the page will request
+    approval for the web service to access the cloud account.  Approve the access. Then,
+    kumodd stores the access credentials in the config directory.  Later use of kumodd
+    will not prompt for login details again until the token expires or the generated
+    file is deleted.
 
     If there is no local browser, kumod prints the URL. Copy the URL and paste it into a
     browser to perform the approval.  After you approve, the web page will show an
