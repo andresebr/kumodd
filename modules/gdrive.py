@@ -493,14 +493,13 @@ https://code.google.com/apis/console
             proxy_info = httplib2.ProxyInfo(
                 httplib2.socks.PROXY_TYPE_HTTP,
                 proxy_host = proxy.get('host'),
-                proxy_port = int(proxy.get('port')) ))
-        httplib2.socket.socket = socket.socket
+                proxy_port = int(proxy.get('port')),
+                proxy_user = proxy.get('user'),
+                proxy_pass = proxy.get('pass') ))
     else:
         http = httplib2.Http()
-    try:
-        resp, content = http.request("http://google.com", "GET")
-    except:
-        print('ERRROR: cannot connect to google.')
+
+    resp, content = http.request("http://google.com", "GET")
 
     # If the Credentials don't exist or are invalid run through the native client
     # flow. The Storage object will ensure that if successful the good
