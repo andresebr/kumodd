@@ -20,9 +20,10 @@ https://cloud.google.com/billing/docs/how-to/manage-billing-account#create_a_new
     1. Click "Create Credentials" and select "Oauth client ID".
     1. Select the radio button "Web Application".
     1. In "Authorized redirect URIs", enter: `http://localhost:8080`
-    1. Click "create".  A dialog "OAuth client will pop up.  Click OK.
+    1. Click "create".  A dialog "OAuth client" will pop up.  Click OK.
     1.  Under "Oauth 2.0 client IDs", to the far right of the new ID, is a down arrow icon. Click the down arrow icon to download it.
-    1. Rename it to gdrive.json, and move it to the config directory inside the kumodd directory created in step 1.
+    1. Rename it to gdrive.json, and move it to the config directory inside
+       the kumodd directory created in step 1: kumodd/config/gdrive.json.
 
 1. Authorize kumodd to access the cloud account:
 
