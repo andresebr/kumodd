@@ -513,8 +513,6 @@ https://code.google.com/apis/console
 
     resp, content = http.request("http://google.com", "GET")
 
-
-    http = httplib2.Http()
     http = credentials.authorize(http)
 
     service = build("drive", "v2", http=http)
