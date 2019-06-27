@@ -77,7 +77,7 @@ https://cloud.google.com/billing/docs/how-to/manage-billing-account#create_a_new
 
 **[filter]**
 
-    The filter parameter specifies the subset of files to be listed/downloaded based on file type: 
+    The filter parameter limits access to a selected category of files:
 
   - `all` all files stored in the account
   - `doc` .doc, .docx, and .odf files
