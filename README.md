@@ -108,7 +108,7 @@ Download selected files listed in the file, gdrive_list.csv.
 
 `python3 kumodd.py -csv /home/user/Desktop/gdrive_list.csv`
 
-Relay kumodd HTTP requests though a proxy.  Specify the proxy in config/config.cfg:
+To relay kumodd access though an HTTP proxy, specify the proxy in config/config.cfg:
 ```
 [proxy]
 host = proxy.host.com
@@ -120,6 +120,8 @@ pass = password (optional)
 The default config file is config/config.dat.  To select an alternate config file, use the `-c` option:
 
 `python3 kumodd.py -c config/alternate.dat`
+
+### Notes
 
 At the time of writing (June 2019), the following default API limits are imposed by [Google Cloud Platform Quotas](https://console.cloud.google.com/apis/api/drive.googleapis.com/quotas).
 
