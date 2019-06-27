@@ -496,6 +496,8 @@ https://code.google.com/apis/console
     else:
         http = httplib2.Http()
 
+    resp, content = http.request("http://google.com", "GET")
+
     # If the Credentials don't exist or are invalid run through the native client
     # flow. The Storage object will ensure that if successful the good
     # Credentials will get written back to a file.
@@ -511,8 +513,6 @@ https://code.google.com/apis/console
         oflags = argparser.parse_args([])
         oflags.noauth_local_webserver = FLAGS.noauth_local_webserver
         credentials = run_flow(FLOW, storage, oflags, http)
-
-    resp, content = http.request("http://google.com", "GET")
 
     http = credentials.authorize(http)
 
