@@ -486,6 +486,16 @@ https://code.google.com/apis/console
     # Create an httplib2.Http object to handle our HTTP requests and authorize it
     # with our good Credentials.
 
+    if config.get('proxy', 'host', fallback=False):
+        proxy = config['proxy']
+        http = httplib2.Http(
+            proxy_info = httplib2.ProxyInfo(
+                socks.PROXY_TYPE_HTTP,
+		proxy.get('host'), proxy.get('port'), 
+                proxy_user = proxy.get('user'), proxy_pass = proxy.get('pass') ))
+    else:
+        http = httplib2.Http()
+
     # If the Credentials don't exist or are invalid run through the native client
     # flow. The Storage object will ensure that if successful the good
     # Credentials will get written back to a file.
@@ -499,19 +509,7 @@ https://code.google.com/apis/console
     if credentials is None or credentials.invalid:
         oflags = argparser.parse_args([])
         oflags.noauth_local_webserver = FLAGS.noauth_local_webserver
-        credentials = run_flow(FLOW, storage, oflags)
-
-
-    if config.get('proxy', 'host', fallback=False):
-        proxy = config['proxy']
-        http = httplib2.Http(
-            proxy_info = httplib2.ProxyInfo(
-                socks.PROXY_TYPE_HTTP,
-		proxy.get('host'), proxy.get('port'), 
-                proxy_user = proxy.get('user'), proxy_pass = proxy.get('pass') ))
-    else:
-        http = httplib2.Http()
-
+        credentials = run_flow(FLOW, storage, oflags, http)
 
     resp, content = http.request("http://google.com", "GET")
 

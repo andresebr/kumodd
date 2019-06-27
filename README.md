@@ -102,7 +102,7 @@ List all files stored in a Google Drive account:
 
 `python3 kumodd.py -l all`
 
-List only images stored in Google Drive: 
+List only images stored in Google Drive:
 
 `python3 kumodd.py -l image`
 
@@ -134,3 +134,16 @@ At the time of writing (June 2019), the following default API limits are imposed
 - 1,000,000,000 queries per day
 - 1,000 queries per 100 seconds per user
 - 10,000 queries per 100 seconds
+
+To use kumod on windows.  Add python and git to the PATH environment variable before
+other setup:
+
+``` shell
+SET "PATH=%PATH%;C:\Python37"
+SET "PATH=%PATH%;C:\ProgramFile\Git\bin"
+git config --global http.proxy http://debq.lan:8888
+git clone https://github.com/rich-murphey/kumodd.git
+cd kumodd
+python -m pip install --user -r requirements.txt
+.\kumod.py -l doc
+```
