@@ -503,7 +503,8 @@ https://code.google.com/apis/console
         storage = Storage(tokenfile)
         credentials = storage.get()
     except:
-        storage = None
+        open(tokenfile, "a+").close()     # ensure tokenfile exists
+        storage = Storage(tokenfile)
         credentials = None
 
     if credentials is None or credentials.invalid:
