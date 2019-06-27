@@ -28,7 +28,7 @@ https://cloud.google.com/billing/docs/how-to/manage-billing-account#create_a_new
 
     When kumodd is used for the first time to connect to a cloud service:
     ```
-    python3 kumod.py -s gdrive -l all
+    python3 kumod.py -l all
     ```
 
     Kumodd will open a web browser to the login page of the cloud service (e.g. google
@@ -46,6 +46,11 @@ https://cloud.google.com/billing/docs/how-to/manage-billing-account#create_a_new
 
     Later use of kumodd will not prompt for login details again until the token expires
     or the generated file is deleted.
+
+    To force kumodd to not use a local web browser, invoke it with the `--noauth_local_webserver` option:
+    ```
+    python3 kumodd.py --noauth_local_webserver -l all
+    ```
 
 ### Usage
 
@@ -124,15 +129,6 @@ To relay HTTP though a proxy, specify the proxy in config/config.cfg:
 The default config file is config/config.dat.  To select an alternate config file, use the `-c` option:
 
 `./kumodd.py -c config/alternate.dat`
-
-To use kumodd without local web browser, invoke it with the `--noauth_local_webserver` option:
-
-`./kumodd.py --noauth_local_webserver -l all`
-
-- Kumod will print a URL.
-- Paste the URL into a browser, and complete the web login to obtain a token.
-- Paste the token into kumodd.
-- Then, kumodd is configured to access the specified google drive account.
 
 At the time of writing (June 2019), the following default API limits are imposed by [Google Cloud Platform Quotas](https://console.cloud.google.com/apis/api/drive.googleapis.com/quotas).
 
