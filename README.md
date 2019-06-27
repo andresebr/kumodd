@@ -100,15 +100,15 @@ List only images stored in the service:
 
 `python3 kumodd.py -l image`
 
-Download only PDF files and save the in the Desktop folder:
+Download all PDF files and save them in the Desktop folder:
 
-`python3 kumodd.py -d all -l /home/user/Desktop/`
+`python3 kumodd.py -d pdf -l /home/user/Desktop/`
 
-Download files from Google Drive using files listed in a CSV file stored in /home/user/Desktop/
+Download selected files listed in the file, gdrive_list.csv.
 
 `python3 kumodd.py -csv /home/user/Desktop/gdrive_list.csv`
 
-To relay HTTP though a proxy, specify the proxy in config/config.cfg.
+Relay kumodd HTTP requests though a proxy.  Specify the proxy in config/config.cfg:
 ```
 [proxy]
 host = proxy.host.com
