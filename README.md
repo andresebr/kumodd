@@ -1,6 +1,6 @@
 # kumodd
 
-Google Drive is the only supported cloud service currently.
+Kumodd downloads selected files and/or meta-data from a specified Google Drive account.
 
 ## Setup
 
