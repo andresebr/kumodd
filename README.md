@@ -36,9 +36,6 @@ https://cloud.google.com/billing/docs/how-to/manage-billing-account#create_a_new
     1. Login to the cloud account. After logging in, the page will request approval for the web service to access the cloud account.  
     1. Approve the access. Then, kumodd stores the access credentials in the config directory.  
     
-    Later use of kumodd will not prompt for login details again until the token expires
-    or the generated file is deleted.
-
     If there is no local browser, kumod will instead print a URL for the login page of
     the cloud service. 
     1. Copy the URL and paste it into a browser.  
@@ -46,6 +43,9 @@ https://cloud.google.com/billing/docs/how-to/manage-billing-account#create_a_new
     1. Click "Approve". After clicking approve, the web page will show an access token.  Kumodd will be waiting for input. 
     1. Copy and paste that token into kumodd and press enter. Kumod then saves the
     token in config/gdrive.dat, for later use.
+
+    Later use of kumodd will not prompt for login details again until the token expires
+    or the generated file is deleted.
 
 ### Usage
 
