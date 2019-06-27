@@ -79,16 +79,16 @@ https://cloud.google.com/billing/docs/how-to/manage-billing-account#create_a_new
 
     The filter parameter limits access to a selected category of files:
 
-  - `all` all files stored in the account
-  - `doc` .doc, .docx, and .odf files
-  - `xls` spreadsheets
-  - `ppt` presentation files
-  - `text` text/source code files
-  - `pdf` PDF files
-  - `officedocs` All document, spreadsheet and presentation files
-  - `image` image files
-  - `audio` audio files
-  - `video` video files
+  - `all`	all files stored in the account
+  - `doc`	.doc, .docx, and .odf files
+  - `xls`	spreadsheets
+  - `ppt`	presentation files
+  - `text`	text/source code files
+  - `pdf`	PDF files
+  - `officedocs`	All document, spreadsheet and presentation files
+  - `image`	image files
+  - `audio`	audio files
+  - `video`	video files
 
 ### Usage examples
 
