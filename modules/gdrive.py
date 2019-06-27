@@ -29,6 +29,7 @@ import re
 import time
 import configparser
 import csv
+import socket
 from googleapiclient.discovery import build
 from oauth2client.file import Storage
 from oauth2client.client import AccessTokenRefreshError, flow_from_clientsecrets
@@ -488,17 +489,17 @@ https://code.google.com/apis/console
 
     if config.get('proxy', 'host', fallback=False):
         proxy = config['proxy']
-        pprint.pprint(['proxy:', socks.PROXY_TYPE_HTTP,
-            proxy.get('host'), int(proxy.get('port')) ])
         http = httplib2.Http(
             proxy_info = httplib2.ProxyInfo(
                 socks.PROXY_TYPE_HTTP,
 		proxy.get('host'), int(proxy.get('port')) ))
+        httplib2.socket.socket = socket.socket
     else:
         http = httplib2.Http()
-
-    resp, content = http.request("http://google.com", "GET")
-    print('got: http://google.com')
+    try:
+        resp, content = http.request("http://google.com", "GET")
+    except:
+        print('ERRROR: cannot connect to google.')
 
     # If the Credentials don't exist or are invalid run through the native client
     # flow. The Storage object will ensure that if successful the good
