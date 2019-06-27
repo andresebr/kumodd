@@ -4,6 +4,9 @@ Google Drive is the only supported cloud service currently.
 
 ### Setup
 
+To setup kumodd, 1) install kumodd and requirements, 2) obtain a Google Oauth
+client ID, and 3) authorize access to the specific cloud account.
+
 1. Download kumodd and install the required packages.
     ```
     git clone https://github.com/rich-murphey/kumodd.git
@@ -99,13 +102,13 @@ List all files stored in a Google Drive account:
 
 `python3 kumodd.py -l all`
 
-List only images stored in the service: 
+List only images stored in Google Drive: 
 
 `python3 kumodd.py -l image`
 
 Download all PDF files and save them in the Desktop folder:
 
-`python3 kumodd.py -d pdf -l /home/user/Desktop/`
+`python3 kumodd.py -d pdf -p /home/user/Desktop/`
 
 Download selected files listed in the file, gdrive_list.csv.
 
