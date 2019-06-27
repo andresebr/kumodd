@@ -54,25 +54,25 @@ https://cloud.google.com/billing/docs/how-to/manage-billing-account#create_a_new
 
 ### Usage
 
-`python3 kumodd.py -s [service] [action] [filter]`
+`python3 kumodd.py [-s service] [action] [filter]`
 
 **[service]**
 
 The type of cloud service being accessed.  The default service is Google Drive, which is the only service supported currently.
 
-`gdrive` Google Drive
+`-s gdrive` access a Google Drive account. (This is the default action). 
 
 **[action]**
 
-The action to be performed using the selected service:
+    The action to be performed using the selected service:
 
-`-l` List files stored in an account drive as a plain text table.
+    `-l` List files stored in an account drive as a plain text table.
 
-`-d` download files stored in an account.
+    `-d` download files stored in an account.
 
-`-csv <file>` specifies a CSV file containing the list of selected files.
+    `-csv <file>` specifies a CSV file containing a list of selected files.
 
-`-p <path>` specifies a path where the files will be downloaded.
+    `-p <path>` specifies a path where the files will be downloaded.
 
 **[filter]**
 
