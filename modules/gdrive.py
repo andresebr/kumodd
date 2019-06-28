@@ -503,8 +503,8 @@ https://code.google.com/apis/console
                 httplib2.socks.PROXY_TYPE_HTTP,
                 proxy_host = proxy.get('host'),
                 proxy_port = int(proxy.get('port')),
-                proxy_user = proxy.get('user'),
-                proxy_pass = proxy.get('pass') ))
+                proxy_user = proxy.get('user', fallback=None),
+                proxy_pass = proxy.get('pass', fallback=None) ))
     else:
         http = httplib2.Http()
 

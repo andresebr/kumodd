@@ -129,8 +129,8 @@ The default config file is config/config.dat.  To select an alternate config fil
 
 ## Notes
 
-To use kumod on windows, add python and git to the PATH environment variable.
-other setup:
+To use kumod on windows, add python and git to the PATH environment variable, and then
+do the rest of the setup.
 
 ``` shell
 SET "PATH=%PATH%;C:\Python37"
@@ -148,4 +148,11 @@ At the time of writing (June 2019), the following default API limits are imposed
 - 1,000,000,000 queries per day
 - 1,000 queries per 100 seconds per user
 - 10,000 queries per 100 seconds
+
+kumodd uses the [Google API Python
+Client](https://github.com/googleapis/google-api-python-client] which is officially
+supported by Google; It is feature complete and stable; hosever, it is not actively
+developed.  It has has been replaced by the [Google Cloud client
+libraries](https://github.com/googleapis/google-cloud-python) which are in development,
+and preferred for new work.
 
