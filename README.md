@@ -32,7 +32,7 @@ https://cloud.google.com/billing/docs/how-to/manage-billing-account#create_a_new
 
     When kumodd is used for the first time to connect to a cloud service:
     ```
-    python3 kumod.py -l all
+    python3 kumodd.py -l all
     ```
 
     Kumodd will open a web browser to the login page of the cloud service (e.g. google
@@ -129,23 +129,23 @@ The default config file is config/config.dat.  To select an alternate config fil
 
 ## Notes
 
+To use kumod on windows, add python and git to the PATH environment variable.
+other setup:
+
+``` shell
+SET "PATH=%PATH%;C:\Python37"
+SET "PATH=%PATH%;C:\ProgramFile\Git\bin"
+git clone https://github.com/rich-murphey/kumodd.git
+cd kumodd
+python -m pip install --user -r requirements.txt
+.\kumodd.py -l doc
+```
+
+Using an HTTP proxy on Windows does not work due to unresolved issues with httplib2.
+
 At the time of writing (June 2019), the following default API limits are imposed by [Google Cloud Platform Quotas](https://console.cloud.google.com/apis/api/drive.googleapis.com/quotas).
 
 - 1,000,000,000 queries per day
 - 1,000 queries per 100 seconds per user
 - 10,000 queries per 100 seconds
 
-To use kumod on windows.  Add python and git to the PATH environment variable before
-other setup:
-
-``` shell
-SET "PATH=%PATH%;C:\Python37"
-SET "PATH=%PATH%;C:\ProgramFile\Git\bin"
-git config --global http.proxy http://debq.lan:8888
-git clone https://github.com/rich-murphey/kumodd.git
-cd kumodd
-python -m pip install --user -r requirements.txt
-.\kumod.py -l doc
-```
-
-Using an HTTP proxy on Windows does not work due to unresolved issues with httplib2.
