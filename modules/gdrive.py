@@ -508,7 +508,13 @@ https://code.google.com/apis/console
     else:
         http = httplib2.Http()
 
-    resp, content = http.request("http://google.com", "GET")
+    try:
+        resp, content = http.request("http://google.com", "GET")
+    except Exception as e:
+        print(f"""\nCannot connect to google.com.  Please check your network.
+
+Error: {e}\n""" )
+        sys.exit(1)
 
     # If the Credentials don't exist or are invalid run through the native client
     # flow. The Storage object will ensure that if successful the good
