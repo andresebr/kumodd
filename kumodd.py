@@ -6,7 +6,6 @@ import sys
 import os
 import logging
 from absl import flags
-import configparser
 import modules.gdrive as gdrive
 
 FLAGS = flags.FLAGS

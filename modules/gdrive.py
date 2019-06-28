@@ -53,6 +53,15 @@ flags.DEFINE_boolean('noauth_local_webserver', False, 'disable launching a web b
 flags.DEFINE_string('config', 'config/config.cfg', 'config file', short_name='c')
 
 config = configparser.ConfigParser()
+config['DEFAULT'] = {
+    'general': {'appversion': "0.1"},
+    'proxy': {},
+    'gdrive': {
+        'configurationfile': 'config/gdrive_config.json',
+        'tokenfile':  'config/gdrive.dat',
+        'csvfile': 'localdata/gdrivelist'
+     }
+    }
 
 # The flags module makes defining command-line options easy for
 # applications. Run this program with the '--help' argument to see
@@ -461,8 +470,6 @@ def main(argv):
     logging.getLogger().setLevel(getattr(logging, FLAGS.logging_level))
 
     config.read(FLAGS.config)
-    tokenfile = config.get('gdrive', 'tokenfile')
-    open(tokenfile, 'a').close() # create token file if it does not exist
     csv_file = config.get('gdrive', 'csvfile')
     # api_credentials_file, name of a file containing the OAuth 2.0 information for this
     # application, including client_id and client_secret, which are found
@@ -488,7 +495,8 @@ https://code.google.com/apis/console
     # Create an httplib2.Http object to handle our HTTP requests and authorize it
     # with our good Credentials.
 
-    if config.get('proxy', 'host', fallback=False):
+    if 'proxy' in config and 'host' in config['proxy']:
+        proxy = config['proxy']
         http = httplib2.Http(
             disable_ssl_certificate_validation=True,
             proxy_info = httplib2.ProxyInfo(
@@ -505,6 +513,7 @@ https://code.google.com/apis/console
     # If the Credentials don't exist or are invalid run through the native client
     # flow. The Storage object will ensure that if successful the good
     # Credentials will get written back to a file.
+    tokenfile = config.get('gdrive', 'tokenfile')
     try:
         storage = Storage(tokenfile)
         credentials = storage.get()
