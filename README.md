@@ -1,6 +1,18 @@
 # kumodd
 
-Kumodd downloads selected files and/or meta-data from a specified Google Drive account.
+Kumodd downloads selected files and/or meta-data from a specified Google Drive
+account. Default meta-data include the File ID, path. The MD5 digest is included for
+certain  types that are not native to google docs, such as MS Office, as shown below.
+
+``` shell
+./kumodd.py -l doc
+Working...
+INDEX FILE ID                                       REMOTE PATH                   REVISION   HASH(MD5)           
+    0 1BK0I0ScYsZPembZdG9B9qBgtXV5WpyJ3JY31W-9ldo8  My Drive/Untitled document    3          -                   
+    1 0B7pAT_44h5smSGVkcjywyudk78bs9789sboeuyt2tro  My Drive/notes.docx           1          1376e9bf5fb781c3e428356b4b9aa21c
+    2 0B7pAT_44h5sbs897bsmazZorexlchm0wu90sgzrlu9h  My Drive/Letter to John.docx  1          4cb0b987cb879d48f56e4fd2cfd57d83
+    3 13qAT9ARVaCbGKmCXiN_60XnCAyE5ZrXz_4uKRjaE3mU  My Drive/Todo List            27         -                   
+```
 
 ## Setup
 
