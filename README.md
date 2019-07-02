@@ -5,9 +5,9 @@ Kumodd collects data from a specified Google Drive account.
 Optional filters limit by file cateories, such as doc, image, or video. 
 Output can include file contents or only a table of meta-data.
 
-Meta-data include the File ID, path and number of revisions. The MD5
-digest is included only for file types that are not native to google docs, such as MS
-Office, as shown below.
+Meta-data include the File ID, path and number of revisions. File types that are native
+to Google Docs do not include an MD5 digest, where as non-native MS Office and others do, as
+shown below.
 
 ``` shell
 ./kumodd.py -l doc
