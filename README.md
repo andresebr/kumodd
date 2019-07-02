@@ -11,9 +11,6 @@ do, as shown below.  [File ID](https://developers.google.com/drive/api/v3/about-
 is an opaque, random string which is constant for the life of a file, even if the file
 name changes.
 
-    Files in Drive cannot be directly addressed by their path. Search expressions are
-    used to locate files by name, type, content, parent container, owner, or other metadata.
-
 ``` shell
 ./kumodd.py -l doc
 Working...
