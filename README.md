@@ -32,7 +32,7 @@ client ID, and 3) authorize access to a specified cloud account.
 https://cloud.google.com/billing/docs/how-to/manage-billing-account#create_a_new_billing_account).  
     1. Login to your [Google cloud account](https://console.cloud.google.com)
     1. Create a project: [Create Project](https://console.cloud.google.com/projectcreate).
-    1. Then create API credentials. Select APIs & Services, then Credentials, or go to: [Credentials](https://console.cloud.google.com/apis/credentials).
+    1. Create your Oauth2 API credentials. Select APIs & Services, then Credentials, or go to: [Credentials](https://console.cloud.google.com/apis/credentials).
     1. Click "Create Credentials" and select "Oauth client ID".
     1. Select the radio button "Web Application".
     1. In "Authorized redirect URIs", enter: `http://localhost:8080`
@@ -61,10 +61,9 @@ https://cloud.google.com/billing/docs/how-to/manage-billing-account#create_a_new
     1. Copy and paste that token into kumodd and press enter. Kumod then saves the
     token in config/gdrive.dat, for later use.
 
-    Later use of kumodd will not prompt for login details again until the token expires
-    or the generated file is deleted.
+    Once this is done, kumodd will not prompt again for the Google Drive login details unless the token expires or the config/gdrive.dat is deleted.
 
-    To force kumodd to ignore a local web browser, and instead print the URL, invoke it with the `--noauth_local_webserver` option:
+    To force kumodd to print the URL, and not open local web browser, invoke it with the `--noauth_local_webserver` option:
     ```
     python3 kumodd.py --noauth_local_webserver -l all
     ```
