@@ -52,9 +52,10 @@ flags.DEFINE_string('proxy', None, 'URL of web proxy', short_name='q')
 flags.DEFINE_boolean('noauth_local_webserver', False, 'disable launching a web browser to authorize access to a google drive account' )
 flags.DEFINE_string('config', 'config/config.cfg', 'config file', short_name='c')
 
+gdrive_version = "0.1.1"
 config = configparser.ConfigParser()
 config['DEFAULT'] = {
-    'general': {'appversion': "0.1"},
+    'general': {'appversion': gdrive_version},
     'proxy': {},
     'gdrive': {
         'configurationfile': 'config/gdrive_config.json',
@@ -145,7 +146,7 @@ def get_items(service, drive_file, dest_path):
 
     full_path = dest_path + drive_file['title'].replace( '/', '_' )
     current_time = datetime.now()
-    app_version = 'kumodd-' + config.get('general', 'appversion')
+    config_version = 'kumodd-' + config.get('general', 'appversion')
     file_id = drive_file['id']
     remote_path = full_path.replace(FLAGS.destination + username + '/','')
     revision_list = retrieve_revisions(service, drive_file['id'])

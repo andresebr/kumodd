@@ -150,7 +150,7 @@ At the time of writing (June 2019), the following default API limits are imposed
 - 10,000 queries per 100 seconds
 
 kumodd uses the [Google API Python
-Client](https://github.com/googleapis/google-api-python-client] which is officially
+Client](https://github.com/googleapis/google-api-python-client) which is officially
 supported by Google; It is feature complete and stable; hosever, it is not actively
 developed.  It has has been replaced by the [Google Cloud client
 libraries](https://github.com/googleapis/google-cloud-python) which are in development,
