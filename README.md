@@ -1,7 +1,11 @@
 # kumodd
 
-Kumodd downloads selected files and/or meta-data from a specified Google Drive
-account. Default meta-data include the File ID, path and number of revisions. The MD5
+Kumodd collects data from a specified Google Drive account.
+
+Optional filters limit by file cateories, such as doc, pdf, etc. 
+Output can include file contents or only a table of meta-data.
+
+Meta-data include the File ID, path and number of revisions. The MD5
 digest is included only for file types that are not native to google docs, such as MS
 Office, as shown below.
 
