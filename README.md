@@ -2,7 +2,7 @@
 
 Kumodd collects data from a specified Google Drive account.
 
-Optional filters limit by file cateories, such as doc, pdf, etc. 
+Optional filters limit by file cateories, such as doc, image, or video. 
 Output can include file contents or only a table of meta-data.
 
 Meta-data include the File ID, path and number of revisions. The MD5
