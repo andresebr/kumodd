@@ -497,6 +497,15 @@ https://code.google.com/apis/console
 
     if 'proxy' in config and 'host' in config['proxy']:
         proxy = config['proxy']
+
+        try:
+            proxy_uri = 'http://' + proxy.get('host')
+            if 'port' in proxy:
+                proxy_uri += ':' + proxy.get('port')
+            resp, content = http.request(proxy_uri, "GET")
+        except Exception as e:
+            print(f"\nCannot connect to proxy at: {proxy_uri}.  Please check your network.\n\n")
+
         http = httplib2.Http(
             disable_ssl_certificate_validation=True,
             proxy_info = httplib2.ProxyInfo(
