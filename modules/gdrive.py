@@ -173,7 +173,7 @@ def get_items(service, drive_file, dest_path):
 
     full_path = dest_path + drive_file['title'].replace( '/', '_' )
     current_time = datetime.now()
-    config_version = 'kumodd-' + config.get('general', 'appversion')
+    version = gdrive_version + '/' + config.get('general', 'appversion')
     file_id = drive_file['id']
     remote_path = full_path.replace(FLAGS.destination + username + '/','')
     revision_list = retrieve_revisions(service, drive_file['id'])
@@ -191,7 +191,7 @@ def get_items(service, drive_file, dest_path):
         if download_file( service, drive_file, dest_path ):
             save_metadata(drive_file)
             if is_file_new:
-                output_row = log_template.format(str(current_time), app_version, username, file_id, remote_path, revisions, full_path, file_hash)
+                output_row = log_template.format(str(current_time), version, username, file_id, remote_path, revisions, full_path, file_hash)
                 print( output_row )
                 log(output_row)
             else:
