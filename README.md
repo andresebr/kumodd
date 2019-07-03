@@ -74,14 +74,14 @@ https://cloud.google.com/billing/docs/how-to/manage-billing-account#create_a_new
 
 Option	| Description 
 :------	| :-----------
--s <service>	| Select the cloud service. `gdrive` is the only supported service.
--l <filter>	| List files. Also create a CSV file list.
--d <filter>	| Download files. Also create a CSV file list.
--csv <file>	| Download files listed in previously generated CSV file, <file>.
--log <level> | <level> is either DEBUG, INFO, WARNING, ERROR, or CRITICAL.
+-s service	| service must be `gdrive`, which is also the default.
+-l filter	| List files. Also create a CSV file list.
+-d filter	| Download files. Also create a CSV file list.
+-csv file	| Download files listed in previously generated CSV file, <file>.
+-log level | level is either DEBUG, INFO, WARNING, ERROR, or CRITICAL.
 --no_browser | Do not open web browser. Instead print the URL.
--m <metadata dir> | Save meta-data in <metadata dir>.
--proxy <URL> | Send HTTP requests through proxy at <URL>.
+-m dir | Save meta-data in dir.
+-proxy URL | Send HTTP requests through proxy at URL.
 
 
 The <filter> parameter limits access to a selected category of files:
