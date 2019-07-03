@@ -10,13 +10,22 @@ import modules.gdrive as gdrive
 
 FLAGS = flags.FLAGS
 
-flags.DEFINE_enum('logging_level', 'ERROR', ['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL'],'Set the level of logging detail.')
-flags.DEFINE_enum('service', 'gdrive', ['gdrive','dropbox','box','onedrive'], 'Service to use', short_name='s' )
-flags.DEFINE_enum('list_items', None, ['all', 'doc', 'xls', 'ppt', 'text', 'pdf', 'officedocs', 'image', 'audio', 'video', 'other'], 'List files and directories from the selected service', short_name='l')
-flags.DEFINE_enum('get_items', None, ['all', 'doc', 'xls', 'ppt', 'text', 'pdf', 'officedocs', 'image', 'audio', 'video', 'other'], 'Download files and create directories from the selected service', short_name='d')
-flags.DEFINE_list('usecsv', None, 'Download files from the service using a previously generated csv file', short_name='csv')
+flags.DEFINE_enum('logging_level', 'ERROR',
+                  ['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL'],
+                  'Set the level of logging detail.')
+flags.DEFINE_enum('service', 'gdrive',
+                  ['gdrive','dropbox','box','onedrive'], 'Service to use', short_name='s' )
+flags.DEFINE_enum('list_items', None,
+                  ['all', 'doc', 'xls', 'ppt', 'text', 'pdf', 'officedocs', 'image', 'audio', 'video', 'other'],
+                  'List files and directories, optionally filtered by category', short_name='l')
+flags.DEFINE_enum('get_items', None,
+                  ['all', 'doc', 'xls', 'ppt', 'text', 'pdf', 'officedocs', 'image', 'audio', 'video', 'other'],
+                  'Download files and create directories, optionally filtered by category', short_name='d')
+flags.DEFINE_list('usecsv', None,
+                  'Download files from the service using a previously generated csv file', short_name='csv')
 flags.DEFINE_string('destination', 'downloaded/', 'Destination folder location', short_name='p')
-flags.DEFINE_string('metadata_destination', 'metadata/', 'Destination folder for metadata information', short_name='m')
+flags.DEFINE_string('metadata_destination', 'metadata/',
+                    'Destination folder for metadata information', short_name='m')
 flags.DEFINE_boolean('debug', False, 'Log folder contents as being fetched' )
 
 def main(argv):

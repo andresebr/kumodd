@@ -41,22 +41,35 @@ from apiclient import errors
 import json
 from datetime import datetime
 
-OUTPUT_HEADER = {
-    'ctime': 'Created (UTC)',
-    'mtime': 'Last Modified (UTC)',
-    'time': 'TIME (UTC)',
-    'app': 'Application',
-    'user': 'User',
-    'fileid': 'File Id',
-    'path': 'Remote Path',
-    'rev': 'Revision',
-    'path_local': 'Local Path',
-    'md5': 'MD5',
-    'mime': 'MIME Type',
-    'index': 'Index',
-    'lastModifyingUserName': 'Last Modified by',
-    'ownerNames': 'Owner'
+NAME_TO_TITLE = {
+    'createdDate':	'Created (UTC)',
+    'modifiedDate':	'Last Modified (UTC)',
+    'time':		'TIME (UTC)',
+    'version':		'Code/Config Ver',
+    'app':		'Application',
+    'user':		'User',
+    'id':		'File Id',
+    'path':		'Remote Path',
+    'rev':		'Revision',
+    'local_path':	'Local Path',
+    'md5':		'MD5',
+    'mime':		'MIME Type',
+    'index':		'Index',
+    'lastModifyingUserName':	'Last Modified by',
+    'ownerNames':	'Owner'
     }
+LIST_ITEM_NAMES = [
+                   'createdDate',
+                   'modifiedDate',
+                   'id',
+                   'path',
+                   'rev',
+                   'lastModifyingUserName',
+                   'ownerNames',
+                   'md5',
+                   ]
+LIST_ITEM_TITLES = [ NAME_TO_TITLE[name] for name in LIST_ITEM_NAMES]
+
 list_template = "{0:24} {1:24} {2:50} {3:70} {4:10} {5:20} {6:20} {7:32}"
 log_template = "{:>5} {:>5} {:>5} {:>5} {:>5} {:>5} {:>5} {:>5}"
 list_counter = 0
@@ -100,10 +113,10 @@ def ensure_dir(directory):
 def is_google_doc(drive_file):
     return True if re.match( '^application/vnd\.google-apps\..+', drive_file['mimeType'] ) else False
 
-def is_file_modified(drive_file, local_file):
+def file_is_modified(drive_file, local_file):
     if os.path.exists( local_file ):
         rtime = time.mktime( time.strptime( drive_file['modifiedDate'], '%Y-%m-%dT%H:%M:%S.%fZ' ) )
-        ltime = os.path.getmtime( local_file )
+        ltime = os.path.getmodifiedDate( local_file )
         return rtime > ltime
     else:
         return True
@@ -130,45 +143,31 @@ def file_type_from_mime(mimetype):
         
     return file_type
 
-def list_items(service, drive_file, dest_path, csv_file):
+def list_items(writer, service, drive_file, dest_path):
     # print(f"metadata: {drive_file['title']}")
     # pprint.pprint(drive_file)
     global list_counter
     full_path = dest_path + drive_file['title'].replace( '/', '_' )
     remote_path = full_path.replace(FLAGS.destination + username + '/','')
-    file_id = drive_file['id']
     revision_list = retrieve_revisions(service, drive_file['id'])
-    file_hash = '-'
-                
-    if revision_list != None:
-        revisions = str(len(revision_list))
-    else:
-        revisions = '1'
-                
-    if drive_file.get('md5Checksum') != None:
-        file_hash = drive_file['md5Checksum']    
+    revisions = str(len(revision_list)) if revision_list else '1'
+    # pprint.pprint(drive_file)
 
-    output_row = list_template.format(
-        drive_file['createdDate'],
-        drive_file['modifiedDate'],
-        file_id,
-        remote_path,
-        revisions, 
-        drive_file['lastModifyingUserName'],
-        drive_file['ownerNames'][0],
-        file_hash,
-    );
-
-    data = (str(list_counter) + ',' + file_id + ',' + remote_path + ',' + revisions + ',' + file_hash).split(',')
-    list_file = csv_file + '-' + username + '.csv'
-
-    with open(list_file, 'a+') as csvfile:
-        writer = csv.writer(csvfile, delimiter=',')
-        writer.writerow(data)
+    cols = [
+            drive_file['createdDate'],
+            drive_file['modifiedDate'],
+            drive_file['id'],
+            remote_path,
+            revisions,
+            drive_file['lastModifyingUserName'],
+            drive_file['ownerNames'][0],
+            drive_file.get('md5Checksum') or '-',
+            ]
     list_counter += 1
-    return output_row
+    writer.writerow( cols )
+    return list_template.format( *cols )
     
-def get_items(service, drive_file, dest_path):
+def get_items(service, drive_file, dest_path, item_names):
     global update_counter
 
     full_path = dest_path + drive_file['title'].replace( '/', '_' )
@@ -186,19 +185,28 @@ def get_items(service, drive_file, dest_path):
     else:
         revisions = 'v.1'    
 
-    if is_file_modified( drive_file, full_path ):
-        is_file_new = not os.path.exists( full_path )
-        if download_file( service, drive_file, dest_path ):
-            save_metadata(drive_file)
-            if is_file_new:
-                output_row = log_template.format(str(current_time), version, username, file_id, remote_path, revisions, full_path, file_hash)
-                print( output_row )
-                log(output_row)
-            else:
-                print( "Updated %s" % full_path )
+    if file_is_modified( drive_file, full_path ):
+        if not download_file( service, drive_file, dest_path ):
+            log( f"ERROR downloading: {full_path}" )
         else:
             update_counter += 1
-            log( "ERROR while saving %s" % full_path )
+            save_metadata(drive_file)
+            if os.path.exists( full_path ):
+                print( "Updated %s" % full_path )
+            else:
+                cols = [
+                        str(current_time),
+                        version,
+                        username,
+                        file_id,
+                        remote_path,
+                        revisions,
+                        full_path,
+                        file_hash,
+                        ]
+                output_row = log_template.format( *cols )
+                print( output_row )
+                log(output_row)
 
 def save_metadata(drive_file):
     metadata_directory = FLAGS.destination + username + '/' + FLAGS.metadata_destination 
@@ -223,7 +231,7 @@ def get_user_info(service):
 def reset_file(filename):
     open(filename, "w").close()
 
-def get_folder_contents( service, http, folder, csv_file, base_path='./', depth=0 ):
+def walk_folder_contents( service, http, folder, writer=None, cols=None, base_path='./', depth=0 ):
     result = []
     page_token = None
     flag = True
@@ -246,7 +254,7 @@ def get_folder_contents( service, http, folder, csv_file, base_path='./', depth=
         except:
             print( 'trapped' )
             log( "ERROR: Couldn't get contents of folder %s. Retrying..." % folder['title'] )
-            get_folder_contents( service, http, folder, csv_file, base_path, depth )
+            walk_folder_contents( service, http, folder, writer, cols, base_path, depth )
             return
             
         folder_contents = result
@@ -259,30 +267,28 @@ def get_folder_contents( service, http, folder, csv_file, base_path='./', depth=
             return item['mimeType'] == 'application/vnd.google-apps.folder'
         
         if FLAGS.list_items != None:
-            for item in filter(is_file, folder_contents)
-                if FLAGS.list_items in ['doc','xls', 'ppt', 'text', 'pdf', 'image', 'audio', 'video', 'other', 'all']
-                    and FLAGS.list_items == file_type_from_mime(item['mimeType']):
-                    print( list_items(service, item, dest_path, csv_file) )
+            for item in filter(is_file, folder_contents):
+                if ( FLAGS.list_items in ['doc','xls', 'ppt', 'text', 'pdf', 'image', 'audio', 'video', 'other', 'all']
+                    and FLAGS.list_items == file_type_from_mime(item['mimeType']) ):
+                    print( list_items(writer, service, item, dest_path) )
 
-                elif FLAGS.list_items == 'officedocs'
-                    and file_type_from_mime(item['mimeType']) in ['doc', 'xls', 'ppt'])):
-                    print( list_items(service, item, dest_path, csv_file) )
-
+                elif ( FLAGS.list_items == 'officedocs'
+                      and file_type_from_mime(item['mimeType']) in ['doc', 'xls', 'ppt']):
+                    print( list_items(writer, service, item, dest_path) )
 
         if FLAGS.get_items != None:    
             ensure_dir( dest_path )
             for item in filter(is_file, folder_contents):
-                if FLAGS.list_items in ['doc','xls', 'ppt', 'text', 'pdf', 'image', 'audio', 'video', 'other', 'all']
-                    and FLAGS.list_items == file_type_from_mime(item['mimeType']):
+                if ( FLAGS.list_items in ['doc','xls', 'ppt', 'text', 'pdf', 'image', 'audio', 'video', 'other', 'all']
+                    and FLAGS.list_items == file_type_from_mime(item['mimeType']) ):
                     get_items(service, item, dest_path, csv_file)
 
-                elif FLAGS.list_items == 'officedocs'
-                    and file_type_from_mime(item['mimeType']) in ['doc', 'xls', 'ppt'])):
+                elif ( FLAGS.list_items == 'officedocs'
+                      and file_type_from_mime(item['mimeType']) in ['doc', 'xls', 'ppt']):
                     get_items(service, item, dest_path, csv_file)
-
     
         for item in filter(is_folder, folder_contents):
-            get_folder_contents( service, http, item, csv_file, dest_path, depth+1 )
+            walk_folder_contents( service, http, item, writer, cols, dest_path, depth+1 )
             
 def get_csv_contents(service, http, csv_file, base_path='./'):
     """Print information about the specified revision.
@@ -557,50 +563,53 @@ Error: {e}\n""" )
         
         if FLAGS.list_items:
             list_file = csv_file + '-' + username + '.csv'
-            reset_file(list_file)
-            header = list_template.format(
-                OUTPUT_HEADER['ctime'],
-                OUTPUT_HEADER['mtime'],
-                OUTPUT_HEADER['fileid'],
-                OUTPUT_HEADER['path'],
-                OUTPUT_HEADER['rev'],
-                OUTPUT_HEADER['lastModifyingUserName'],
-                OUTPUT_HEADER['ownerNames'],
-                OUTPUT_HEADER['md5'],
-                )
-            print( header )
-            start_folder = service.files().get( fileId=FLAGS.drive_id ).execute()
-            get_folder_contents( service,
-http, start_folder, csv_file, FLAGS.destination + username + '/')
-            print('\n' + str(list_counter) + ' files found in ' + username + ' drive')
+            item_names = [
+                          'createdDate',
+                          'modifiedDate',
+                          'id',
+                          'path',
+                          'rev',
+                          'lastModifyingUserName',
+                          'ownerNames',
+                          'md5',
+                          ]
+            with open(list_file, 'w') as csv_file_handle:
+              header = list_template.format( *[ NAME_TO_TITLE[name] for name in item_names ])
+              print( header )
+              writer = csv.writer(csv_file_handle, delimiter=',')
+              start_folder = service.files().get( fileId=FLAGS.drive_id ).execute()
+              walk_folder_contents( service, http, start_folder, writer, item_names, FLAGS.destination + username + '/')
+              print('\n' + str(list_counter) + ' files found in ' + username + ' drive')
         
         elif FLAGS.get_items:
-            header = log_template.format(
-                OUTPUT_HEADER['ctime'],
-                OUTPUT_HEADER['mtime'],
-                OUTPUT_HEADER['fileid'],
-                OUTPUT_HEADER['path'],
-                OUTPUT_HEADER['rev'],
-                OUTPUT_HEADER['lastModifyingUserName'],
-                OUTPUT_HEADER['ownerNames'],
-                OUTPUT_HEADER['md5'],
-                )
+            item_names = [
+                          'time',
+                          'version',
+                          'user',
+                          'id',
+                          'path',
+                          'rev',
+                          'local_path',
+                          'md5',
+                          ]
+            header = log_template.format( *[ NAME_TO_TITLE[name] for name in item_names ])
             print( header )
             start_folder = service.files().get( fileId=FLAGS.drive_id ).execute()
-            get_folder_contents( service, http, start_folder, csv_file, FLAGS.destination + username + '/')
+            walk_folder_contents( service, http, start_folder, writer, item_names, FLAGS.destination + username + '/')
             print('\n' + str(download_counter) + ' files downloaded and ' + str(update_counter) + ' updated from ' + username + ' drive')
         
         elif FLAGS.usecsv:
-            header = log_template.format(
-                OUTPUT_HEADER['ctime'],
-                OUTPUT_HEADER['mtime'],
-                OUTPUT_HEADER['fileid'],
-                OUTPUT_HEADER['path'],
-                OUTPUT_HEADER['rev'],
-                OUTPUT_HEADER['lastModifyingUserName'],
-                OUTPUT_HEADER['ownerNames'],
-                OUTPUT_HEADER['md5'],
-                )
+            item_names = [
+                          'time',
+                          'version',
+                          'user',
+                          'id',
+                          'path',
+                          'rev',
+                          'local_path',
+                          'md5',
+                          ]
+            header = log_template.format( *[ NAME_TO_TITLE[name] for name in item_names ])
             print( header )
             get_csv_contents(service, http, FLAGS.destination + username + '/')
             print('\n' + str(download_counter) + ' files downloaded and ' + str(update_counter) + ' updated from ' + username + ' drive')
