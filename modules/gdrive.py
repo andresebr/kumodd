@@ -263,7 +263,10 @@ def walk_folder_contents( service, http, folder, writer=None, metadata_names=Non
         
         if FLAGS.list_items != None:
             for item in filter(is_file, folder_contents):
-                if ( FLAGS.list_items in ['doc','xls', 'ppt', 'text', 'pdf', 'image', 'audio', 'video', 'other', 'all']
+                if ( FLAGS.list_items == 'all' ):
+                    print( list_items(service, item, dest_path, writer, metadata_names) )
+
+                if ( FLAGS.list_items in ['doc','xls', 'ppt', 'text', 'pdf', 'image', 'audio', 'video', 'other']
                     and FLAGS.list_items == file_type_from_mime(item['mimeType']) ):
                     print( list_items(service, item, dest_path, writer, metadata_names) )
 
@@ -274,7 +277,10 @@ def walk_folder_contents( service, http, folder, writer=None, metadata_names=Non
         if FLAGS.get_items != None:    
             ensure_dir( dest_path )
             for item in filter(is_file, folder_contents):
-                if ( FLAGS.list_items in ['doc','xls', 'ppt', 'text', 'pdf', 'image', 'audio', 'video', 'other', 'all']
+                if ( FLAGS.list_items == 'all' ):
+                    get_items(service, item, dest_path, metadata_names)
+
+                if ( FLAGS.list_items in ['doc','xls', 'ppt', 'text', 'pdf', 'image', 'audio', 'video', 'other']
                     and FLAGS.list_items == file_type_from_mime(item['mimeType']) ):
                     get_items(service, item, dest_path, metadata_names)
 
