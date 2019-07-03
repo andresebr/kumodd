@@ -479,7 +479,6 @@ https://code.google.com/apis/console
 
     if 'proxy' in config and 'host' in config['proxy']:
         proxy = config['proxy']
-
         try:
             proxy_uri = 'http://' + proxy.get('host')
             if 'port' in proxy:
@@ -493,7 +492,7 @@ https://code.google.com/apis/console
             proxy_info = httplib2.ProxyInfo(
                 httplib2.socks.PROXY_TYPE_HTTP,
                 proxy_host = proxy.get('host'),
-                proxy_port = int(proxy.get('port')),
+                proxy_port = int(proxy.get('port')) if proxy.get('port') else None,
                 proxy_user = proxy.get('user', fallback=None),
                 proxy_pass = proxy.get('pass', fallback=None) ))
     else:

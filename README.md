@@ -124,7 +124,7 @@ appended by the  user name and .csv, for a default CSV filename of filelist-user
 [gdrive]
 csvfile = filelist-
 ```
-To download all of the files listed in the CSV file, use the `-csv` option.
+To download all of the files listed in the CSV file, use the -csv option.
 
 `python3 kumodd.py -csv filelist-username.csv`
 
@@ -132,7 +132,7 @@ To relay kumodd access though an HTTP proxy, use the -proxy option, or specify t
 ```
 [proxy]
 host = proxy.host.com
-port = 8888
+port = 8888 (optional)
 user = username (optional)
 pass = password (optional)
 ```
