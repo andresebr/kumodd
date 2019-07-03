@@ -194,21 +194,20 @@ def get_items(service, drive_file, dest_path, metadata_names):
     global update_counter
     parse_drive_file_metadata(service, drive_file, dest_path)
     if not file_is_modified( drive_file ):
-        # print( f"not modified: {drive_file['local_path']}" )
         log( f"not modified: {drive_file['local_path']}" )
+        status = 'current: '
     else:
         if not download_file( service, drive_file ):
             log( f"ERROR downloading: {drive_file['local_path']}" )
+            status = 'error:   '
         else:
+            status = 'updated: '
             update_counter += 1
             save_metadata(drive_file)
-            if os.path.exists( drive_file['local_path'] ):
-                print( f"Updated {drive_file['local_path']}" )
-            else:
-                data = [ maybe_flatten( drive_file.get(name)) for name in metadata_names ]
-                output_row = log_template.format( *data )
-                print( output_row )
-                log(output_row)
+    data = [ maybe_flatten( drive_file.get(name)) for name in metadata_names ]
+    output_row = log_template.format( *data )
+    print( status, output_row )
+    log(output_row)
 
 def save_metadata(drive_file):
     metadata_directory = FLAGS.destination + username + '/' + FLAGS.metadata_destination 
@@ -576,7 +575,6 @@ Error: {e}\n""" )
         
         try:
             start_time = datetime.now()
-            print( "Working..." )
             if FLAGS.list_items:
                 list_template = name_list_to_format_string( item_names )
                 header = list_template.format( *[ NAME_TO_TITLE[name] for name in item_names ])
@@ -588,7 +586,7 @@ Error: {e}\n""" )
             elif FLAGS.get_items:
                 log_template = name_list_to_format_string( item_names )
                 header = log_template.format( *[ NAME_TO_TITLE[name] for name in item_names ])
-                print( header )
+                print( 'Status   ', header )
                 start_folder = service.files().get( fileId=FLAGS.drive_id ).execute()
                 walk_folder_contents( service, http, start_folder, writer, item_names, FLAGS.destination + username + '/')
                 print('\n' + str(download_counter) + ' files downloaded and ' + str(update_counter) + ' updated from ' + username + ' drive')
@@ -596,7 +594,7 @@ Error: {e}\n""" )
             elif FLAGS.usecsv:
                 log_template = name_list_to_format_string( item_names )
                 header = log_template.format( *[ NAME_TO_TITLE[name] for name in item_names ])
-                print( header )
+                print( 'Status   ', header )
                 get_csv_contents(service, http, FLAGS.destination + username + '/')
                 print('\n' + str(download_counter) + ' files downloaded and ' + str(update_counter) + ' updated from ' + username + ' drive')
             end_time = datetime.now()
