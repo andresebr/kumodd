@@ -41,8 +41,23 @@ from apiclient import errors
 import json
 from datetime import datetime
 
-OUTPUT_HEADER = ['TIME (UTC)', 'APPLICATION', 'USER', 'FILE ID', 'REMOTE PATH', 'REVISION', 'LOCAL PATH', 'HASH(MD5)', 'MIMETYPE', 'INDEX']
-list_template = "{0:4} {1:50} {2:70} {3:10} {4:20}"
+OUTPUT_HEADER = {
+    'ctime': 'Created (UTC)',
+    'mtime': 'Last Modified (UTC)',
+    'time': 'TIME (UTC)',
+    'app': 'Application',
+    'user': 'User',
+    'fileid': 'File Id',
+    'path': 'Remote Path',
+    'rev': 'Revision',
+    'path_local': 'Local Path',
+    'md5': 'Hash(MD5)',
+    'mime': 'MIME Type',
+    'index': 'Index',
+    'lastModifyingUserName': 'Modified by',
+    'ownerNames': 'Owner'
+    }
+list_template = "{0:24} {1:24} {2:50} {3:70} {4:10} {5:20} {6:20} {7:32}"
 log_template = "{:>5} {:>5} {:>5} {:>5} {:>5} {:>5} {:>5} {:>5}"
 list_counter = 0
 download_counter = 0
@@ -116,6 +131,8 @@ def check_file_type(mimetype):
     return file_type
 
 def list_items(service, drive_file, dest_path, csv_file):
+    # print(f"metadata: {drive_file['title']}")
+    # pprint.pprint(drive_file)
     global list_counter
     full_path = dest_path + drive_file['title'].replace( '/', '_' )
     remote_path = full_path.replace(FLAGS.destination + username + '/','')
@@ -130,8 +147,18 @@ def list_items(service, drive_file, dest_path, csv_file):
                 
     if drive_file.get('md5Checksum') != None:
         file_hash = drive_file['md5Checksum']    
-        
-    output_row = list_template.format(list_counter, file_id, remote_path, revisions, file_hash)
+
+    output_row = list_template.format(
+        drive_file['createdDate'],
+        drive_file['modifiedDate'],
+        file_id,
+        remote_path,
+        revisions, 
+        drive_file['lastModifyingUserName'],
+        drive_file['ownerNames'][0],
+        file_hash,
+    );
+
     data = (str(list_counter) + ',' + file_id + ',' + remote_path + ',' + revisions + ',' + file_hash).split(',')
     list_file = csv_file + '-' + username + '.csv'
 
@@ -564,10 +591,20 @@ Error: {e}\n""" )
         if FLAGS.list_items:
             list_file = csv_file + '-' + username + '.csv'
             reset_file(list_file)
-            header = list_template.format(OUTPUT_HEADER[9], OUTPUT_HEADER[3], OUTPUT_HEADER[4], OUTPUT_HEADER[5], OUTPUT_HEADER[7])
+            header = list_template.format(
+                OUTPUT_HEADER['ctime'],
+                OUTPUT_HEADER['mtime'],
+                OUTPUT_HEADER['fileid'],
+                OUTPUT_HEADER['path'],
+                OUTPUT_HEADER['rev'],
+                OUTPUT_HEADER['lastModifyingUserName'],
+                OUTPUT_HEADER['ownerNames'],
+                OUTPUT_HEADER['md5'],
+                )
             print( header )
             start_folder = service.files().get( fileId=FLAGS.drive_id ).execute()
-            get_folder_contents( service, http, start_folder, csv_file, FLAGS.destination + username + '/')
+            get_folder_contents( service,
+http, start_folder, csv_file, FLAGS.destination + username + '/')
             print('\n' + str(list_counter) + ' files found in ' + username + ' drive')
         
         elif FLAGS.get_items:
@@ -590,3 +627,4 @@ Error: {e}\n""" )
 
 if __name__ == '__main__':
     main(sys.argv)
+

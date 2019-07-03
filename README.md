@@ -5,20 +5,23 @@ Kumodd collects data from a specified Google Drive account.
 Optional filters limit by file cateories, such as doc, image, or video. 
 Output can include file contents or only a table of meta-data.
 
-Meta-data include the File ID, path and number of revisions. File types that are native
-to Google Docs do not include an MD5 digest, where as non-native MS Office and others
-do, as shown below.  [File ID](https://developers.google.com/drive/api/v3/about-files)
-is an opaque, random string which is constant for the life of a file, even if the file
-name changes.
+Meta-data include:
+- Last Modified time (UTC)
+- Created time (UTC)
+- [File ID](https://developers.google.com/drive/api/v3/about-files), an opaque, random string which is constant for the life of a file, even if the file name changes.
+- Google Drive File Path
+- Number of revisions
+- Modified by (User)
+- Owner
+- MD5 digest.  File types that are native to Google Docs do not include an MD5 digest, where as non-native MS Office and others do.  
 
 ``` shell
 ./kumodd.py -l doc
-Working...
-INDEX FILE ID                                       REMOTE PATH                   REVISION   HASH(MD5)           
-    0 1BK0I0ScYsZPembZdG9B9qBgtXV5WpyJ3JY31W-9ldo8  My Drive/Untitled document    3          -                   
-    1 0B7pAT_44h5smSGVkcjywyudk78bs9789sboeuyt2tro  My Drive/notes.docx           1          1376e9bf5fb781c3e428356b4b9aa21c
-    2 0B7pAT_44h5sbs897bsmazZorexlchm0wu90sgzrlu9h  My Drive/Letter to John.docx  1          4cb0b987cb879d48f56e4fd2cfd57d83
-    3 13qAT9ARVaCbGKmCXiN_60XnCAyE5ZrXz_4uKRjaE3mU  My Drive/Todo List            27         -                   
+Created                 Modified                  File Id                                       Remote Path                   Revision   Modified by      Owner            Hash(MD5)                       
+2019-06-24T05:04:47.055Z 2019-06-24T05:41:17.095Z 1BK0I0ScYsZPembZdG9B9qBgtXV5WpyJ3JY31W-9ldo8  My Drive/Untitled document    3          Johe Doe         Johe Doe         -
+2019-05-18T06:16:19.084Z 2019-05-18T06:52:49.972Z 0B7pAT_44h5smSGVkcjywyudk78bs9789sboeuyt2tro  My Drive/notes.docx           1          Johe Doe         Johe Doe         1376e9bf5fb781c3e428356b4b9aa21c
+2019-05-16T23:34:42.665Z 2019-05-17T22:18:07.705Z 0B7pAT_44h5sbs897bsmazZorexlchm0wu90sgzrlu9h  My Drive/Letter to John.docx  1          Johe Doe         Johe Doe         4cb0b987cb879d48f56e4fd2cfd57d83
+2019-04-12T16:21:48.867Z 2019-04-12T16:21:55.245Z 13qAT9ARVaCbGKmCXiN_60XnCAyE5ZrXz_4uKRjaE3mU  My Drive/Todo List            27         Johe Doe         Johe Doe         -                   
 ```
 
 ## Setup
