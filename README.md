@@ -8,7 +8,7 @@ Columns may be selected in the configuration file.
 
 ``` shell
 ./kumodd.py -l doc
-Created (UTC)            Last Modified (UTC)      File Id                                       Remote Path                   Revision   Last Modified by Owner            MD5                       
+Created (UTC)            Last Modified (UTC)      File Id                                       Remote Path                   Revision   Modified by      Owner            MD5                       
 2019-06-24T05:04:47.055Z 2019-06-24T05:41:17.095Z 1BK0I0ScYsZPembZdG9B9qBgtXV5WpyJ3JY31W-9ldo8  My Drive/Untitled document    3          Johe Doe         Johe Doe         -
 2019-05-18T06:16:19.084Z 2019-05-18T06:52:49.972Z 0B7pAT_44h5smSGVkcjywyudk78bs9789sboeuyt2tro  My Drive/notes.docx           1          Johe Doe         Johe Doe         1376e9bf5fb781c3e428356b4b9aa21c
 2019-05-16T23:34:42.665Z 2019-05-17T22:18:07.705Z 0B7pAT_44h5sbs897bsmazZorexlchm0wu90sgzrlu9h  My Drive/Letter to John.docx  1          Johe Doe         Johe Doe         4cb0b987cb879d48f56e4fd2cfd57d83

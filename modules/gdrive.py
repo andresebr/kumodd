@@ -56,10 +56,10 @@ NAME_TO_TITLE = {
     'md5Checksum':	'MD5',
     'mime':		'MIME Type',
     'index':		'Index',
-    'lastModifyingUserName':	'Last Mod by',
+    'lastModifyingUserName':	'Modfied by',
     'ownerNames':	'Owner',
-    'modifiedByMeDate':	'Last Mod By Me',
-    'lastViewedByMeDate': 'Last View By Me',
+    'modifiedByMeDate':	'User Last Mod',
+    'lastViewedByMeDate': 'User Last View',
     'shared':		'Is Shared',
     'version':		'Version',
     }
