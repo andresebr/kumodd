@@ -119,7 +119,6 @@ Download all PDF files and save them in the Desktop folder:
 
 The -l and -d options create a CSV file. 
 The CSV filename prefix is specified in config/config.cfg. 
-
 ``` shell
 [gdrive]
 csvfile = localdata/gdrivelist
@@ -270,3 +269,4 @@ developed.  It has has been replaced by the [Google Cloud client
 libraries](https://github.com/googleapis/google-cloud-python) which are in development,
 and recommended for new work.
 
+[gdrive]
