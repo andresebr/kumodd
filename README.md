@@ -13,7 +13,7 @@ Meta-data include:
 - Number of revisions
 - Last Modified by
 - Owner
-- MD5 digest.  File types that are native to Google Docs do not include an MD5 digest, where as non-native types such as MS Office do.  
+- MD5 digest.  File types that are native to Google Docs do not include an MD5 digest, where as non-native types such as MS Office do, as shown below.
 
 ``` shell
 ./kumodd.py -l doc
