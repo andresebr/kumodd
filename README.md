@@ -43,14 +43,10 @@ https://cloud.google.com/billing/docs/how-to/manage-billing-account#create_a_new
 
 1. Authorize kumodd to access the cloud account:
 
-    When kumodd is used for the first time to connect to a cloud service:
-    ```
-    python3 kumodd.py -l all
-    ```
-
-    Kumodd will open a web browser to the login page of the cloud service (e.g. google
-    drive). 
-    1. Login to the cloud account. After logging in, the page will request approval for the web service to access the cloud account.  
+    When kumodd is used for the first time to connect to a cloud service, such as
+    `python3 kumodd.py -l all`, it will open a the login page for the cloud service.
+    1. Login to the cloud account. After logging in, the next page will request approval
+    for kumodd to access the cloud account.  
     1. Approve the access. Then, kumodd stores the access credentials in the config directory.  
     
     If there is no local browser, kumod will instead print a URL for the login page of
