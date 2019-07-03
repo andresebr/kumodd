@@ -121,14 +121,14 @@ The -l and -d options create a CSV file.
 The CSV filen prefix is specified in config/config.cfg. 
 ``` shell
 [gdrive]
-csvfile = localdata/gdrivelist
+csvfile = filelist-
 ```
 
-The account name and .csv are appended, such that the default CSV filename is localdata/gdrivelist-username@gmail.com.csv.
+The user name and .csv are appended, for a default CSV filename of filelist-username.csv.
 
 To download all of the files listed in the CSV file, use the `-csv` option.
 
-`python3 kumodd.py -csv localdata/gdrivelist-username@gmail.com.csv`
+`python3 kumodd.py -csv filelist-username.csv`
 
 To relay kumodd access though an HTTP proxy, use the -proxy option, or specify the proxy in config/config.cfg:
 ```

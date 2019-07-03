@@ -548,7 +548,7 @@ Error: {e}\n""" )
             header = list_template.format( *[ NAME_TO_TITLE[name] for name in metadata_names ])
             print( header )
             start_folder = service.files().get( fileId=FLAGS.drive_id ).execute()
-            with open(config.get('gdrive', 'csvfile') + '-' + username + '.csv', 'w') as csv_handle:
+            with open(config.get('gdrive', 'csvfile') + username + '.csv', 'w') as csv_handle:
                 writer = csv.writer(csv_handle, delimiter=',')
                 writer.writerow( [ NAME_TO_TITLE[name] for name in metadata_names ] )
                 walk_folder_contents( service, http, start_folder, writer, metadata_names, FLAGS.destination + '/' + username + '/')
@@ -559,7 +559,7 @@ Error: {e}\n""" )
             header = log_template.format( *[ NAME_TO_TITLE[name] for name in metadata_names ])
             print( 'Status   ', header )
             start_folder = service.files().get( fileId=FLAGS.drive_id ).execute()
-            with open(config.get('gdrive', 'csvfile') + '-' + username + '.csv', 'w') as csv_handle:
+            with open(config.get('gdrive', 'csvfile') + username + '.csv', 'w') as csv_handle:
                 writer = csv.writer(csv_handle, delimiter=',')
                 writer.writerow( [ NAME_TO_TITLE[name] for name in metadata_names ] )
                 walk_folder_contents( service, http, start_folder, writer, metadata_names, FLAGS.destination + '/' + username + '/')
