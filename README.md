@@ -82,7 +82,6 @@ Option	| Description
 -log level | level is either DEBUG, INFO, WARNING, ERROR, or CRITICAL.
 -no_browser | Do not open web browser. Instead print the URL.
 -m dir | Save meta-data in dir.
--proxy URL | Send HTTP requests through proxy at URL.
 -s service	| Select the cloud service.  gdrive is the only supported service.
 
 
@@ -128,7 +127,7 @@ To download all of the files listed in the CSV file, use the -csv option.
 
 `python3 kumodd.py -csv filelist-username.csv`
 
-To relay kumodd access though an HTTP proxy, use the -proxy option, or specify the proxy in config/config.cfg:
+To relay kumodd access though an HTTP proxy, specify the proxy in config/config.cfg:
 ```
 [proxy]
 host = proxy.host.com

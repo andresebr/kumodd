@@ -86,7 +86,6 @@ list_counter = 0
 download_counter = 0
 update_counter = 0
 FLAGS = flags.FLAGS
-flags.DEFINE_string('proxy', None, 'URL of web proxy', short_name='q')
 flags.DEFINE_boolean('no_browser', False, 'disable launching a web browser to authorize access to a google drive account' )
 flags.DEFINE_string('config', 'config/config.cfg', 'config file', short_name='c')
 
