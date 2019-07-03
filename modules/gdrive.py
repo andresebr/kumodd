@@ -440,8 +440,10 @@ def main(argv):
     # Set the logging according to the command-line flag
     logging.getLogger().setLevel(getattr(logging, FLAGS.log))
 
+    if FLAGS.config.rfind('/'):
+        ensure_dir(FLAGS.config[0:FLAGS.config.rfind('/')])
     if not os.path.exists(FLAGS.config):
-        config = {
+        yaml.dump({
             'version': gdrive_version,
             'gdrive': {
                 'configurationfile': 'config/gdrive_config.json',
@@ -449,9 +451,7 @@ def main(argv):
                 'csvfile': './filelist-',
                 'metadata': 'createdDate,modifiedDate,id,path,revisions,lastModifyingUserName,ownerNames,md5Checksum,modifiedByMeDate,lastViewedByMeDate,shared'
                 }
-            }
-        with io.open(FLAGS.config, 'w', encoding='utf8') as config_handle:
-            yaml.dump(config, config_handle, default_flow_style=False, allow_unicode=True)
+            }, io.open(FLAGS.config, 'w', encoding='utf8'), default_flow_style=False, allow_unicode=True)
 
     config = yaml.safe_load(open(FLAGS.config, 'r'))
 
