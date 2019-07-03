@@ -163,15 +163,16 @@ Default meta-data include:
 - Last Viewed by Account Holder Date (UTC)
 - shared (true/false)
 
-The selection of metadata can be configured in the gdrive section of the configuration
-file.
+One can change which meta-data are included, or their order, by specifyinig a comma
+delimited list in the configuration file.
 
 ``` shell
 [gdrive]
 metadata = createdDate,modifiedDate,id,path,revisions,lastModifyingUserName,ownerNames,md5Checksum,modifiedByMeDate,lastViewedByMeDate,shared
 ```
 
-Some of the available metadata item names  are shown in the following sample of available metadata associated with a Google Doc.
+Names of the meta-data item are described in the [Google Drive API Documentation](https://developers.google.com/drive/api/v3/reference/files).
+A few of the available metadata item names are shown in the following sample of available metadata associated with a Google Doc.
 
 ``` javascript
 {'alternateLink': 'https://docs.google.com/document/d/1Bbouiss7ioabPembZdG9B9bsabaiudfjqBgtXV5-9ldo8/edit?usp=drivesdk',
