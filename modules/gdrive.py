@@ -1,4 +1,4 @@
-# -*- compile-command: "cd .. ;./kumodd.py -c config/test.cfg -s gdrive -l doc"; -*-
+# -*- compile-command: "cd .. ;./kumodd.py -c config/test.yml -l doc"; -*-
 """Simple command-line sample for the Google Drive API.
 
 Command-line application that retrieves the list of files in google drive.
@@ -23,11 +23,12 @@ import httplib2
 import socks
 import logging
 import os
+import io
 import pprint
 import sys
 import re
 import time
-import configparser
+import yaml
 import csv
 import socket
 import platform
@@ -87,20 +88,9 @@ download_counter = 0
 update_counter = 0
 FLAGS = flags.FLAGS
 flags.DEFINE_boolean('no_browser', False, 'disable launching a web browser to authorize access to a google drive account' )
-flags.DEFINE_string('config', 'config/config.cfg', 'config file', short_name='c')
+flags.DEFINE_string('config', 'config/config.yml', 'config file', short_name='c')
 
 gdrive_version = "1.0"
-config = configparser.ConfigParser({
-    'general': {'appversion': gdrive_version},
-    'proxy': {},
-    'gdrive': {
-        'configurationfile': 'config/gdrive_config.json',
-        'tokenfile':  'config/gdrive.dat',
-        'csvfile': 'localdata/gdrivelist',
-        'metadata': 'createdDate,modifiedDate,id,path,revisions,lastModifyingUserName,ownerNames,md5Checksum,modifiedByMeDate,lastViewedByMeDate,shared'
-     }
-    })
-
 
 def maybe_flatten(maybe_list, separator=' '):
     """return concatenated string from items, possibly nested."""
@@ -450,13 +440,23 @@ def main(argv):
     # Set the logging according to the command-line flag
     logging.getLogger().setLevel(getattr(logging, FLAGS.log))
 
-    config.read(FLAGS.config)
-    try: 
-        metadata_names = config.get('gdrive', 'metadata').split(',')
-    except:
-        metadata_names = 'createdDate,modifiedDate,id,path,revisions,lastModifyingUserName,ownerNames,md5Checksum,modifiedByMeDate,lastViewedByMeDate,shared'.split(',')
+    if not os.path.exists(FLAGS.config):
+        config = {
+            'version': gdrive_version,
+            'gdrive': {
+                'configurationfile': 'config/gdrive_config.json',
+                'tokenfile':  'config/gdrive.dat',
+                'csvfile': './filelist-',
+                'metadata': 'createdDate,modifiedDate,id,path,revisions,lastModifyingUserName,ownerNames,md5Checksum,modifiedByMeDate,lastViewedByMeDate,shared'
+                }
+            }
+        with io.open(FLAGS.config, 'w', encoding='utf8') as config_handle:
+            yaml.dump(config, config_handle, default_flow_style=False, allow_unicode=True)
 
-    api_credentials_file = config.get('gdrive', 'configurationfile')
+    config = yaml.safe_load(open(FLAGS.config, 'r'))
+
+    api_credentials_file = config.get('gdrive',{}).get('configurationfile')
+    metadata_names = (config.get('gdrive',{}).get('metadata')).split(',')
 
     # Set up a Flow object that opens a web browser or prints a URL for
     # approval of access to the given google drive account.
@@ -476,8 +476,8 @@ https://code.google.com/apis/console
     # Create an httplib2.Http object to handle our HTTP requests and authorize it
     # with our good Credentials.
 
-    if 'proxy' in config and 'host' in config['proxy']:
-        proxy = config['proxy']
+    if isinstance(config.get('proxy'),dict):
+        proxy = config.get('proxy')
         try:
             proxy_uri = 'http://' + proxy.get('host')
             if 'port' in proxy:
@@ -492,8 +492,8 @@ https://code.google.com/apis/console
                 httplib2.socks.PROXY_TYPE_HTTP,
                 proxy_host = proxy.get('host'),
                 proxy_port = int(proxy.get('port')) if proxy.get('port') else None,
-                proxy_user = proxy.get('user', fallback=None),
-                proxy_pass = proxy.get('pass', fallback=None) ))
+                proxy_user = proxy.get('user'),
+                proxy_pass = proxy.get('pass') ))
     else:
         http = httplib2.Http()
 
@@ -508,7 +508,7 @@ Error: {e}\n""" )
     # If the Credentials don't exist or are invalid run through the native client
     # flow. The Storage object will ensure that if successful the good
     # Credentials will get written back to a file.
-    tokenfile = config.get('gdrive', 'tokenfile')
+    tokenfile = config.get('gdrive',{}).get('tokenfile')
     try:
         storage = Storage(tokenfile)
         credentials = storage.get()
@@ -546,7 +546,7 @@ Error: {e}\n""" )
             header = list_template.format( *[ NAME_TO_TITLE[name] for name in metadata_names ])
             print( header )
             start_folder = service.files().get( fileId=FLAGS.drive_id ).execute()
-            with open(config.get('gdrive', 'csvfile') + username + '.csv', 'w') as csv_handle:
+            with open(config.get('gdrive',{}).get('csvfile') + username + '.csv', 'w') as csv_handle:
                 writer = csv.writer(csv_handle, delimiter=',')
                 writer.writerow( [ NAME_TO_TITLE[name] for name in metadata_names ] )
                 walk_folder_contents( service, http, start_folder, writer, metadata_names, FLAGS.destination + '/' + username + '/')
@@ -557,7 +557,7 @@ Error: {e}\n""" )
             header = log_template.format( *[ NAME_TO_TITLE[name] for name in metadata_names ])
             print( 'Status   ', header )
             start_folder = service.files().get( fileId=FLAGS.drive_id ).execute()
-            with open(config.get('gdrive', 'csvfile') + username + '.csv', 'w') as csv_handle:
+            with open(config.get('gdrive',{}).get('csvfile') + username + '.csv', 'w') as csv_handle:
                 writer = csv.writer(csv_handle, delimiter=',')
                 writer.writerow( [ NAME_TO_TITLE[name] for name in metadata_names ] )
                 walk_folder_contents( service, http, start_folder, writer, metadata_names, FLAGS.destination + '/' + username + '/')
