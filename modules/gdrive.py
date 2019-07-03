@@ -562,40 +562,40 @@ Error: {e}\n""" )
     
     
     global list_template, log_template
-    try:
-        start_time = datetime.now()
-        print( "Working..." )
+    list_file = csv_file + '-' + username + '.csv'
+    with open(list_file, 'w') as csv_file_handle:
+        writer = csv.writer(csv_file_handle, delimiter=',')
         
-        if FLAGS.list_items:
-            list_file = csv_file + '-' + username + '.csv'
-            list_template = name_list_to_format_string( item_names )
-            with open(list_file, 'w') as csv_file_handle:
-              header = list_template.format( *[ NAME_TO_TITLE[name] for name in item_names ])
-              print( header )
-              writer = csv.writer(csv_file_handle, delimiter=',')
-              start_folder = service.files().get( fileId=FLAGS.drive_id ).execute()
-              walk_folder_contents( service, http, start_folder, writer, item_names, FLAGS.destination + username + '/')
-              print('\n' + str(list_counter) + ' files found in ' + username + ' drive')
-        
-        elif FLAGS.get_items:
-            log_template = name_list_to_format_string( item_names )
-            header = log_template.format( *[ NAME_TO_TITLE[name] for name in item_names ])
-            print( header )
-            start_folder = service.files().get( fileId=FLAGS.drive_id ).execute()
-            walk_folder_contents( service, http, start_folder, writer, item_names, FLAGS.destination + username + '/')
-            print('\n' + str(download_counter) + ' files downloaded and ' + str(update_counter) + ' updated from ' + username + ' drive')
-        
-        elif FLAGS.usecsv:
-            log_template = name_list_to_format_string( item_names )
-            header = log_template.format( *[ NAME_TO_TITLE[name] for name in item_names ])
-            print( header )
-            get_csv_contents(service, http, FLAGS.destination + username + '/')
-            print('\n' + str(download_counter) + ' files downloaded and ' + str(update_counter) + ' updated from ' + username + ' drive')
-        end_time = datetime.now()
-        print('Duration: {}'.format(end_time - start_time))
-    except AccessTokenRefreshError:
-        print ("The credentials have been revoked or expired, please re-run"
-        "the application to re-authorize")
+        try:
+            start_time = datetime.now()
+            print( "Working..." )
+            if FLAGS.list_items:
+                list_template = name_list_to_format_string( item_names )
+                header = list_template.format( *[ NAME_TO_TITLE[name] for name in item_names ])
+                print( header )
+                start_folder = service.files().get( fileId=FLAGS.drive_id ).execute()
+                walk_folder_contents( service, http, start_folder, writer, item_names, FLAGS.destination + username + '/')
+                print('\n' + str(list_counter) + ' files found in ' + username + ' drive')
+            
+            elif FLAGS.get_items:
+                log_template = name_list_to_format_string( item_names )
+                header = log_template.format( *[ NAME_TO_TITLE[name] for name in item_names ])
+                print( header )
+                start_folder = service.files().get( fileId=FLAGS.drive_id ).execute()
+                walk_folder_contents( service, http, start_folder, writer, item_names, FLAGS.destination + username + '/')
+                print('\n' + str(download_counter) + ' files downloaded and ' + str(update_counter) + ' updated from ' + username + ' drive')
+            
+            elif FLAGS.usecsv:
+                log_template = name_list_to_format_string( item_names )
+                header = log_template.format( *[ NAME_TO_TITLE[name] for name in item_names ])
+                print( header )
+                get_csv_contents(service, http, FLAGS.destination + username + '/')
+                print('\n' + str(download_counter) + ' files downloaded and ' + str(update_counter) + ' updated from ' + username + ' drive')
+            end_time = datetime.now()
+            print('Duration: {}'.format(end_time - start_time))
+        except AccessTokenRefreshError:
+            print ("The credentials have been revoked or expired, please re-run"
+            "the application to re-authorize")
 
 if __name__ == '__main__':
     main(sys.argv)
