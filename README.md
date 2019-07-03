@@ -118,14 +118,13 @@ Download all PDF files and save them in the Desktop folder:
 `python3 kumodd.py -d pdf -p /home/user/Desktop/`
 
 The -l and -d options create a CSV file. 
-The CSV filename prefix is specified in config/config.cfg. 
+The CSV filen prefix is specified in config/config.cfg. 
 ``` shell
 [gdrive]
 csvfile = localdata/gdrivelist
 ```
 
-The google drive account name, such as username@gmail.com, and the suffix .csv are
-appended, such that the default CSV filename is localdata/gdrivelist-username@gmail.com.csv.
+The account name and .csv are appended, such that the default CSV filename is localdata/gdrivelist-username@gmail.com.csv.
 
 To download all of the files listed in the CSV file, use the `-csv` option.
 
