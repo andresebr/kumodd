@@ -108,7 +108,7 @@ def is_file_modified(drive_file, local_file):
     else:
         return True
 
-def check_file_type(mimetype):
+def file_type_from_mime(mimetype):
     file_type = 'other'
     
     if 'application/msword' in mimetype or 'application/vnd.openxmlformats-officedocument.wordprocessingml' in mimetype or 'application/vnd.ms-word' in mimetype or 'application/vnd.google-apps.document' in mimetype:
@@ -259,60 +259,27 @@ def get_folder_contents( service, http, folder, csv_file, base_path='./', depth=
             return item['mimeType'] == 'application/vnd.google-apps.folder'
         
         if FLAGS.list_items != None:
-            for item in filter(is_file, folder_contents):
-                mimetype = item['mimeType']
-                
-                if FLAGS.list_items == 'doc' and FLAGS.list_items == check_file_type(mimetype):
+            for item in filter(is_file, folder_contents)
+                if FLAGS.list_items in ['doc','xls', 'ppt', 'text', 'pdf', 'image', 'audio', 'video', 'other', 'all']
+                    and FLAGS.list_items == file_type_from_mime(item['mimeType']):
                     print( list_items(service, item, dest_path, csv_file) )
-                if FLAGS.list_items == 'xls' and FLAGS.list_items == check_file_type(mimetype):
+
+                elif FLAGS.list_items == 'officedocs'
+                    and file_type_from_mime(item['mimeType']) in ['doc', 'xls', 'ppt'])):
                     print( list_items(service, item, dest_path, csv_file) )
-                if FLAGS.list_items == 'ppt' and FLAGS.list_items == check_file_type(mimetype):
-                    print( list_items(service, item, dest_path, csv_file) )
-                if FLAGS.list_items == 'text' and FLAGS.list_items == check_file_type(mimetype):
-                    print( list_items(service, item, dest_path, csv_file) )
-                if FLAGS.list_items == 'pdf' and FLAGS.list_items == check_file_type(mimetype):
-                    print( list_items(service, item, dest_path, csv_file) )
-                if (FLAGS.list_items == 'officedocs') and (check_file_type(mimetype) == 'doc' or check_file_type(mimetype) == 'xls' or check_file_type(mimetype) == 'ppt'):
-                    print( list_items(service, item, dest_path, csv_file) )
-                if FLAGS.list_items == 'image' and FLAGS.list_items == check_file_type(mimetype):
-                    print( list_items(service, item, dest_path, csv_file) )
-                if FLAGS.list_items == 'audio' and FLAGS.list_items == check_file_type(mimetype):
-                    print( list_items(service, item, dest_path, csv_file) )
-                if FLAGS.list_items == 'video' and FLAGS.list_items == check_file_type(mimetype):
-                    print( list_items(service, item, dest_path, csv_file) )
-                if FLAGS.list_items == 'other' and FLAGS.list_items == check_file_type(mimetype):
-                    print( list_items(service, item, dest_path, csv_file) )
-                if FLAGS.list_items == 'all':
-                    print( list_items(service, item, dest_path, csv_file) )
-                
+
+
         if FLAGS.get_items != None:    
             ensure_dir( dest_path )
             for item in filter(is_file, folder_contents):
+                if FLAGS.list_items in ['doc','xls', 'ppt', 'text', 'pdf', 'image', 'audio', 'video', 'other', 'all']
+                    and FLAGS.list_items == file_type_from_mime(item['mimeType']):
+                    get_items(service, item, dest_path, csv_file)
 
-                mimetype = item['mimeType']
-                
-                if FLAGS.get_items == 'doc' and FLAGS.get_items == check_file_type(mimetype):
+                elif FLAGS.list_items == 'officedocs'
+                    and file_type_from_mime(item['mimeType']) in ['doc', 'xls', 'ppt'])):
                     get_items(service, item, dest_path, csv_file)
-                if FLAGS.get_items == 'xls' and FLAGS.get_items == check_file_type(mimetype):
-                    get_items(service, item, dest_path, csv_file)
-                if FLAGS.get_items == 'ppt' and FLAGS.get_items == check_file_type(mimetype):
-                    get_items(service, item, dest_path, csv_file)
-                if FLAGS.get_items == 'text' and FLAGS.get_items == check_file_type(mimetype):
-                    get_items(service, item, dest_path, csv_file)
-                if FLAGS.get_items == 'pdf' and FLAGS.get_items == check_file_type(mimetype):
-                    get_items(service, item, dest_path, csv_file)
-                if (FLAGS.get_items == 'officedocs') and (check_file_type(mimetype) == 'doc' or check_file_type(mimetype) == 'xls' or check_file_type(mimetype) == 'ppt'):
-                    get_items(service, item, dest_path, csv_file)
-                if FLAGS.get_items == 'image' and FLAGS.get_items == check_file_type(mimetype):
-                    get_items(service, item, dest_path, csv_file)
-                if FLAGS.get_items == 'audio' and FLAGS.get_items == check_file_type(mimetype):
-                    get_items(service, item, dest_path, csv_file)
-                if FLAGS.get_items == 'video' and FLAGS.get_items == check_file_type(mimetype):
-                    get_items(service, item, dest_path, csv_file)
-                if FLAGS.get_items == 'other' and FLAGS.get_items == check_file_type(mimetype):
-                    get_items(service, item, dest_path, csv_file)
-                if FLAGS.get_items == 'all':
-                    get_items(service, item, dest_path, csv_file)
+
     
         for item in filter(is_folder, folder_contents):
             get_folder_contents( service, http, item, csv_file, dest_path, depth+1 )
@@ -608,14 +575,32 @@ http, start_folder, csv_file, FLAGS.destination + username + '/')
             print('\n' + str(list_counter) + ' files found in ' + username + ' drive')
         
         elif FLAGS.get_items:
-            header = log_template.format(OUTPUT_HEADER[0], OUTPUT_HEADER[1], OUTPUT_HEADER[2], OUTPUT_HEADER[3], OUTPUT_HEADER[4], OUTPUT_HEADER[5], OUTPUT_HEADER[6], OUTPUT_HEADER[7])
+            header = log_template.format(
+                OUTPUT_HEADER['ctime'],
+                OUTPUT_HEADER['mtime'],
+                OUTPUT_HEADER['fileid'],
+                OUTPUT_HEADER['path'],
+                OUTPUT_HEADER['rev'],
+                OUTPUT_HEADER['lastModifyingUserName'],
+                OUTPUT_HEADER['ownerNames'],
+                OUTPUT_HEADER['md5'],
+                )
             print( header )
             start_folder = service.files().get( fileId=FLAGS.drive_id ).execute()
             get_folder_contents( service, http, start_folder, csv_file, FLAGS.destination + username + '/')
             print('\n' + str(download_counter) + ' files downloaded and ' + str(update_counter) + ' updated from ' + username + ' drive')
         
         elif FLAGS.usecsv:
-            header = log_template.format(OUTPUT_HEADER[0], OUTPUT_HEADER[1], OUTPUT_HEADER[2], OUTPUT_HEADER[3], OUTPUT_HEADER[4], OUTPUT_HEADER[5], OUTPUT_HEADER[6], OUTPUT_HEADER[7])
+            header = log_template.format(
+                OUTPUT_HEADER['ctime'],
+                OUTPUT_HEADER['mtime'],
+                OUTPUT_HEADER['fileid'],
+                OUTPUT_HEADER['path'],
+                OUTPUT_HEADER['rev'],
+                OUTPUT_HEADER['lastModifyingUserName'],
+                OUTPUT_HEADER['ownerNames'],
+                OUTPUT_HEADER['md5'],
+                )
             print( header )
             get_csv_contents(service, http, FLAGS.destination + username + '/')
             print('\n' + str(download_counter) + ' files downloaded and ' + str(update_counter) + ' updated from ' + username + ' drive')
