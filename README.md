@@ -258,7 +258,7 @@ python -m pip install --user -r requirements.txt
 
 Using an HTTP proxy on Windows does not work due to unresolved issues with httplib2.
 
-Note that Google rate limits API calls.  At the time of writing (June 2019), the
+Note that Google rate limits API calls.  At the time of writing, the
 following default API limits are imposed by [Google Cloud Platform
 Quotas](https://console.cloud.google.com/apis/api/drive.googleapis.com/quotas).
 
