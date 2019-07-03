@@ -118,12 +118,12 @@ Download all PDF files and save them in the Desktop folder:
 `python3 kumodd.py -d pdf -p /home/user/Desktop/`
 
 The -l and -d options create a CSV file. 
-The CSV file name prefix is specified in config/config.cfg.   The user name and .csv are appended, for a default CSV filename of filelist-username.csv.
+The CSV file name consist of a prefix specified in the config/config.cfg (below)
+appended by the  user name and .csv, for a default CSV filename of filelist-username.csv.
 ``` shell
 [gdrive]
 csvfile = filelist-
 ```
-
 To download all of the files listed in the CSV file, use the `-csv` option.
 
 `python3 kumodd.py -csv filelist-username.csv`
@@ -136,7 +136,6 @@ port = 8888
 user = username (optional)
 pass = password (optional)
 ```
-
 The default config file is config/config.dat.  To select an alternate config file, use the -c option:
 
 `python3 kumodd.py -c config/alternate.dat`
