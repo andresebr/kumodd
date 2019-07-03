@@ -70,7 +70,9 @@ https://cloud.google.com/billing/docs/how-to/manage-billing-account#create_a_new
 
 ## Usage
 
-`python3 kumodd.py [-s <service>] [-d <filter>] [-l <filter>] [-csv <filename>]`
+`python3 kumodd.py [-d <filter>] [-l <filter>] [-csv <filename>]`
+
+Only one of -d, -l, or -csv should be used.
 
 Option	| Description 
 :------	| :-----------
