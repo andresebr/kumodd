@@ -63,36 +63,28 @@ https://cloud.google.com/billing/docs/how-to/manage-billing-account#create_a_new
 
     Once this is done, kumodd will not prompt again for the Google Drive login details unless the token expires or the config/gdrive.dat is deleted.
 
-    To force kumodd to print the URL, and not open local web browser, invoke it with the `--noauth_local_webserver` option:
+    To force kumodd to print the URL, and not open local web browser, invoke it with the `--no_browser` option:
     ```
-    python3 kumodd.py --noauth_local_webserver -l all
+    python3 kumodd.py --no_browser -l all
     ```
 
 ## Usage
 
-`python3 kumodd.py [-s service] [action] [filter]`
+`python3 kumodd.py [-s <service>] [-d <filter>] [-l <filter>] [-csv <filename>]`
 
-**[service]**
+Option	| Description 
+:------	| :-----------
+-s <service>	| Select the cloud service. `gdrive` is the only supported service.
+-l <filter>	| List files. Also create a CSV file list.
+-d <filter>	| Download files. Also create a CSV file list.
+-csv <file>	| Download files listed in previously generated CSV file, <file>.
+-log <level> | <level> is either DEBUG, INFO, WARNING, ERROR, or CRITICAL.
+--no_browser | Do not open web browser. Instead print the URL.
+-m <metadata dir> | Save meta-data in <metadata dir>.
+-proxy <URL> | Send HTTP requests through proxy at <URL>.
 
-    Select the cloud service.
 
-    `-s gdrive` access a Google Drive account. This is the default service.
-
-**[action]**
-
-    The action to be performed using the selected service:
-
-    `-l` List files to standard output and also create a CSV file.
-
-    `-d` download files stored in an account.
-
-    `-csv <file>` download the files listed in a previously generated CSV file, <file>.
-
-    `-p <path>` specifies a path where the files will be downloaded.
-
-**[filter]**
-
-    The filter parameter limits access to a selected category of files:
+The <filter> parameter limits access to a selected category of files:
 
 Filter	| Description 
 :------	| :-----------

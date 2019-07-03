@@ -10,7 +10,7 @@ import modules.gdrive as gdrive
 
 FLAGS = flags.FLAGS
 
-flags.DEFINE_enum('logging_level', 'ERROR',
+flags.DEFINE_enum('log', 'ERROR',
                   ['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL'],
                   'Set the level of logging detail.')
 flags.DEFINE_enum('service', 'gdrive',
@@ -26,7 +26,6 @@ flags.DEFINE_list('usecsv', None,
 flags.DEFINE_string('destination', 'downloaded/', 'Destination folder location', short_name='p')
 flags.DEFINE_string('metadata_destination', 'metadata/',
                     'Destination folder for metadata information', short_name='m')
-flags.DEFINE_boolean('debug', False, 'Log folder contents as being fetched' )
 
 def main(argv):
     try:

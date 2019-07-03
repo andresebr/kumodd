@@ -13,7 +13,7 @@ by running:
 
 To get detailed log output run:
 
-    $ python drive.py --logging_level=DEBUG
+    $ python drive.py --log=DEBUG
 """
 
 __author__ = 'andrsebr@gmail.com (Andres Barreto)'
@@ -87,7 +87,7 @@ download_counter = 0
 update_counter = 0
 FLAGS = flags.FLAGS
 flags.DEFINE_string('proxy', None, 'URL of web proxy', short_name='q')
-flags.DEFINE_boolean('noauth_local_webserver', False, 'disable launching a web browser to authorize access to a google drive account' )
+flags.DEFINE_boolean('no_browser', False, 'disable launching a web browser to authorize access to a google drive account' )
 flags.DEFINE_string('config', 'config/config.cfg', 'config file', short_name='c')
 
 gdrive_version = "1.0"
@@ -237,8 +237,6 @@ def walk_folder_contents( service, http, folder, writer=None, metadata_names=Non
     page_token = None
     flag = True
     
-    if FLAGS.debug:
-        log( "\n" + '  ' * depth + "Getting contents of folder %s" % folder['title'] )
     while flag:
         
         try:
@@ -451,7 +449,7 @@ def main(argv):
         sys.exit(1)
 
     # Set the logging according to the command-line flag
-    logging.getLogger().setLevel(getattr(logging, FLAGS.logging_level))
+    logging.getLogger().setLevel(getattr(logging, FLAGS.log))
 
     config.read(FLAGS.config)
     try: 
@@ -523,7 +521,7 @@ Error: {e}\n""" )
 
     if credentials is None or credentials.invalid:
         oflags = argparser.parse_args([])
-        oflags.noauth_local_webserver = FLAGS.noauth_local_webserver
+        oflags.noauth_local_webserver = FLAGS.no_browser
         credentials = run_flow(FLOW, storage, oflags, http)
 
     http = credentials.authorize(http)
@@ -568,7 +566,6 @@ Error: {e}\n""" )
                 print('\n' + str(download_counter) + ' files downloaded and ' + str(update_counter) + ' updated from ' + username + ' drive')
 
         elif FLAGS.usecsv:
-            print(f"FLAGS.usecsv: {FLAGS.usecsv}")
             log_template = name_list_to_format_string( metadata_names )
             header = log_template.format( *[ NAME_TO_TITLE[name] for name in metadata_names ])
             print( 'Status   ', header )
