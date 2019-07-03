@@ -117,9 +117,9 @@ Download all PDF files and save them in the Desktop folder:
 
 `python3 kumodd.py -d pdf -p /home/user/Desktop/`
 
-The `-l` option creates a CSV file.  
-The CSV filename is specified in `config/config.cfg`.  
-The default CSV filename is `localdata/gdrivelist-username@gmail.com.csv`.
+The -l and -d options create a CSV file. 
+The CSV filename prefix is specified in `config/config.cfg`. The google drive account
+name, such as username@gmail.com, and the suffix .csv are appended, such that the default CSV filename is `localdata/gdrivelist-username@gmail.com.csv`.
 
 To download all of the files listed in the CSV file, use the `-csv` option.
 
@@ -134,7 +134,7 @@ user = username (optional)
 pass = password (optional)
 ```
 
-The default config file is config/config.dat.  To select an alternate config file, use the `-c` option:
+The default config file is config/config.dat.  To select an alternate config file, use the -c option:
 
 `python3 kumodd.py -c config/alternate.dat`
 
