@@ -82,11 +82,11 @@ https://cloud.google.com/billing/docs/how-to/manage-billing-account#create_a_new
 
     The action to be performed using the selected service:
 
-    `-l` List files stored in an account drive as a plain text table.
+    `-l` List files to standard output and also create a CSV file.
 
     `-d` download files stored in an account.
 
-    `-csv <file>` specifies a CSV file containing a list of selected files.
+    `-csv <file>` download the files listed in a previously generated CSV file, <file>.
 
     `-p <path>` specifies a path where the files will be downloaded.
 
