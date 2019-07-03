@@ -177,7 +177,7 @@ developed.  It has has been replaced by the [Google Cloud client
 libraries](https://github.com/googleapis/google-cloud-python) which are in development,
 and preferred for new work.
 
-A sample of the available metadata is shown in the following json object.
+A sample of available metadata for a Google Doc is shown in the following json object.
 
 ``` javascript
 {'alternateLink': 'https://docs.google.com/document/d/1Bbouiss7ioabPembZdG9B9bsabaiudfjqBgtXV5-9ldo8/edit?usp=drivesdk',
