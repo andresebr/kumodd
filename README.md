@@ -179,7 +179,7 @@ and preferred for new work.
 
 A sample of the available metadata is shown in the following json object.
 
-``` json
+``` javascript
 {'alternateLink': 'https://docs.google.com/document/d/1Bbouiss7ioabPembZdG9B9bsabaiudfjqBgtXV5-9ldo8/edit?usp=drivesdk',
  'appDataContents': False,
  'capabilities': {'canCopy': True, 'canEdit': True},
