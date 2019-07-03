@@ -31,6 +31,7 @@ import configparser
 import csv
 import socket
 import platform
+from collections import Iterable
 from googleapiclient.discovery import build
 from oauth2client.file import Storage
 from oauth2client.client import AccessTokenRefreshError, flow_from_clientsecrets
@@ -50,28 +51,37 @@ NAME_TO_TITLE = {
     'user':		'User',
     'id':		'File Id',
     'path':		'Remote Path',
-    'rev':		'Revision',
+    'revisions':	'Revisions',
     'local_path':	'Local Path',
-    'md5':		'MD5',
+    'md5Checksum':	'MD5',
     'mime':		'MIME Type',
     'index':		'Index',
-    'lastModifyingUserName':	'Last Modified by',
-    'ownerNames':	'Owner'
+    'lastModifyingUserName':	'Last Mod by',
+    'ownerNames':	'Owner',
+    'modifiedByMeDate':	'Last Mod By Me',
+    'lastViewedByMeDate': 'Last View By Me',
+    'shared':		'Is Shared',
+    'version':		'Version',
     }
-LIST_ITEM_NAMES = [
-                   'createdDate',
-                   'modifiedDate',
-                   'id',
-                   'path',
-                   'rev',
-                   'lastModifyingUserName',
-                   'ownerNames',
-                   'md5',
-                   ]
-LIST_ITEM_TITLES = [ NAME_TO_TITLE[name] for name in LIST_ITEM_NAMES]
 
-list_template = "{0:24} {1:24} {2:50} {3:70} {4:10} {5:20} {6:20} {7:32}"
-log_template = "{:>5} {:>5} {:>5} {:>5} {:>5} {:>5} {:>5} {:>5}"
+def name_list_to_format_string( names ):
+    """generate a format string for a given list of metadata names"""
+    fields = []
+    for i, name in enumerate(names):
+        if 'path' in name:
+            fields.append(f'{{{i}:70}}')
+        elif name in ['id']:
+            fields.append(f'{{{i}:44}}')
+        elif name in ['md5']:
+            fields.append(f'{{{i}:32}}')
+        elif 'Date' in name or name in ['time']:
+            fields.append(f'{{{i}:24}}')
+        elif name in ['revision', 'version']:
+            fields.append(f'{{{i}:8}}')
+        else:
+            fields.append(f'{{{i}:20}}')
+    return ' '.join( fields )
+
 list_counter = 0
 download_counter = 0
 update_counter = 0
@@ -80,17 +90,25 @@ flags.DEFINE_string('proxy', None, 'URL of web proxy', short_name='q')
 flags.DEFINE_boolean('noauth_local_webserver', False, 'disable launching a web browser to authorize access to a google drive account' )
 flags.DEFINE_string('config', 'config/config.cfg', 'config file', short_name='c')
 
-gdrive_version = "0.1.1"
-config = configparser.ConfigParser()
-config['DEFAULT'] = {
+gdrive_version = "1.0"
+config = configparser.ConfigParser({
     'general': {'appversion': gdrive_version},
     'proxy': {},
     'gdrive': {
         'configurationfile': 'config/gdrive_config.json',
         'tokenfile':  'config/gdrive.dat',
-        'csvfile': 'localdata/gdrivelist'
+        'csvfile': 'localdata/gdrivelist',
+        'metadata': 'createdDate,modifiedDate,id,path,revisions,lastModifyingUserName,ownerNames,md5Checksum,modifiedByMeDate,lastViewedByMeDate,shared'
      }
-    }
+    })
+
+
+def maybe_flatten(maybe_list, separator=' '):
+    """return concatenated string from items, possibly nested."""
+    if isinstance(maybe_list, Iterable) and not isinstance(maybe_list, (str, bytes)):
+        return separator.join([ maybe_flatten(x) for x in maybe_list ])
+    else:
+        return str(maybe_list)
 
 # The flags module makes defining command-line options easy for
 # applications. Run this program with the '--help' argument to see
@@ -143,48 +161,34 @@ def file_type_from_mime(mimetype):
         
     return file_type
 
-def list_items(writer, service, drive_file, dest_path):
+def parse_drive_file_metadata(service, drive_file, dest_path):
+    full_path = dest_path + drive_file['title'].replace( '/', '_' )
+    drive_file['local_path'] = full_path
+
+    remote_path = full_path.replace(FLAGS.destination + username + '/','')
+    drive_file['path'] = remote_path
+
+    revision_list = retrieve_revisions(service, drive_file['id'])
+    revisions = str(len(revision_list)) if revision_list else '1'
+    drive_file['revisions'] = revisions
+    
+
+def list_items(service, drive_file, dest_path, writer, metadata_names):
     # print(f"metadata: {drive_file['title']}")
     # pprint.pprint(drive_file)
     global list_counter
-    full_path = dest_path + drive_file['title'].replace( '/', '_' )
-    remote_path = full_path.replace(FLAGS.destination + username + '/','')
-    revision_list = retrieve_revisions(service, drive_file['id'])
-    revisions = str(len(revision_list)) if revision_list else '1'
+    parse_drive_file_metadata(service, drive_file, dest_path)
     # pprint.pprint(drive_file)
-
-    cols = [
-            drive_file['createdDate'],
-            drive_file['modifiedDate'],
-            drive_file['id'],
-            remote_path,
-            revisions,
-            drive_file['lastModifyingUserName'],
-            drive_file['ownerNames'][0],
-            drive_file.get('md5Checksum') or '-',
-            ]
+    data = [ maybe_flatten( drive_file.get(name)) for name in metadata_names ]
+    writer.writerow( data )
+    # pprint.pprint(metadata_names)
+    # pprint.pprint(data)
     list_counter += 1
-    writer.writerow( cols )
-    return list_template.format( *cols )
+    return list_template.format( *data )
     
-def get_items(service, drive_file, dest_path, item_names):
+def get_items(service, drive_file, dest_path, metadata_names):
     global update_counter
-
-    full_path = dest_path + drive_file['title'].replace( '/', '_' )
-    current_time = datetime.now()
-    version = gdrive_version + '/' + config.get('general', 'appversion')
-    file_id = drive_file['id']
-    remote_path = full_path.replace(FLAGS.destination + username + '/','')
-    revision_list = retrieve_revisions(service, drive_file['id'])
-    file_hash = '-'
-    
-    if drive_file.get('md5Checksum') != None:
-        file_hash = drive_file['md5Checksum']
-    if revision_list != None:
-        revisions = 'v.' + str(len(revision_list))
-    else:
-        revisions = 'v.1'    
-
+    parse_drive_file_metadata(service, drive_file, dest_path)
     if file_is_modified( drive_file, full_path ):
         if not download_file( service, drive_file, dest_path ):
             log( f"ERROR downloading: {full_path}" )
@@ -194,17 +198,8 @@ def get_items(service, drive_file, dest_path, item_names):
             if os.path.exists( full_path ):
                 print( "Updated %s" % full_path )
             else:
-                cols = [
-                        str(current_time),
-                        version,
-                        username,
-                        file_id,
-                        remote_path,
-                        revisions,
-                        full_path,
-                        file_hash,
-                        ]
-                output_row = log_template.format( *cols )
+                data = [ maybe_flatten( drive_file.get(name)) for name in metadata_names ]
+                output_row = log_template.format( *data )
                 print( output_row )
                 log(output_row)
 
@@ -231,7 +226,7 @@ def get_user_info(service):
 def reset_file(filename):
     open(filename, "w").close()
 
-def walk_folder_contents( service, http, folder, writer=None, cols=None, base_path='./', depth=0 ):
+def walk_folder_contents( service, http, folder, writer=None, metadata_names=None, base_path='./', depth=0 ):
     result = []
     page_token = None
     flag = True
@@ -254,7 +249,7 @@ def walk_folder_contents( service, http, folder, writer=None, cols=None, base_pa
         except:
             print( 'trapped' )
             log( "ERROR: Couldn't get contents of folder %s. Retrying..." % folder['title'] )
-            walk_folder_contents( service, http, folder, writer, cols, base_path, depth )
+            walk_folder_contents( service, http, folder, writer, metadata_names, base_path, depth )
             return
             
         folder_contents = result
@@ -270,25 +265,25 @@ def walk_folder_contents( service, http, folder, writer=None, cols=None, base_pa
             for item in filter(is_file, folder_contents):
                 if ( FLAGS.list_items in ['doc','xls', 'ppt', 'text', 'pdf', 'image', 'audio', 'video', 'other', 'all']
                     and FLAGS.list_items == file_type_from_mime(item['mimeType']) ):
-                    print( list_items(writer, service, item, dest_path) )
+                    print( list_items(service, item, dest_path, writer, metadata_names) )
 
                 elif ( FLAGS.list_items == 'officedocs'
                       and file_type_from_mime(item['mimeType']) in ['doc', 'xls', 'ppt']):
-                    print( list_items(writer, service, item, dest_path) )
+                    print( list_items(service, item, dest_path, writer, metadata_names) )
 
         if FLAGS.get_items != None:    
             ensure_dir( dest_path )
             for item in filter(is_file, folder_contents):
                 if ( FLAGS.list_items in ['doc','xls', 'ppt', 'text', 'pdf', 'image', 'audio', 'video', 'other', 'all']
                     and FLAGS.list_items == file_type_from_mime(item['mimeType']) ):
-                    get_items(service, item, dest_path, csv_file)
+                    get_items(service, item, dest_path, metadata_names)
 
                 elif ( FLAGS.list_items == 'officedocs'
                       and file_type_from_mime(item['mimeType']) in ['doc', 'xls', 'ppt']):
-                    get_items(service, item, dest_path, csv_file)
+                    get_items(service, item, dest_path, metadata_names)
     
         for item in filter(is_folder, folder_contents):
-            walk_folder_contents( service, http, item, writer, cols, dest_path, depth+1 )
+            walk_folder_contents( service, http, item, writer, metadata_names, dest_path, depth+1 )
             
 def get_csv_contents(service, http, csv_file, base_path='./'):
     """Print information about the specified revision.
@@ -472,14 +467,16 @@ def main(argv):
 
     config.read(FLAGS.config)
     csv_file = config.get('gdrive', 'csvfile')
-    # api_credentials_file, name of a file containing the OAuth 2.0 information for this
-    # application, including client_id and client_secret, which are found
-    # on the API Access tab on the Google APIs
-    # Console <http://code.google.com/apis/console>
-    #api_credentials_file = 'config/client_secrets.json'
+    pprint.pprint([ 'csvfile:', csv_file ])
+    try: 
+        item_names = config.get('gdrive', 'metadata').split(',')
+    except:
+        item_names = 'createdDate,modifiedDate,id,path,revisions,lastModifyingUserName,ownerNames,md5Checksum,modifiedByMeDate,lastViewedByMeDate,shared'.split(',')
+
     api_credentials_file = config.get('gdrive', 'configurationfile')
 
-    # Set up a Flow object to be used if we need to authenticate.
+    # Set up a Flow object that opens a web browser or prints a URL for
+    # approval of access to the given google drive account.
     FLOW = flow_from_clientsecrets(api_credentials_file,
                                    scope= 'https://www.googleapis.com/auth/drive',
                                    message= f"""
@@ -557,22 +554,15 @@ Error: {e}\n""" )
     ensure_dir(FLAGS.destination + username + '/')
     open_logfile()
     
+    
+    global list_template, log_template
     try:
         start_time = datetime.now()
         print( "Working..." )
         
         if FLAGS.list_items:
             list_file = csv_file + '-' + username + '.csv'
-            item_names = [
-                          'createdDate',
-                          'modifiedDate',
-                          'id',
-                          'path',
-                          'rev',
-                          'lastModifyingUserName',
-                          'ownerNames',
-                          'md5',
-                          ]
+            list_template = name_list_to_format_string( item_names )
             with open(list_file, 'w') as csv_file_handle:
               header = list_template.format( *[ NAME_TO_TITLE[name] for name in item_names ])
               print( header )
@@ -582,16 +572,7 @@ Error: {e}\n""" )
               print('\n' + str(list_counter) + ' files found in ' + username + ' drive')
         
         elif FLAGS.get_items:
-            item_names = [
-                          'time',
-                          'version',
-                          'user',
-                          'id',
-                          'path',
-                          'rev',
-                          'local_path',
-                          'md5',
-                          ]
+            log_template = name_list_to_format_string( item_names )
             header = log_template.format( *[ NAME_TO_TITLE[name] for name in item_names ])
             print( header )
             start_folder = service.files().get( fileId=FLAGS.drive_id ).execute()
@@ -599,16 +580,7 @@ Error: {e}\n""" )
             print('\n' + str(download_counter) + ' files downloaded and ' + str(update_counter) + ' updated from ' + username + ' drive')
         
         elif FLAGS.usecsv:
-            item_names = [
-                          'time',
-                          'version',
-                          'user',
-                          'id',
-                          'path',
-                          'rev',
-                          'local_path',
-                          'md5',
-                          ]
+            log_template = name_list_to_format_string( item_names )
             header = log_template.format( *[ NAME_TO_TITLE[name] for name in item_names ])
             print( header )
             get_csv_contents(service, http, FLAGS.destination + username + '/')

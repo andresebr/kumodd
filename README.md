@@ -5,16 +5,6 @@ Kumodd collects data from a specified Google Drive account.
 Optional filters limit by file cateories, such as doc, image, or video. 
 Output can include file contents or only a table of meta-data.
 
-Meta-data include:
-- Last Modified time (UTC)
-- Created time (UTC)
-- [File ID](https://developers.google.com/drive/api/v3/about-files), an opaque, random string which is constant for the life of a file, even if the file name changes.
-- Google Drive File Path
-- Number of revisions
-- Last Modified by (user name)
-- Owner (user name)
-- MD5 digest.  File types that are native to Google Docs do not include an MD5 digest, where as non-native types such as MS Office do, as shown below.
-
 ``` shell
 ./kumodd.py -l doc
 Created (UTC)            Last Modified (UTC)      File Id                                       Remote Path                   Revision   Last Modified by Owner            MD5                       
@@ -148,36 +138,39 @@ The default config file is config/config.dat.  To select an alternate config fil
 
 `python3 kumodd.py -c config/alternate.dat`
 
-## Notes
-
-To use kumod on windows, add python and git to the PATH environment variable, and then
-do the rest of the setup.
-
+The default meta zzz
 ``` shell
-SET "PATH=%PATH%;C:\Python37"
-SET "PATH=%PATH%;C:\ProgramFile\Git\bin"
-git clone https://github.com/rich-murphey/kumodd.git
-cd kumodd
-python -m pip install --user -r requirements.txt
-.\kumodd.py -l doc
+[proxy]
+host = proxy.host.com
+port = 8888
+user = username (optional)
+pass = password (optional)
 ```
 
-Using an HTTP proxy on Windows does not work due to unresolved issues with httplib2.
+## Meta-data
 
-At the time of writing (June 2019), the following default API limits are imposed by [Google Cloud Platform Quotas](https://console.cloud.google.com/apis/api/drive.googleapis.com/quotas).
+Default meta-data include:
+- Last Modified time (UTC)
+- Created time (UTC)
+- [File ID](https://developers.google.com/drive/api/v3/about-files), an opaque, random string which is constant for the life of a file, even if the file name changes.
+- Google Drive File Path
+- Number of revisions
+- Last Modified by (user name)
+- Owner (user name)
+- MD5 digest.  File types that are native to Google Docs do not include an MD5 digest, where as non-native types such as MS Office do, as shown below.
+- Last Modified by Account Holder Date (UTC)
+- Last Viewed by Account Holder Date (UTC)
+- shared (true/false)
 
-- 1,000,000,000 queries per day
-- 1,000 queries per 100 seconds per user
-- 10,000 queries per 100 seconds
+The selection of metadata can be configured in the gdrive section of the configuration
+file.
 
-kumodd uses the [Google API Python
-Client](https://github.com/googleapis/google-api-python-client) which is officially
-supported by Google; It is feature complete and stable; hosever, it is not actively
-developed.  It has has been replaced by the [Google Cloud client
-libraries](https://github.com/googleapis/google-cloud-python) which are in development,
-and preferred for new work.
+``` shell
+[gdrive]
+metadata = createdDate,modifiedDate,id,path,revisions,lastModifyingUserName,ownerNames,md5Checksum,modifiedByMeDate,lastViewedByMeDate,shared
+```
 
-A sample of available metadata for a Google Doc is shown in the following json object.
+Some of the available metadata item names  are shown in the following sample of available metadata associated with a Google Doc.
 
 ``` javascript
 {'alternateLink': 'https://docs.google.com/document/d/1Bbouiss7ioabPembZdG9B9bsabaiudfjqBgtXV5-9ldo8/edit?usp=drivesdk',
@@ -245,3 +238,33 @@ A sample of available metadata for a Google Doc is shown in the following json o
  'version': '12',
  'writersCanShare': True}
 ```
+
+## Notes
+
+To use kumod on windows, add python and git to the PATH environment variable, and then
+do the rest of the setup.
+
+``` shell
+SET "PATH=%PATH%;C:\Python37"
+SET "PATH=%PATH%;C:\ProgramFile\Git\bin"
+git clone https://github.com/rich-murphey/kumodd.git
+cd kumodd
+python -m pip install --user -r requirements.txt
+.\kumodd.py -l doc
+```
+
+Using an HTTP proxy on Windows does not work due to unresolved issues with httplib2.
+
+At the time of writing (June 2019), the following default API limits are imposed by [Google Cloud Platform Quotas](https://console.cloud.google.com/apis/api/drive.googleapis.com/quotas).
+
+- 1,000,000,000 queries per day
+- 1,000 queries per 100 seconds per user
+- 10,000 queries per 100 seconds
+
+kumodd uses the [Google API Python
+Client](https://github.com/googleapis/google-api-python-client) which is officially
+supported by Google; It is feature complete and stable; hosever, it is not actively
+developed.  It has has been replaced by the [Google Cloud client
+libraries](https://github.com/googleapis/google-cloud-python) which are in development,
+and preferred for new work.
+
