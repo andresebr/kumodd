@@ -117,7 +117,7 @@ def maybe_flatten(maybe_list, separator=' '):
 
 def open_logfile():
     if not re.match( '^/', FLAGS.logfile ):
-        FLAGS.logfile = FLAGS.destination + username + '/' + FLAGS.logfile
+        FLAGS.logfile = FLAGS.destination + '/' + username + '/' + FLAGS.logfile
     global LOG_FILE
     LOG_FILE = open( FLAGS.logfile, 'a' )
     
@@ -210,7 +210,7 @@ def get_items(service, drive_file, dest_path, metadata_names):
     log(output_row)
 
 def save_metadata(drive_file):
-    metadata_directory = FLAGS.destination + username + '/' + FLAGS.metadata_destination 
+    metadata_directory = FLAGS.destination + '/' + username + '/' + FLAGS.metadata_destination 
     ensure_dir(metadata_directory)
     with open(metadata_directory + drive_file['id'] + '-' + drive_file['title'] + '.json', 'w+') as metadata_file:
         json.dump(drive_file, metadata_file)
@@ -564,7 +564,7 @@ Error: {e}\n""" )
         username = user_info['user']['emailAddress']
     else:
         username = '???'
-    ensure_dir(FLAGS.destination + username + '/')
+    ensure_dir(FLAGS.destination + '/' + username + '/')
     open_logfile()
     
     
@@ -580,7 +580,7 @@ Error: {e}\n""" )
                 header = list_template.format( *[ NAME_TO_TITLE[name] for name in item_names ])
                 print( header )
                 start_folder = service.files().get( fileId=FLAGS.drive_id ).execute()
-                walk_folder_contents( service, http, start_folder, writer, item_names, FLAGS.destination + username + '/')
+                walk_folder_contents( service, http, start_folder, writer, item_names, FLAGS.destination + '/' + username + '/')
                 print('\n' + str(list_counter) + ' files found in ' + username + ' drive')
             
             elif FLAGS.get_items:
@@ -588,14 +588,14 @@ Error: {e}\n""" )
                 header = log_template.format( *[ NAME_TO_TITLE[name] for name in item_names ])
                 print( 'Status   ', header )
                 start_folder = service.files().get( fileId=FLAGS.drive_id ).execute()
-                walk_folder_contents( service, http, start_folder, writer, item_names, FLAGS.destination + username + '/')
+                walk_folder_contents( service, http, start_folder, writer, item_names, FLAGS.destination + '/' + username + '/')
                 print('\n' + str(download_counter) + ' files downloaded and ' + str(update_counter) + ' updated from ' + username + ' drive')
             
             elif FLAGS.usecsv:
                 log_template = name_list_to_format_string( item_names )
                 header = log_template.format( *[ NAME_TO_TITLE[name] for name in item_names ])
                 print( 'Status   ', header )
-                get_csv_contents(service, http, FLAGS.destination + username + '/')
+                get_csv_contents(service, http, FLAGS.destination + '/' + username + '/')
                 print('\n' + str(download_counter) + ' files downloaded and ' + str(update_counter) + ' updated from ' + username + ' drive')
             end_time = datetime.now()
             print('Duration: {}'.format(end_time - start_time))
