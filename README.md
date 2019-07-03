@@ -80,10 +80,10 @@ Option	| Description
 -d filter	| Download files. Also create a CSV file list.
 -csv file	| Download files listed in previously generated CSV file, <file>.
 -log level | level is either DEBUG, INFO, WARNING, ERROR, or CRITICAL.
---no_browser | Do not open web browser. Instead print the URL.
+-no_browser | Do not open web browser. Instead print the URL.
 -m dir | Save meta-data in dir.
 -proxy URL | Send HTTP requests through proxy at URL.
--s service	| service must be `gdrive`, which is also the default.
+-s service	| Select the cloud service.  gdrive is the only supported service.
 
 
 The filter option limits output to a selected category of files.  In google drive, file
