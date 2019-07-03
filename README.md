@@ -258,9 +258,8 @@ python -m pip install --user -r requirements.txt
 
 Using an HTTP proxy on Windows does not work due to unresolved issues with httplib2.
 
-Note that Google rate limits API calls.  At the time of writing, the
-following default API limits are imposed by [Google Cloud Platform
-Quotas](https://console.cloud.google.com/apis/api/drive.googleapis.com/quotas).
+Note that [Google rate limits API calls](https://console.cloud.google.com/apis/api/drive.googleapis.com/quotas).
+At the time of writing, the default rate limits are:
 
 - 1,000,000,000 queries per day
 - 1,000 queries per 100 seconds per user
