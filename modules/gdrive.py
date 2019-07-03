@@ -176,7 +176,6 @@ def parse_drive_file_metadata(service, drive_file, dest_path):
     revisions = str(len(revision_list)) if revision_list else '1'
     drive_file['revisions'] = revisions
     
-
 def list_items(service, drive_file, dest_path, writer, metadata_names):
     # print(f"metadata: {drive_file['title']}")
     # pprint.pprint(drive_file)
@@ -184,7 +183,8 @@ def list_items(service, drive_file, dest_path, writer, metadata_names):
     parse_drive_file_metadata(service, drive_file, dest_path)
     # pprint.pprint(drive_file)
     data = [ maybe_flatten( drive_file.get(name)) for name in metadata_names ]
-    writer.writerow( data )
+    if writer:
+        writer.writerow( data )
     # pprint.pprint(metadata_names)
     # pprint.pprint(data)
     list_counter += 1
@@ -207,7 +207,7 @@ def get_items(service, drive_file, dest_path, metadata_names):
     data = [ maybe_flatten( drive_file.get(name)) for name in metadata_names ]
     output_row = log_template.format( *data )
     print( status, output_row )
-    log(output_row)
+    log( status + output_row)
 
 def save_metadata(drive_file):
     metadata_directory = FLAGS.destination + '/' + username + '/' + FLAGS.metadata_destination 
@@ -299,7 +299,7 @@ def walk_folder_contents( service, http, folder, writer=None, metadata_names=Non
         for item in filter(is_folder, folder_contents):
             walk_folder_contents( service, http, item, writer, metadata_names, dest_path, depth+1 )
             
-def get_csv_contents(service, http, csv_file, base_path='./'):
+def get_csv_contents(service, http, csv_file, metadata_names=None, base_path='./'):
     """Print information about the specified revision.
 
     Args:
@@ -308,45 +308,20 @@ def get_csv_contents(service, http, csv_file, base_path='./'):
         revision_id: ID of the revision to print.
     """
     ensure_dir( base_path )
-    index_list = FLAGS.usecsv
-    csv_file = csv_file + '-' + username + '.csv'
+    with open(FLAGS.usecsv[0], 'rt') as csv_handle:
+        reader = csv.reader(csv_handle)
+        header = next(reader, None)
+        index_of_path = header.index(NAME_TO_TITLE['path'])
+        index_of_id = header.index(NAME_TO_TITLE['id'])
+        for row in reader:
+            path = row[index_of_path].split('/')
+            del path[len(path)-1]
+            remote_path = '/'.join(path)
+            dest_path = base_path + remote_path + '/'
+            ensure_dir( dest_path )
+            item = service.files().get(fileId=row[index_of_id]).execute()
+            get_items(service, item, dest_path, metadata_names)
 
-    #TODO: Validate everything!!!
-    if index_list[0] == 'all':
-        f= open(csv_file, 'rt')
-        try:
-            reader = csv.reader(f)
-            for row in reader:
-                path = row[2].split('/')
-                del path[len(path)-1]
-                remote_path = '/'.join(path)
-                dest_path = base_path + remote_path + '/'
-                ensure_dir( dest_path )
-                item = service.files().get(fileId=row[1]).execute()
-                get_items(service, item, dest_path, csv_file)
-        finally:
-            f.close()
-    
-    if index_list[0] != 'all':
-        for item in index_list:
-            if (item.isdigit() or item == 0) and int(item) >= 0:
-                f= open(csv_file, 'rt')
-                try:
-                    reader = csv.reader(f)
-                    for row in reader:
-                        if item == row[0]:
-                            path = row[2].split('/')
-                            del path[len(path)-1]
-                            remote_path = '/'.join(path)
-                            dest_path = base_path + remote_path + '/'
-                            ensure_dir( dest_path )
-                            item = service.files().get(fileId=row[1]).execute()
-                            get_items(service, item, dest_path, csv_file)
-                finally:
-                    f.close()
-            else:    
-                print( 'ERROR! Incorrect index: ' + item + ' type all to download <all> files listed in the csv file' )
-        
 def download_revision(service, drive_file, revision_id, dest_path):
     """Print information about the specified revision.
 
@@ -479,12 +454,10 @@ def main(argv):
     logging.getLogger().setLevel(getattr(logging, FLAGS.logging_level))
 
     config.read(FLAGS.config)
-    csv_file = config.get('gdrive', 'csvfile')
-    pprint.pprint([ 'csvfile:', csv_file ])
     try: 
-        item_names = config.get('gdrive', 'metadata').split(',')
+        metadata_names = config.get('gdrive', 'metadata').split(',')
     except:
-        item_names = 'createdDate,modifiedDate,id,path,revisions,lastModifyingUserName,ownerNames,md5Checksum,modifiedByMeDate,lastViewedByMeDate,shared'.split(',')
+        metadata_names = 'createdDate,modifiedDate,id,path,revisions,lastModifyingUserName,ownerNames,md5Checksum,modifiedByMeDate,lastViewedByMeDate,shared'.split(',')
 
     api_credentials_file = config.get('gdrive', 'configurationfile')
 
@@ -569,39 +542,43 @@ Error: {e}\n""" )
     
     
     global list_template, log_template
-    list_file = csv_file + '-' + username + '.csv'
-    with open(list_file, 'w') as csv_file_handle:
-        writer = csv.writer(csv_file_handle, delimiter=',')
         
-        try:
-            start_time = datetime.now()
-            if FLAGS.list_items:
-                list_template = name_list_to_format_string( item_names )
-                header = list_template.format( *[ NAME_TO_TITLE[name] for name in item_names ])
-                print( header )
-                start_folder = service.files().get( fileId=FLAGS.drive_id ).execute()
-                walk_folder_contents( service, http, start_folder, writer, item_names, FLAGS.destination + '/' + username + '/')
+    try:
+        start_time = datetime.now()
+        if FLAGS.list_items:
+            list_template = name_list_to_format_string( metadata_names )
+            header = list_template.format( *[ NAME_TO_TITLE[name] for name in metadata_names ])
+            print( header )
+            start_folder = service.files().get( fileId=FLAGS.drive_id ).execute()
+            with open(config.get('gdrive', 'csvfile') + '-' + username + '.csv', 'w') as csv_handle:
+                writer = csv.writer(csv_handle, delimiter=',')
+                writer.writerow( [ NAME_TO_TITLE[name] for name in metadata_names ] )
+                walk_folder_contents( service, http, start_folder, writer, metadata_names, FLAGS.destination + '/' + username + '/')
                 print('\n' + str(list_counter) + ' files found in ' + username + ' drive')
-            
-            elif FLAGS.get_items:
-                log_template = name_list_to_format_string( item_names )
-                header = log_template.format( *[ NAME_TO_TITLE[name] for name in item_names ])
-                print( 'Status   ', header )
-                start_folder = service.files().get( fileId=FLAGS.drive_id ).execute()
-                walk_folder_contents( service, http, start_folder, writer, item_names, FLAGS.destination + '/' + username + '/')
+        
+        elif FLAGS.get_items:
+            log_template = name_list_to_format_string( metadata_names )
+            header = log_template.format( *[ NAME_TO_TITLE[name] for name in metadata_names ])
+            print( 'Status   ', header )
+            start_folder = service.files().get( fileId=FLAGS.drive_id ).execute()
+            with open(config.get('gdrive', 'csvfile') + '-' + username + '.csv', 'w') as csv_handle:
+                writer = csv.writer(csv_handle, delimiter=',')
+                writer.writerow( [ NAME_TO_TITLE[name] for name in metadata_names ] )
+                walk_folder_contents( service, http, start_folder, writer, metadata_names, FLAGS.destination + '/' + username + '/')
                 print('\n' + str(download_counter) + ' files downloaded and ' + str(update_counter) + ' updated from ' + username + ' drive')
-            
-            elif FLAGS.usecsv:
-                log_template = name_list_to_format_string( item_names )
-                header = log_template.format( *[ NAME_TO_TITLE[name] for name in item_names ])
-                print( 'Status   ', header )
-                get_csv_contents(service, http, FLAGS.destination + '/' + username + '/')
-                print('\n' + str(download_counter) + ' files downloaded and ' + str(update_counter) + ' updated from ' + username + ' drive')
-            end_time = datetime.now()
-            print('Duration: {}'.format(end_time - start_time))
-        except AccessTokenRefreshError:
-            print ("The credentials have been revoked or expired, please re-run"
-            "the application to re-authorize")
+
+        elif FLAGS.usecsv:
+            print(f"FLAGS.usecsv: {FLAGS.usecsv}")
+            log_template = name_list_to_format_string( metadata_names )
+            header = log_template.format( *[ NAME_TO_TITLE[name] for name in metadata_names ])
+            print( 'Status   ', header )
+            get_csv_contents(service, http, FLAGS.usecsv[0], metadata_names, FLAGS.destination + '/' + username + '/')
+            print('\n' + str(download_counter) + ' files downloaded and ' + str(update_counter) + ' updated from ' + username + ' drive')
+
+        end_time = datetime.now()
+        print(f'Duration: {end_time - start_time}')
+    except AccessTokenRefreshError:
+        print ("The credentials have been revoked or expired, please re-run the application to re-authorize")
 
 if __name__ == '__main__':
     main(sys.argv)
