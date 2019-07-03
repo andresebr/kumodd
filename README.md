@@ -2,8 +2,9 @@
 
 Kumodd collects data from a specified Google Drive account.
 
-Optional filters limit by file cateories, such as doc, image, or video. 
-Output can include file contents or only a table of meta-data.
+Optional filters limit by file cateories, such as doc, image, or video.  
+Output can include file contents or only a table of meta-data.  
+Columns may be selected in the configuration file.
 
 ``` shell
 ./kumodd.py -l doc
