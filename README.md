@@ -267,8 +267,8 @@ At the time of writing, the default rate limits are:
 
 kumodd uses the [Google API Python
 Client](https://github.com/googleapis/google-api-python-client) which is officially
-supported by Google; It is feature complete and stable; hosever, it is not actively
+supported by Google, and is feature complete and stable.  However, it is not actively
 developed.  It has has been replaced by the [Google Cloud client
 libraries](https://github.com/googleapis/google-cloud-python) which are in development,
-and preferred for new work.
+and recommended for new work.
 
