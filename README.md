@@ -173,7 +173,7 @@ delimited list in the configuration file.
 metadata = createdDate,modifiedDate,id,path,revisions,lastModifyingUserName,ownerNames,md5Checksum,modifiedByMeDate,lastViewedByMeDate,shared
 ```
 
-Names of the meta-data item are described in the [Google Drive API Documentation](https://developers.google.com/drive/api/v3/reference/files).
+A more complete list of names of the meta-data are described in the [Google Drive API Documentation](https://developers.google.com/drive/api/v3/reference/files).
 A few of the available metadata item names are shown in the following sample of available metadata associated with a Google Doc.
 
 ``` javascript
@@ -247,7 +247,6 @@ A few of the available metadata item names are shown in the following sample of 
 
 To use kumod on windows, add python and git to the PATH environment variable, and then
 do the rest of the setup.
-
 ``` shell
 SET "PATH=%PATH%;C:\Python37"
 SET "PATH=%PATH%;C:\ProgramFile\Git\bin"
@@ -259,7 +258,9 @@ python -m pip install --user -r requirements.txt
 
 Using an HTTP proxy on Windows does not work due to unresolved issues with httplib2.
 
-At the time of writing (June 2019), the following default API limits are imposed by [Google Cloud Platform Quotas](https://console.cloud.google.com/apis/api/drive.googleapis.com/quotas).
+Note that Google rate limits API calls.  At the time of writing (June 2019), the
+following default API limits are imposed by [Google Cloud Platform
+Quotas](https://console.cloud.google.com/apis/api/drive.googleapis.com/quotas).
 
 - 1,000,000,000 queries per day
 - 1,000 queries per 100 seconds per user
