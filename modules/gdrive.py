@@ -131,10 +131,14 @@ def ensure_dir(directory):
 def is_google_doc(drive_file):
     return True if re.match( '^application/vnd\.google-apps\..+', drive_file['mimeType'] ) else False
 
-def file_is_modified(drive_file, local_file):
-    if os.path.exists( local_file ):
+import os
+import platform
+
+
+def file_is_modified(drive_file):
+    if os.path.exists( drive_file['local_path'] ):
         rtime = time.mktime( time.strptime( drive_file['modifiedDate'], '%Y-%m-%dT%H:%M:%S.%fZ' ) )
-        ltime = os.path.getmodifiedDate( local_file )
+        ltime = os.path.getmtime( drive_file['local_path'] )
         return rtime > ltime
     else:
         return True
@@ -189,14 +193,17 @@ def list_items(service, drive_file, dest_path, writer, metadata_names):
 def get_items(service, drive_file, dest_path, metadata_names):
     global update_counter
     parse_drive_file_metadata(service, drive_file, dest_path)
-    if file_is_modified( drive_file, full_path ):
-        if not download_file( service, drive_file, dest_path ):
-            log( f"ERROR downloading: {full_path}" )
+    if not file_is_modified( drive_file ):
+        # print( f"not modified: {drive_file['local_path']}" )
+        log( f"not modified: {drive_file['local_path']}" )
+    else:
+        if not download_file( service, drive_file ):
+            log( f"ERROR downloading: {drive_file['local_path']}" )
         else:
             update_counter += 1
             save_metadata(drive_file)
-            if os.path.exists( full_path ):
-                print( "Updated %s" % full_path )
+            if os.path.exists( drive_file['local_path'] ):
+                print( f"Updated {drive_file['local_path']}" )
             else:
                 data = [ maybe_flatten( drive_file.get(name)) for name in metadata_names ]
                 output_row = log_template.format( *data )
@@ -246,9 +253,9 @@ def walk_folder_contents( service, http, folder, writer=None, metadata_names=Non
             
             if not page_token:
                 flag = False
-        except:
-            print( 'trapped' )
-            log( "ERROR: Couldn't get contents of folder %s. Retrying..." % folder['title'] )
+        except Exception as e:
+            print( f'cauthgt: {e}' )
+            log( f"ERROR: Couldn't get contents of folder {folder['title']}. Retrying..." )
             walk_folder_contents( service, http, folder, writer, metadata_names, base_path, depth )
             return
             
@@ -266,7 +273,7 @@ def walk_folder_contents( service, http, folder, writer=None, metadata_names=Non
                 if ( FLAGS.list_items == 'all' ):
                     print( list_items(service, item, dest_path, writer, metadata_names) )
 
-                if ( FLAGS.list_items in ['doc','xls', 'ppt', 'text', 'pdf', 'image', 'audio', 'video', 'other']
+                elif ( FLAGS.list_items in ['doc','xls', 'ppt', 'text', 'pdf', 'image', 'audio', 'video', 'other']
                     and FLAGS.list_items == file_type_from_mime(item['mimeType']) ):
                     print( list_items(service, item, dest_path, writer, metadata_names) )
 
@@ -277,17 +284,19 @@ def walk_folder_contents( service, http, folder, writer=None, metadata_names=Non
         if FLAGS.get_items != None:    
             ensure_dir( dest_path )
             for item in filter(is_file, folder_contents):
-                if ( FLAGS.list_items == 'all' ):
+                if ( FLAGS.get_items == 'all' ):
                     get_items(service, item, dest_path, metadata_names)
 
-                if ( FLAGS.list_items in ['doc','xls', 'ppt', 'text', 'pdf', 'image', 'audio', 'video', 'other']
-                    and FLAGS.list_items == file_type_from_mime(item['mimeType']) ):
+                elif ( ( FLAGS.get_items in ['doc','xls', 'ppt', 'text', 'pdf', 'image', 'audio', 'video', 'other'] )
+                      and FLAGS.get_items == file_type_from_mime(item['mimeType']) ):
                     get_items(service, item, dest_path, metadata_names)
 
-                elif ( FLAGS.list_items == 'officedocs'
+                elif ( FLAGS.get_items == 'officedocs'
                       and file_type_from_mime(item['mimeType']) in ['doc', 'xls', 'ppt']):
                     get_items(service, item, dest_path, metadata_names)
-    
+                # else:
+                #     print( f"skipped: {FLAGS.get_items} {file_type_from_mime(item['mimeType'])} {item['title']} " )
+
         for item in filter(is_folder, folder_contents):
             walk_folder_contents( service, http, item, writer, metadata_names, dest_path, depth+1 )
             
@@ -406,7 +415,7 @@ def retrieve_revisions(service, file_id):
         return None
 
 
-def download_file( service, drive_file, dest_path ):
+def download_file( service, drive_file ):
     """Download a file's content.
     
     Args:
@@ -419,13 +428,12 @@ def download_file( service, drive_file, dest_path ):
     global download_counter
     
     revision_list = retrieve_revisions(service, drive_file['id'])
-    
+
     if revision_list != None:
         del revision_list[len(revision_list)-1]
         for item in revision_list:
-            download_revision(service, drive_file, item['id'], dest_path)
+            download_revision(service, drive_file, item['id'], drive_file['local_path'])
     
-    file_location = dest_path + drive_file['title'].replace( '/', '_' )
     if is_google_doc(drive_file):
         if drive_file['mimeType'] == 'application/vnd.google-apps.document':
             download_url = drive_file['exportLinks']['application/vnd.oasis.opendocument.text']
@@ -441,14 +449,14 @@ def download_file( service, drive_file, dest_path ):
         try:
             resp, content = service._http.request(download_url)
         except httplib2.IncompleteRead:
-            log( 'Error while reading file %s. Retrying...' % drive_file['title'].replace( '/', '_' ) )
-            download_file( service, drive_file, dest_path )
+            log( f"Error while reading file {drive_file['local_path']}. Retrying..." )
+            download_file( service, drive_file, drive_file['local_path'] )
             return False
         if resp.status == 200:
             try:
-                target = open( file_location, 'w+' )
+                target = open( drive_file['local_path'], 'wb+' )
             except:
-                log( "Could not open file %s for writing. Please check permissions." % file_location )
+                log( f"Could not open file {drive_file['local_path']} for writing. Please check permissions." )
                 return False
             target.write( content )
             download_counter += 1
@@ -599,4 +607,3 @@ Error: {e}\n""" )
 
 if __name__ == '__main__':
     main(sys.argv)
-
