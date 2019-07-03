@@ -125,7 +125,7 @@ To download all of the files listed in the CSV file, use the `-csv` option.
 
 `python3 kumodd.py -csv localdata/gdrivelist-username@gmail.com.csv`
 
-To relay kumodd access though an HTTP proxy, specify the proxy in config/config.cfg:
+To relay kumodd access though an HTTP proxy, use the -proxy option, or specify the proxy in config/config.cfg:
 ```
 [proxy]
 host = proxy.host.com
@@ -137,15 +137,6 @@ pass = password (optional)
 The default config file is config/config.dat.  To select an alternate config file, use the `-c` option:
 
 `python3 kumodd.py -c config/alternate.dat`
-
-The default meta zzz
-``` shell
-[proxy]
-host = proxy.host.com
-port = 8888
-user = username (optional)
-pass = password (optional)
-```
 
 ## Meta-data
 
