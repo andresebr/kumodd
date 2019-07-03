@@ -169,7 +169,7 @@ def parse_drive_file_metadata(service, drive_file, dest_path):
     full_path = dest_path + drive_file['title'].replace( '/', '_' )
     drive_file['local_path'] = full_path
 
-    remote_path = full_path.replace(FLAGS.destination + username + '/','')
+    remote_path = full_path.replace(FLAGS.destination + '/' + username + '/','')
     drive_file['path'] = remote_path
 
     revision_list = retrieve_revisions(service, drive_file['id'])
