@@ -150,17 +150,19 @@ pass = password (optional)
 ## Meta-data
 
 Default meta-data include:
-- Last Modified time (UTC)
-- Created time (UTC)
-- [File ID](https://developers.google.com/drive/api/v3/about-files), an opaque, random string which is constant for the life of a file, even if the file name changes.
-- Google Drive File Path
-- Number of revisions
-- Last Modified by (user name)
-- Owner (user name)
-- MD5 digest.  File types that are native to Google Docs do not include an MD5 digest, where as non-native types such as MS Office do, as shown below.
-- Last Modified by Account Holder Date (UTC)
-- Last Viewed by Account Holder Date (UTC)
-- shared (true/false)
+Name	| Description 
+------:	| :-----------
+createdDate             |  Last Modified time (UTC)
+modifiedDate            |  Created time (UTC)
+id                      |  [File ID](https://developers.google.com/drive/api/v3/about-files), an opaque, random string which is constant for the life of a file, even if the file name changes.
+path                    |  Google Drive File Path
+revisions               |  Number of revisions
+lastModifyingUserName   |  Last Modified by (user name)
+ownerNames              |  Owner (user name)
+md5Checksum             |  MD5 digest.  File types that are native to Google Docs do not include an MD5 digest, where as non-native types such as MS Office do, as shown below.
+modifiedByMeDate        |  Last Modified by Account Holder Date (UTC)
+lastViewedByMeDate      |  Last Viewed by Account Holder Date (UTC)
+shared                  |  shared (true/false)
 
 One can change which meta-data are included, or their order, by specifyinig a comma
 delimited list in the configuration file.
