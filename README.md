@@ -74,7 +74,6 @@ https://cloud.google.com/billing/docs/how-to/manage-billing-account#create_a_new
 
 Option	| Description 
 :------	| :-----------
--s service	| service must be `gdrive`, which is also the default.
 -l filter	| List files. Also create a CSV file list.
 -d filter	| Download files. Also create a CSV file list.
 -csv file	| Download files listed in previously generated CSV file, <file>.
@@ -82,14 +81,16 @@ Option	| Description
 --no_browser | Do not open web browser. Instead print the URL.
 -m dir | Save meta-data in dir.
 -proxy URL | Send HTTP requests through proxy at URL.
+-s service	| service must be `gdrive`, which is also the default.
 
 
-The <filter> parameter limits access to a selected category of files:
+The filter option limits output to a selected category of files.  In google drive, file
+catetory is determined by the mimetime.
 
 Filter	| Description 
 :------	| :-----------
 all	| All files stored in the account
-doc	| .doc, .docx, and .odf files
+doc	| Documents including .doc, .docx, and .odf
 xls	| Spreadsheets
 ppt	| Presentation files
 text	| Text/source code files
