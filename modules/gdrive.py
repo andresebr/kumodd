@@ -51,10 +51,10 @@ OUTPUT_HEADER = {
     'path': 'Remote Path',
     'rev': 'Revision',
     'path_local': 'Local Path',
-    'md5': 'Hash(MD5)',
+    'md5': 'MD5',
     'mime': 'MIME Type',
     'index': 'Index',
-    'lastModifyingUserName': 'Modified by',
+    'lastModifyingUserName': 'Last Modified by',
     'ownerNames': 'Owner'
     }
 list_template = "{0:24} {1:24} {2:50} {3:70} {4:10} {5:20} {6:20} {7:32}"
