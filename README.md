@@ -21,7 +21,7 @@ Download all PDF files and save them in the Desktop folder:
 
     python3 kumodd.py -d pdf -p /home/user/Desktop/
 
-The default config file is config/config.dat.  If it does not exist, kumodd will create it using the following defaults.
+The default config file is config/config.dat.  If it does not exist, kumodd will create it using:
 ``` yaml
 gdrive:
   gdrive_auth: config/gdrive_config.json
@@ -31,7 +31,7 @@ gdrive:
 
 ```
 
-To select an alternate config file, use the -c option:
+To select an alternate config file, use -c:
 
     python3 kumodd.py -c config/alternate.yml
 
@@ -40,18 +40,10 @@ The list (-l) and download (-d) options both create a CSV file.
 The default CSV file name is ./filelist-username.csv. It consists of a prefix specified
 in config/config.yml (above), appended by the google drive user name and .csv suffix.
 
-To download all of the files listed in previously generated CSV file, use the -csv option.
+To download all of the files listed in a previously generated CSV file, use -csv:
 
     python3 kumodd.py -csv ./filelist-username.csv
 
-To relay kumodd access though an HTTP proxy, specify the proxy in config/config.yml:
-``` yaml
-proxy:
-  host: proxy.host.com
-  port: 8888 (optional)
-  user: username (optional)
-  pass: password (optional)
-```
 ## Usage
 
     python3 kumodd.py [-d <filter>] [-l <filter>] [-csv <filename>]
@@ -69,8 +61,7 @@ Option	| Description
 -s service	| Select the cloud service.  gdrive is the only supported service.
 
 
-The filter option limits output to a selected category of files.  In google drive, file
-category is determined by the mime time.
+The filter option limits output to a selected category of files.  A file's category is determined its mime type.
 
 Filter	| Description 
 :------	| :-----------
@@ -85,7 +76,14 @@ image	| Image files
 audio	| Audio files
 video	| Video files
 
-
+To relay kumodd access though an HTTP proxy, specify the proxy in config/config.yml:
+``` yaml
+proxy:
+  host: proxy.host.com
+  port: 8888 (optional)
+  user: username (optional)
+  pass: password (optional)
+```
 ## Meta-data
 
 Default meta-data include:
