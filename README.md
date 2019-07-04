@@ -145,6 +145,33 @@ A few of the available metadata names are shown below. This is the metadata of a
  'writersCanShare': True}
 ```
 
+Meta-data names are translated to titles in the CSV file as shown below in
+config/config.yml.  If a title is not defined there, the meta-data name itself is used
+as the title.
+
+``` yaml
+csv_title:
+  app: Application
+  category: Category
+  createdDate: Created (UTC)
+  id: File Id
+  index: Index
+  lastModifyingUserName: Modfied by
+  lastViewedByMeDate: User Last View
+  local_path: Local Path
+  md5Checksum: MD5
+  mimeType: MIME Type
+  modifiedByMeDate: User Last Mod
+  modifiedDate: Last Modified (UTC)
+  ownerNames: Owner
+  path: Remote Path
+  revisions: Revisions
+  shared: Is Shared
+  time: TIME (UTC)
+  user: User
+  version: Version
+```
+
 ## Setup
 
 To setup kumodd, install python and git, then install kumodd and requirements, obtain an Oauth ID required for

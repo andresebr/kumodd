@@ -43,28 +43,6 @@ from apiclient import errors
 import json
 from datetime import datetime
 
-NAME_TO_TITLE = {
-    'createdDate':	'Created (UTC)',
-    'modifiedDate':	'Last Modified (UTC)',
-    'time':		'TIME (UTC)',
-    'version':		'Code/Config Ver',
-    'app':		'Application',
-    'user':		'User',
-    'id':		'File Id',
-    'path':		'Remote Path',
-    'revisions':	'Revisions',
-    'local_path':	'Local Path',
-    'md5Checksum':	'MD5',
-    'mime':		'MIME Type',
-    'index':		'Index',
-    'lastModifyingUserName':	'Modfied by',
-    'ownerNames':	'Owner',
-    'modifiedByMeDate':	'User Last Mod',
-    'lastViewedByMeDate': 'User Last View',
-    'shared':		'Is Shared',
-    'version':		'Version',
-    }
-
 def name_list_to_format_string( names ):
     """generate a format string for a given list of metadata names"""
     fields = []
@@ -165,6 +143,8 @@ def parse_drive_file_metadata(service, drive_file, dest_path):
     revisions = str(len(revision_list)) if revision_list else '1'
     drive_file['revisions'] = revisions
     
+    drive_file['category'] = file_type_from_mime(drive_file['mimeType']):
+
 def list_items(service, drive_file, dest_path, writer, metadata_names):
     # print(f"metadata: {drive_file['title']}")
     # pprint.pprint(drive_file)
@@ -449,7 +429,28 @@ def main(argv):
                 'gdrive_auth': 'config/gdrive_config.json',
                 'oauth_id':  'config/gdrive.dat',
                 'csv_prefix': './filelist-',
-                'metadata': 'createdDate,modifiedDate,id,path,revisions,lastModifyingUserName,ownerNames,md5Checksum,modifiedByMeDate,lastViewedByMeDate,shared'
+                'metadata': 'createdDate,modifiedDate,id,path,revisions,lastModifyingUserName,ownerNames,modifiedByMeDate,lastViewedByMeDate,shared,md5Checksum'
+                },
+            'csv_title': {
+                'app':		'Application',
+                'category':	'Category'
+                'createdDate':	'Created (UTC)',
+                'id':		'File Id',
+                'index':	'Index',
+                'lastModifyingUserName':	'Modfied by',
+                'lastViewedByMeDate': 'User Last View',
+                'local_path':	'Local Path',
+                'md5Checksum':	'MD5',
+                'mimeType':	'MIME Type',
+                'modifiedByMeDate':	'User Last Mod',
+                'modifiedDate':	'Last Modified (UTC)',
+                'ownerNames':	'Owner',
+                'path':		'Remote Path',
+                'revisions':	'Revisions',
+                'shared':	'Is Shared',
+                'time':		'TIME (UTC)',
+                'user':		'User',
+                'version':	'Version',
                 }
             }, io.open(FLAGS.config, 'w', encoding='utf8'), default_flow_style=False, allow_unicode=True)
 
@@ -543,7 +544,7 @@ Error: {e}\n""" )
         start_time = datetime.now()
         if FLAGS.list_items:
             list_template = name_list_to_format_string( metadata_names )
-            header = list_template.format( *[ NAME_TO_TITLE[name] for name in metadata_names ])
+            header = list_template.format( *[ config.get('titles').get(name,name) for name in metadata_names ])
             print( header )
             start_folder = service.files().get( fileId=FLAGS.drive_id ).execute()
             with open(config.get('gdrive',{}).get('csv_prefix') + username + '.csv', 'w') as csv_handle:
