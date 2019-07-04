@@ -9,7 +9,6 @@ Meta-data columns may be selected in the configuration file.
 ## Usage examples
 
 List all documents stored in a Google Drive account:
-
 ``` shell
 ./kumodd.py -l doc
 Created (UTC)            Last Modified (UTC)      File Id                                       Remote Path                   Revision   Modified by      Owner            MD5                       
@@ -18,18 +17,19 @@ Created (UTC)            Last Modified (UTC)      File Id                       
 2019-05-16T23:34:42.665Z 2019-05-17T22:18:07.705Z 0B7pAT_44h5sbs897bsmazZorexlchm0wu90sgzrlu9h  My Drive/Letter to John.docx  1          Johe Doe         Johe Doe         4cb0b987cb879d48f56e4fd2cfd57d83
 2019-04-12T16:21:48.867Z 2019-04-12T16:21:55.245Z 13qAT9ARVaCbGKmCXiN_60XnCAyE5ZrXz_4uKRjaE3mU  My Drive/Todo List            27         Johe Doe         Johe Doe         -                   
 ```
-
 Download all PDF files and save them in the Desktop folder:
 
     python3 kumodd.py -d pdf -p /home/user/Desktop/
 
 The default config file is config/config.dat.  If it does not exist, kumodd will create it using the following defaults.
+``` yaml
+gdrive:
+  gdrive_auth: config/gdrive_config.json
+  oauth_id: config/gdrive.dat
+  csvfile: ./filelist-
+  metadata: createdDate,modifiedDate,id,path,revisions,lastModifyingUserName,ownerNames,md5Checksum,modifiedByMeDate,lastViewedByMeDate,shared
 
-    gdrive:
-      gdrive_auth: config/gdrive_config.json
-      oauth_id: config/gdrive.dat
-      csvfile: ./filelist-
-      metadata: createdDate,modifiedDate,id,path,revisions,lastModifyingUserName,ownerNames,md5Checksum,modifiedByMeDate,lastViewedByMeDate,shared
+```
 
 To select an alternate config file, use the -c option:
 
