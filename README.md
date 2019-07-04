@@ -179,8 +179,8 @@ A few of the available metadata item names are shown in the following sample ass
 
 ## Setup
 
-To setup kumodd, 1) install kumodd and requirements, 2) obtain an Oauth ID required for
-Google API use, and 3) authorize access to the specified account.
+To setup kumodd, install python and git, then install kumodd and requirements, obtain an Oauth ID required for
+Google API use, and finally, authorize access to the specified account.
 
 1. Install python 3 and git.
 
