@@ -105,8 +105,9 @@ shared                  |  shared (true/false)
 One can change which meta-data are included, or their order, by specifying a comma
 delimited list in the configuration file.
 
-A more complete list of names of the meta-data are described in the [Google Drive API Documentation](https://developers.google.com/drive/api/v3/reference/files).
-A few of the available metadata item names are shown in the following sample associated with a Google Doc.
+Meta-data names are described in the 
+[Google Drive API Documentation](https://developers.google.com/drive/api/v3/reference/files).
+A few of the available metadata names are shown below. This exmample is is the metadata for a Google Doc.
 
 ``` javascript
 {'alternateLink': 'https://docs.google.com/document/d/1Bbouiss7ioabPembZdG9B9bsabaiudfjqBgtXV5-9ldo8/edit?usp=drivesdk',
