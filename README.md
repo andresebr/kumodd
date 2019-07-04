@@ -86,28 +86,27 @@ proxy:
 ```
 ## Meta-data
 
-Default meta-data include:
+Default meta-data are:
 
 Name	| Description 
 ------:	| :-----------
-createdDate             |  Last Modified time (UTC)
-modifiedDate            |  Created time (UTC)
-id                      |  [File ID](https://developers.google.com/drive/api/v3/about-files), an opaque, random string which is constant for the life of a file, even if the file name changes.
+createdDate             |  Created Time (UTC)
+modifiedDate            |  Last Modified Time (UTC)
+id                      |  Unique [Google Drive File ID](https://developers.google.com/drive/api/v3/about-files)
 path                    |  Google Drive File Path
 revisions               |  Number of revisions
 lastModifyingUserName   |  Last Modified by (user name)
 ownerNames              |  Owner (user name)
-md5Checksum             |  MD5 digest.  File types that are native to Google Docs do not include an MD5 digest, where as non-native types such as MS Office do, as shown below.
-modifiedByMeDate        |  Last Modified by Account Holder Date (UTC)
-lastViewedByMeDate      |  Last Viewed by Account Holder Date (UTC)
-shared                  |  shared (true/false)
+md5Checksum             |  MD5 digest.  Only for file types not native to Google Docs.
+modifiedByMeDate        |  Time Last Modified by Account Holder (UTC)
+lastViewedByMeDate      |  Time Last Viewed by Account Holder (UTC)
+shared                  |  Is shared (true/false)
 
-One can change which meta-data are included, or their order, by specifying a comma
-delimited list in the configuration file.
+One can change the meta-data fields.  They are specified by the tag, metadata, in config/config.yml shown above.
 
 Meta-data names are described in the 
 [Google Drive API Documentation](https://developers.google.com/drive/api/v3/reference/files).
-A few of the available metadata names are shown below. This exmample is is the metadata for a Google Doc.
+A few of the available metadata names are shown below. This exmample is is the metadata example for a Google Doc.
 
 ``` javascript
 {'alternateLink': 'https://docs.google.com/document/d/1Bbouiss7ioabPembZdG9B9bsabaiudfjqBgtXV5-9ldo8/edit?usp=drivesdk',
