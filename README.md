@@ -8,7 +8,7 @@ Meta-data columns may be selected in the configuration file.
 
 ## Usage examples
 
-List all documents stored in a Google Drive account:
+To list all documents, use -l:
 ``` shell
 ./kumodd.py -l doc
 Created (UTC)            Last Modified (UTC)      File Id                                       Remote Path                   Revision   Modified by      Owner            MD5                       
@@ -17,11 +17,16 @@ Created (UTC)            Last Modified (UTC)      File Id                       
 2019-05-16T23:34:42.665Z 2019-05-17T22:18:07.705Z 0B7pAT_44h5sbs897bsmazZorexlchm0wu90sgzrlu9h  My Drive/Letter to John.docx  1          Johe Doe         Johe Doe         4cb0b987cb879d48f56e4fd2cfd57d83
 2019-04-12T16:21:48.867Z 2019-04-12T16:21:55.245Z 13qAT9ARVaCbGKmCXiN_60XnCAyE5ZrXz_4uKRjaE3mU  My Drive/Todo List            27         Johe Doe         Johe Doe         -                   
 ```
-Download all PDF files and save them in the Desktop folder:
+To download all PDFs to a specified path, use -d and -p:
 
     python3 kumodd.py -d pdf -p /home/user/Desktop/
 
-The default config file is config/config.dat.  If it does not exist, kumodd will create it using:
+The list (-l) and download (-d) options both create a CSV file equivalent to the table above. 
+
+The default CSV file name is ./filelist-username.csv. It consists of a prefix specified
+in config/config.yml (below), appended by the google drive user name and .csv suffix.
+
+If config/config.yml does not exist, kumodd will create it using:
 ``` yaml
 gdrive:
   gdrive_auth: config/gdrive_config.json
@@ -34,11 +39,6 @@ gdrive:
 To select an alternate config file, use -c:
 
     python3 kumodd.py -c config/alternate.yml
-
-The list (-l) and download (-d) options both create a CSV file. 
-
-The default CSV file name is ./filelist-username.csv. It consists of a prefix specified
-in config/config.yml (above), appended by the google drive user name and .csv suffix.
 
 To download all of the files listed in a previously generated CSV file, use -csv:
 
