@@ -16,10 +16,10 @@ flags.DEFINE_enum('log', 'ERROR',
 flags.DEFINE_enum('service', 'gdrive',
                   ['gdrive','dropbox','box','onedrive'], 'Service to use', short_name='s' )
 flags.DEFINE_enum('list_items', None,
-                  ['all', 'doc', 'xls', 'ppt', 'text', 'pdf', 'officedocs', 'image', 'audio', 'video', 'other'],
+                  ['all', 'doc', 'xls', 'ppt', 'text', 'pdf', 'office', 'image', 'audio', 'video', 'other'],
                   'List files and directories, optionally filtered by category', short_name='l')
 flags.DEFINE_enum('get_items', None,
-                  ['all', 'doc', 'xls', 'ppt', 'text', 'pdf', 'officedocs', 'image', 'audio', 'video', 'other'],
+                  ['all', 'doc', 'xls', 'ppt', 'text', 'pdf', 'office', 'image', 'audio', 'video', 'other'],
                   'Download files and create directories, optionally filtered by category', short_name='d')
 flags.DEFINE_list('usecsv', None,
                   'Download files from the service using a previously generated csv file', short_name='csv')

@@ -23,8 +23,8 @@ Use -d (download) and -p (path) to save all PDFs to a folder:
 
 Both the list (-l) and download (-d) options create a CSV file equivalent to the table above. 
 
-The default CSV file name is ./filelist-username.csv. It consists of a prefix specified
-in config/config.yml (below), appended by the google drive user name and .csv suffix.
+The default CSV file is ./filelist-username.csv. The filename consists of a prefix specified
+in config/config.yml (below), appended by the google user name and .csv suffix.
 
 If config/config.yml does not exist, kumodd will create it using:
 ``` yaml
@@ -50,14 +50,14 @@ To download all of the files listed in a previously generated CSV file, use -csv
 
 Only one of -d, -l, or -csv should be used.
 
-Option	| Description 
-:------	| :-----------
+Option		| Description 
+:------		| :-----------
 -l filter	| List files. Also create a CSV file list. Filters are described below.
 -d filter	| Download files. Also create a CSV file list.
 -csv path	| Download files listed in path, a previously generated CSV file.  
--log level | level is either DEBUG, INFO, WARNING, ERROR, or CRITICAL.
--no_browser | Do not open web browser. Instead print the URL.
--m dir | Save meta-data in dir.
+-log level	| level is either DEBUG, INFO, WARNING, ERROR, or CRITICAL.
+-no_browser	| Do not open web browser. Instead print the URL.
+-m dir		| Save meta-data in dir.
 -s service	| Select the cloud service.  gdrive is the only supported service.
 
 
@@ -71,7 +71,7 @@ xls	| Spreadsheets
 ppt	| Presentation files
 text	| Text/source code files
 pdf	| PDF files
-officedocs	| All document, spreadsheet and presentation files
+office	| Document, spreadsheet and presentation files
 image	| Image files
 audio	| Audio files
 video	| Video files
@@ -88,8 +88,8 @@ proxy:
 
 Default meta-data are:
 
-Name	| Description 
-------:	| :-----------
+Name			| Description 
+------:			| :-----------
 createdDate             |  Created Time (UTC)
 modifiedDate            |  Last Modified Time (UTC)
 id                      |  Unique [Google Drive File ID](https://developers.google.com/drive/api/v3/about-files)

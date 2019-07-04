@@ -263,7 +263,7 @@ def walk_folder_contents( service, http, folder, writer=None, metadata_names=Non
                     and FLAGS.list_items == file_type_from_mime(item['mimeType']) ):
                     print( list_items(service, item, dest_path, writer, metadata_names) )
 
-                elif ( FLAGS.list_items == 'officedocs'
+                elif ( FLAGS.list_items == 'office'
                       and file_type_from_mime(item['mimeType']) in ['doc', 'xls', 'ppt']):
                     print( list_items(service, item, dest_path, writer, metadata_names) )
 
@@ -277,7 +277,7 @@ def walk_folder_contents( service, http, folder, writer=None, metadata_names=Non
                       and FLAGS.get_items == file_type_from_mime(item['mimeType']) ):
                     get_items(service, item, dest_path, metadata_names)
 
-                elif ( FLAGS.get_items == 'officedocs'
+                elif ( FLAGS.get_items == 'office'
                       and file_type_from_mime(item['mimeType']) in ['doc', 'xls', 'ppt']):
                     get_items(service, item, dest_path, metadata_names)
                 # else:
