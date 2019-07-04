@@ -158,7 +158,7 @@ metadata = createdDate,modifiedDate,id,path,revisions,lastModifyingUserName,owne
 ```
 
 A more complete list of names of the meta-data are described in the [Google Drive API Documentation](https://developers.google.com/drive/api/v3/reference/files).
-A few of the available metadata item names are shown in the following sample of available metadata associated with a Google Doc.
+A few of the available metadata item names are shown in the following sample associated with a Google Doc.
 
 ``` javascript
 {'alternateLink': 'https://docs.google.com/document/d/1Bbouiss7ioabPembZdG9B9bsabaiudfjqBgtXV5-9ldo8/edit?usp=drivesdk',
