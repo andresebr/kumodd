@@ -17,11 +17,11 @@ Created (UTC)            Last Modified (UTC)      File Id                       
 2019-05-16T23:34:42.665Z 2019-05-17T22:18:07.705Z 0B7pAT_44h5sbs897bsmazZorexlchm0wu90sgzrlu9h  My Drive/Letter to John.docx  1          Johe Doe         Johe Doe         4cb0b987cb879d48f56e4fd2cfd57d83
 2019-04-12T16:21:48.867Z 2019-04-12T16:21:55.245Z 13qAT9ARVaCbGKmCXiN_60XnCAyE5ZrXz_4uKRjaE3mU  My Drive/Todo List            27         Johe Doe         Johe Doe         -                   
 ```
-To download all PDFs to a specified path, use -d and -p:
+Use -d (download) and -p (path) to save all PDFs to a folder:
 
     kumodd.py -d pdf -p /home/user/Desktop/
 
-The list (-l) and download (-d) options both create a CSV file equivalent to the table above. 
+Both the list (-l) and download (-d) options create a CSV file equivalent to the table above. 
 
 The default CSV file name is ./filelist-username.csv. It consists of a prefix specified
 in config/config.yml (below), appended by the google drive user name and .csv suffix.
@@ -31,7 +31,7 @@ If config/config.yml does not exist, kumodd will create it using:
 gdrive:
   gdrive_auth: config/gdrive_config.json
   oauth_id: config/gdrive.dat
-  csvfile: ./filelist-
+  csvprefix: ./filelist-
   metadata: createdDate,modifiedDate,id,path,revisions,lastModifyingUserName,ownerNames,md5Checksum,modifiedByMeDate,lastViewedByMeDate,shared
 
 ```
