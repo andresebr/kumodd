@@ -2,8 +2,8 @@
 
 Kumodd collects files and meta-data from a specified Google Drive account.
 
-It can download files, or genrate a CSV file of meta-data.  
-Files can be filterd by category, such as doc, image, or video.  
+It can download files, or generate a CSV file of meta-data.  
+Files can be filtered by category, such as doc, image, or video.  
 Meta-data may be selected in the configuration file.
 
 ``` shell
@@ -47,15 +47,15 @@ https://cloud.google.com/billing/docs/how-to/manage-billing-account#create_a_new
 
     The first time kumodd is used (e.g. python3 kumodd.py -l all), it will open the
     cloud login page in a web browser.
-    1. Login to the cloud account. Next, it will requrest approval.
+    1. Login to the cloud account. Next, it will request approval.
     1. Click "Approve". Next, kumodd stores the Oauth token in config/gdrive.dat.  
     
-    If there is no local browser, or if -no_browser is used, kumod will
+    If there is no local browser, or if -no_browser is used, kumodd will
     instead print a URL of the cloud login page.
     1. Copy the URL and paste it into a browser.  
-    1. Login to the cloud account.  Next, it will requrest approval.
+    1. Login to the cloud account.  Next, it will request approval.
     1. Click "Approve". Next, the page will show an access token.
-    1. Copy the token from the web page. Paste it into kumodd, and press enter. Next, Kumod saves the
+    1. Copy the token from the web page. Paste it into kumodd, and press enter. Next, kumodd saves the
     Oauth token in config/gdrive.dat.
 
     Once authorized, the login page will not be shown again unless the token
@@ -79,7 +79,7 @@ Option	| Description
 
 
 The filter option limits output to a selected category of files.  In google drive, file
-catetory is determined by the mimetime.
+category is determined by the mime time.
 
 Filter	| Description 
 :------	| :-----------
@@ -149,7 +149,7 @@ modifiedByMeDate        |  Last Modified by Account Holder Date (UTC)
 lastViewedByMeDate      |  Last Viewed by Account Holder Date (UTC)
 shared                  |  shared (true/false)
 
-One can change which meta-data are included, or their order, by specifyinig a comma
+One can change which meta-data are included, or their order, by specifying a comma
 delimited list in the configuration file.
 
 ``` shell
@@ -229,7 +229,7 @@ A few of the available metadata item names are shown in the following sample of 
 
 ## Notes
 
-To use kumod on windows, add python and git to the PATH environment variable, and then
+To use kumodd on windows, add python and git to the PATH environment variable, and then
 do the rest of the setup.
 ``` shell
 SET "PATH=%PATH%;C:\Python37"
