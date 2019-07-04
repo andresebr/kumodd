@@ -62,7 +62,7 @@ Option	| Description
 :------	| :-----------
 -l filter	| List files. Also create a CSV file list. Filters are described below.
 -d filter	| Download files. Also create a CSV file list.
--csv file	| Download files listed in file, a previously generated CSV file.  
+-csv path	| Download files listed in path, a previously generated CSV file.  
 -log level | level is either DEBUG, INFO, WARNING, ERROR, or CRITICAL.
 -no_browser | Do not open web browser. Instead print the URL.
 -m dir | Save meta-data in dir.
@@ -182,8 +182,19 @@ A few of the available metadata item names are shown in the following sample ass
 To setup kumodd, 1) install kumodd and requirements, 2) obtain an Oauth ID required for
 Google API use, and 3) authorize access to the specified account.
 
+1. Install python 3 and git.
+
+        apt install python3 git
+
+    On windows, make sure they are in the PATH environment
+    variable
+
+        SET "PATH=%PATH%;C:\Python37"
+        SET "PATH=%PATH%;C:\ProgramFiles\Git\bin"
+
 1. Download kumodd and install the required packages.
-    ```
+
+    ``` shell
     git clone https://github.com/rich-murphey/kumodd.git
     cd kumodd
     python3 -m pip install --user -r requirements.txt
@@ -223,30 +234,19 @@ https://cloud.google.com/billing/docs/how-to/manage-billing-account#create_a_new
     Once authorized, the login page will not be shown again unless the token
     (config/gdrive.dat) expires or is deleted.
 
-## Notes
-
-To use kumodd on windows, add python and git to the PATH environment variable, and then
-do the rest of the setup.
-``` shell
-SET "PATH=%PATH%;C:\Python37"
-SET "PATH=%PATH%;C:\ProgramFile\Git\bin"
-git clone https://github.com/rich-murphey/kumodd.git
-cd kumodd
-python -m pip install --user -r requirements.txt
-.\kumodd.py -l doc
-```
+## Caveats
 
 Using an HTTP proxy on Windows does not work due to unresolved issues with httplib2.
 
-Note that [Google rate limits API calls](https://console.cloud.google.com/apis/api/drive.googleapis.com/quotas).
+[Google rate limits API calls](https://console.cloud.google.com/apis/api/drive.googleapis.com/quotas).
 At the time of writing, the default rate limits are:
 
 - 1,000,000,000 queries per day
 - 1,000 queries per 100 seconds per user
 - 10,000 queries per 100 seconds
 
-kumodd uses the [Google API Python
-Client](https://github.com/googleapis/google-api-python-client) which is officially
+Kumodd uses the 
+[Google API Python Client](https://github.com/googleapis/google-api-python-client) which is officially
 supported by Google, and is feature complete and stable.  However, it is not actively
 developed.  It has has been replaced by the [Google Cloud client
 libraries](https://github.com/googleapis/google-cloud-python) which are in development,
