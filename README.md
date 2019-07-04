@@ -10,7 +10,7 @@ Meta-data columns may be selected in the configuration file.
 
 To list all documents, use -l:
 ``` shell
-./kumodd.py -l doc
+kumodd.py -l doc
 Created (UTC)            Last Modified (UTC)      File Id                                       Remote Path                   Revision   Modified by      Owner            MD5                       
 2019-06-24T05:04:47.055Z 2019-06-24T05:41:17.095Z 1BK0I0ScYsZPembZdG9B9qBgtXV5WpyJ3JY31W-9ldo8  My Drive/Untitled document    3          Johe Doe         Johe Doe         -
 2019-05-18T06:16:19.084Z 2019-05-18T06:52:49.972Z 0B7pAT_44h5smSGVkcjywyudk78bs9789sboeuyt2tro  My Drive/notes.docx           1          Johe Doe         Johe Doe         1376e9bf5fb781c3e428356b4b9aa21c
@@ -19,7 +19,7 @@ Created (UTC)            Last Modified (UTC)      File Id                       
 ```
 To download all PDFs to a specified path, use -d and -p:
 
-    ./kumodd.py -d pdf -p /home/user/Desktop/
+    kumodd.py -d pdf -p /home/user/Desktop/
 
 The list (-l) and download (-d) options both create a CSV file equivalent to the table above. 
 
@@ -38,15 +38,15 @@ gdrive:
 
 To select an alternate config file, use -c:
 
-    ./kumodd.py -c config/alternate.yml
+    kumodd.py -c config/alternate.yml
 
 To download all of the files listed in a previously generated CSV file, use -csv:
 
-    ./kumodd.py -csv ./filelist-username.csv
+    kumodd.py -csv ./filelist-username.csv
 
 ## Usage
 
-    ./kumodd.py [-d <filter>] [-l <filter>] [-csv <filename>]
+    kumodd.py [-d <filter>] [-l <filter>] [-csv <filename>]
 
 Only one of -d, -l, or -csv should be used.
 
@@ -216,7 +216,7 @@ https://cloud.google.com/billing/docs/how-to/manage-billing-account#create_a_new
 
 1. Authorize kumodd to access the cloud account:
 
-    The first time kumodd is used (e.g. ./kumodd.py -l all), it will open the
+    The first time kumodd is used (e.g. kumodd.py -l all), it will open the
     cloud login page in a web browser.
     1. Login to the cloud account. Next, it will request approval.
     1. Click "Approve". Next, kumodd stores the Oauth token in config/gdrive.dat.  
