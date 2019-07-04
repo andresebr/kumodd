@@ -6,6 +6,10 @@ It can download files, or generate a CSV file of meta-data.
 Files can be filtered by category, such as doc, image, or video.  
 Meta-data columns may be selected in the configuration file.
 
+## Usage examples
+
+List all documents stored in a Google Drive account:
+
 ``` shell
 ./kumodd.py -l doc
 Created (UTC)            Last Modified (UTC)      File Id                                       Remote Path                   Revision   Modified by      Owner            MD5                       
@@ -15,28 +19,18 @@ Created (UTC)            Last Modified (UTC)      File Id                       
 2019-04-12T16:21:48.867Z 2019-04-12T16:21:55.245Z 13qAT9ARVaCbGKmCXiN_60XnCAyE5ZrXz_4uKRjaE3mU  My Drive/Todo List            27         Johe Doe         Johe Doe         -                   
 ```
 
-## Usage examples
-
-List all files stored in a Google Drive account:
-
-    python3 kumodd.py -l all
-
-List only images stored in Google Drive:
-
-    python3 kumodd.py -l image
-
 Download all PDF files and save them in the Desktop folder:
 
     python3 kumodd.py -d pdf -p /home/user/Desktop/
 
 The default config file is config/config.dat.  If it does not exist, kumodd will create it using the following defaults.
-``` yaml
-gdrive:
-  gdrive_auth: config/gdrive_config.json
-  oauth_id: config/gdrive.dat
-  csvfile: ./filelist-
-  metadata: createdDate,modifiedDate,id,path,revisions,lastModifyingUserName,ownerNames,md5Checksum,modifiedByMeDate,lastViewedByMeDate,shared
-```
+
+    gdrive:
+      gdrive_auth: config/gdrive_config.json
+      oauth_id: config/gdrive.dat
+      csvfile: ./filelist-
+      metadata: createdDate,modifiedDate,id,path,revisions,lastModifyingUserName,ownerNames,md5Checksum,modifiedByMeDate,lastViewedByMeDate,shared
+
 To select an alternate config file, use the -c option:
 
     python3 kumodd.py -c config/alternate.yml
