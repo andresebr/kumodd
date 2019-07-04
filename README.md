@@ -1,10 +1,10 @@
 # kumodd
 
-Kumodd collects data from a specified Google Drive account.
+Kumodd collects files and meta-data from a specified Google Drive account.
 
-Optional filters limit by file cateories, such as doc, image, or video.  
-Output can include file contents or only a table of meta-data.  
-Columns may be selected in the configuration file.
+It can download files, or genrate a CSV file of meta-data.
+Files can be filterd by category, such as doc, image, or video.  
+Meta-data may be selected in the configuration file.
 
 ``` shell
 ./kumodd.py -l doc
