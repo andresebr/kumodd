@@ -51,7 +51,7 @@ To download all of the files listed in a previously generated CSV file, use -csv
 Only one of -d, -l, or -csv should be used.
 
 Option		| Description 
-:------		| :-----------
+------:		| :-----------
 -l filter	| List files. Also create a CSV file list. Filters are described below.
 -d filter	| Download files. Also create a CSV file list.
 -csv path	| Download files listed in path, a previously generated CSV file.  
@@ -64,7 +64,7 @@ Option		| Description
 The filter option limits output to a selected category of files.  A file's category is determined its mime type.
 
 Filter	| Description 
-:------	| :-----------
+------:	| :-----------
 all	| All files stored in the account
 doc	| Documents including .doc, .docx, and .odf
 xls	| Spreadsheets
