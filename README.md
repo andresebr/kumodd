@@ -106,7 +106,7 @@ One can change the meta-data fields.  They are specified by the tag, metadata, i
 
 Meta-data names are described in the 
 [Google Drive API Documentation](https://developers.google.com/drive/api/v3/reference/files).
-A few of the available metadata names are shown below. This exmample is is the metadata of a Google Doc.
+A few of the available metadata names are shown below. This is the metadata of a Google Doc.
 
 ``` javascript
 {'alternateLink': 'https://docs.google.com/document/d/1Bbouiss7ioabPembZdG9B9bsabaiudfjqBgtXV5-9ldo8/edit?usp=drivesdk',
