@@ -15,55 +15,52 @@ Created (UTC)            Last Modified (UTC)      File Id                       
 2019-04-12T16:21:48.867Z 2019-04-12T16:21:55.245Z 13qAT9ARVaCbGKmCXiN_60XnCAyE5ZrXz_4uKRjaE3mU  My Drive/Todo List            27         Johe Doe         Johe Doe         -                   
 ```
 
-## Setup
+## Usage examples
 
-To setup kumodd, 1) install kumodd and requirements, 2) obtain an Oauth ID required for
-Google API use, and 3) authorize access to the specified account.
+List all files stored in a Google Drive account:
 
-1. Download kumodd and install the required packages.
-    ```
-    git clone https://github.com/rich-murphey/kumodd.git
-    cd kumodd
-    python3 -m pip install --user -r requirements.txt
-    ```
+    python3 kumodd.py -l all
 
-1. Obtain a Google Oauth client ID (required for Google Drive API):
+List only images stored in Google Drive:
 
-    1. [Create a free google cloud account](
-https://cloud.google.com/billing/docs/how-to/manage-billing-account#create_a_new_billing_account).  
-    1. [Login to your Google cloud account](https://console.cloud.google.com).
-    1. [Create a Project](https://console.cloud.google.com/projectcreate).
-    1. [Create Oauth2 API credential for the
-       project](https://console.cloud.google.com/apis/credentials). Or select APIs & Services, then Credentials.
-    1. Click "Create Credentials" and select "Oauth client ID".
-    1. Select the radio button "Web Application".
-    1. In "Authorized redirect URIs", enter: http://localhost:8080
-    1. Click "create".  Next, a dialog "OAuth client" will pop up.
-    1. Click OK.  Next, it will show a list of "Oauth 2.0 client IDs".
-    1. Click the down arrow icon at far right of the new ID.  The ID will download.
-    1. Copy the downloaded ID it to kumodd/config/gdrive.json.
+    python3 kumodd.py -l image
 
-1. Authorize kumodd to access the cloud account:
+Download all PDF files and save them in the Desktop folder:
 
-    The first time kumodd is used (e.g. python3 kumodd.py -l all), it will open the
-    cloud login page in a web browser.
-    1. Login to the cloud account. Next, it will request approval.
-    1. Click "Approve". Next, kumodd stores the Oauth token in config/gdrive.dat.  
-    
-    If there is no local browser, or if -no_browser is used, kumodd will
-    instead print a URL of the cloud login page.
-    1. Copy the URL and paste it into a browser.  
-    1. Login to the cloud account.  Next, it will request approval.
-    1. Click "Approve". Next, the page will show an access token.
-    1. Copy the token from the web page. Paste it into kumodd, and press enter. Next, kumodd saves the
-    Oauth token in config/gdrive.dat.
+    python3 kumodd.py -d pdf -p /home/user/Desktop/
 
-    Once authorized, the login page will not be shown again unless the token
-    (config/gdrive.dat) expires or is deleted.
+The default config file is config/config.dat.  If it does not exist, kumodd will create it using the following defaults.
+``` yaml
+gdrive:
+  gdrive_auth: config/gdrive_config.json
+  oauth_id: config/gdrive.dat
+  csvfile: ./filelist-
+  metadata: createdDate,modifiedDate,id,path,revisions,lastModifyingUserName,ownerNames,md5Checksum,modifiedByMeDate,lastViewedByMeDate,shared
+```
+To select an alternate config file, use the -c option:
 
+    python3 kumodd.py -c config/alternate.yml
+
+The list (-l) and download (-d) options both create a CSV file. 
+
+The default CSV file name is ./filelist-username.csv. It consists of a prefix specified
+in config/config.yml (above), appended by the google drive user name and .csv suffix.
+
+To download all of the files listed in previously generated CSV file, use the -csv option.
+
+    python3 kumodd.py -csv ./filelist-username.csv
+
+To relay kumodd access though an HTTP proxy, specify the proxy in config/config.yml:
+``` yaml
+proxy:
+  host: proxy.host.com
+  port: 8888 (optional)
+  user: username (optional)
+  pass: password (optional)
+```
 ## Usage
 
-`python3 kumodd.py [-d <filter>] [-l <filter>] [-csv <filename>]`
+    python3 kumodd.py [-d <filter>] [-l <filter>] [-csv <filename>]
 
 Only one of -d, -l, or -csv should be used.
 
@@ -95,42 +92,6 @@ audio	| Audio files
 video	| Video files
 
 
-## Usage examples
-
-List all files stored in a Google Drive account:
-
-`python3 kumodd.py -l all`
-
-List only images stored in Google Drive:
-
-`python3 kumodd.py -l image`
-
-Download all PDF files and save them in the Desktop folder:
-
-`python3 kumodd.py -d pdf -p /home/user/Desktop/`
-
-The -l and -d options create a CSV file. 
-The default CSV file name is ./filelist-username.csv. It consists of a prefix specified in the config/config.cfg (below), the user name, and .csv.
-``` shell
-[gdrive]
-csvfile = ./filelist-
-```
-To download all of the files listed in the CSV file, use the -csv option.
-
-`python3 kumodd.py -csv filelist-username.csv`
-
-To relay kumodd access though an HTTP proxy, specify the proxy in config/config.cfg:
-```
-[proxy]
-host = proxy.host.com
-port = 8888 (optional)
-user = username (optional)
-pass = password (optional)
-```
-The default config file is config/config.dat.  To select an alternate config file, use the -c option:
-
-`python3 kumodd.py -c config/alternate.dat`
-
 ## Meta-data
 
 Default meta-data include:
@@ -151,11 +112,6 @@ shared                  |  shared (true/false)
 
 One can change which meta-data are included, or their order, by specifying a comma
 delimited list in the configuration file.
-
-``` shell
-[gdrive]
-metadata = createdDate,modifiedDate,id,path,revisions,lastModifyingUserName,ownerNames,md5Checksum,modifiedByMeDate,lastViewedByMeDate,shared
-```
 
 A more complete list of names of the meta-data are described in the [Google Drive API Documentation](https://developers.google.com/drive/api/v3/reference/files).
 A few of the available metadata item names are shown in the following sample associated with a Google Doc.
@@ -227,6 +183,52 @@ A few of the available metadata item names are shown in the following sample ass
  'writersCanShare': True}
 ```
 
+## Setup
+
+To setup kumodd, 1) install kumodd and requirements, 2) obtain an Oauth ID required for
+Google API use, and 3) authorize access to the specified account.
+
+1. Download kumodd and install the required packages.
+    ```
+    git clone https://github.com/rich-murphey/kumodd.git
+    cd kumodd
+    python3 -m pip install --user -r requirements.txt
+    ```
+
+1. Obtain a Google Oauth client ID (required for Google Drive API):
+
+    1. [Create a free google cloud account](
+https://cloud.google.com/billing/docs/how-to/manage-billing-account#create_a_new_billing_account).  
+    1. [Login to your Google cloud account](https://console.cloud.google.com).
+    1. [Create a Project](https://console.cloud.google.com/projectcreate).
+    1. [Create Oauth2 API credential for the
+       project](https://console.cloud.google.com/apis/credentials). Or select APIs & Services, then Credentials.
+    1. Click "Create Credentials" and select "Oauth client ID".
+    1. Select the radio button "Web Application".
+    1. In "Authorized redirect URIs", enter: http://localhost:8080
+    1. Click "create".  Next, a dialog "OAuth client" will pop up.
+    1. Click OK.  Next, it will show a list of "Oauth 2.0 client IDs".
+    1. Click the down arrow icon at far right of the new ID.  The ID will download.
+    1. Copy the downloaded ID it to kumodd/config/gdrive.json.
+
+1. Authorize kumodd to access the cloud account:
+
+    The first time kumodd is used (e.g. python3 kumodd.py -l all), it will open the
+    cloud login page in a web browser.
+    1. Login to the cloud account. Next, it will request approval.
+    1. Click "Approve". Next, kumodd stores the Oauth token in config/gdrive.dat.  
+    
+    If there is no local browser, or if -no_browser is used, kumodd will
+    instead print a URL of the cloud login page.
+    1. Copy the URL and paste it into a browser.  
+    1. Login to the cloud account.  Next, it will request approval.
+    1. Click "Approve". Next, the page will show an access token.
+    1. Copy the token from the web page. Paste it into kumodd, and press enter. Next, kumodd saves the
+    Oauth token in config/gdrive.dat.
+
+    Once authorized, the login page will not be shown again unless the token
+    (config/gdrive.dat) expires or is deleted.
+
 ## Notes
 
 To use kumodd on windows, add python and git to the PATH environment variable, and then
@@ -256,4 +258,3 @@ developed.  It has has been replaced by the [Google Cloud client
 libraries](https://github.com/googleapis/google-cloud-python) which are in development,
 and recommended for new work.
 
-[gdrive]

@@ -446,8 +446,8 @@ def main(argv):
         yaml.dump({
             'version': gdrive_version,
             'gdrive': {
-                'configurationfile': 'config/gdrive_config.json',
-                'tokenfile':  'config/gdrive.dat',
+                'gdrive_auth': 'config/gdrive_config.json',
+                'oauth_id':  'config/gdrive.dat',
                 'csvfile': './filelist-',
                 'metadata': 'createdDate,modifiedDate,id,path,revisions,lastModifyingUserName,ownerNames,md5Checksum,modifiedByMeDate,lastViewedByMeDate,shared'
                 }
@@ -455,7 +455,7 @@ def main(argv):
 
     config = yaml.safe_load(open(FLAGS.config, 'r'))
 
-    api_credentials_file = config.get('gdrive',{}).get('configurationfile')
+    api_credentials_file = config.get('gdrive',{}).get('gdrive_auth')
     metadata_names = (config.get('gdrive',{}).get('metadata')).split(',')
 
     # Set up a Flow object that opens a web browser or prints a URL for
@@ -508,13 +508,13 @@ Error: {e}\n""" )
     # If the Credentials don't exist or are invalid run through the native client
     # flow. The Storage object will ensure that if successful the good
     # Credentials will get written back to a file.
-    tokenfile = config.get('gdrive',{}).get('tokenfile')
+    oauth_id = config.get('gdrive',{}).get('oauth_id')
     try:
-        storage = Storage(tokenfile)
+        storage = Storage(oauth_id)
         credentials = storage.get()
     except:
-        open(tokenfile, "a+").close()     # ensure tokenfile exists
-        storage = Storage(tokenfile)
+        open(oauth_id, "a+").close()     # ensure oauth_id exists
+        storage = Storage(oauth_id)
         credentials = None
 
     if credentials is None or credentials.invalid:
