@@ -19,7 +19,7 @@ Created (UTC)            Last Modified (UTC)      File Id                       
 ```
 To download all PDFs to a specified path, use -d and -p:
 
-    python3 kumodd.py -d pdf -p /home/user/Desktop/
+    ./kumodd.py -d pdf -p /home/user/Desktop/
 
 The list (-l) and download (-d) options both create a CSV file equivalent to the table above. 
 
@@ -38,15 +38,15 @@ gdrive:
 
 To select an alternate config file, use -c:
 
-    python3 kumodd.py -c config/alternate.yml
+    ./kumodd.py -c config/alternate.yml
 
 To download all of the files listed in a previously generated CSV file, use -csv:
 
-    python3 kumodd.py -csv ./filelist-username.csv
+    ./kumodd.py -csv ./filelist-username.csv
 
 ## Usage
 
-    python3 kumodd.py [-d <filter>] [-l <filter>] [-csv <filename>]
+    ./kumodd.py [-d <filter>] [-l <filter>] [-csv <filename>]
 
 Only one of -d, -l, or -csv should be used.
 
@@ -216,7 +216,7 @@ https://cloud.google.com/billing/docs/how-to/manage-billing-account#create_a_new
 
 1. Authorize kumodd to access the cloud account:
 
-    The first time kumodd is used (e.g. python3 kumodd.py -l all), it will open the
+    The first time kumodd is used (e.g. ./kumodd.py -l all), it will open the
     cloud login page in a web browser.
     1. Login to the cloud account. Next, it will request approval.
     1. Click "Approve". Next, kumodd stores the Oauth token in config/gdrive.dat.  
