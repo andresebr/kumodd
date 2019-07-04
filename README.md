@@ -31,7 +31,7 @@ If config/config.yml does not exist, kumodd will create it using:
 gdrive:
   gdrive_auth: config/gdrive_config.json
   oauth_id: config/gdrive.dat
-  csvprefix: ./filelist-
+  csv_prefix: ./filelist-
   metadata: createdDate,modifiedDate,id,path,revisions,lastModifyingUserName,ownerNames,md5Checksum,modifiedByMeDate,lastViewedByMeDate,shared
 
 ```
