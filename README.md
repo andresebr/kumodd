@@ -1,9 +1,11 @@
 # kumodd
 
-Kumodd downloads files and/or generates a CSV file of meta-data from a specified Google Drive account.
+Kumodd downloads files and/or generates a CSV file of meta-data from a specified Google
+Drive account in a forensically sound manner.
 
 Files can be filtered by category, such as doc, image, or video.  
 Meta-data columns may be selected in the configuration file.
+Kumodd can tabulate the MD5 digests of the cloud file and the downloaded file, to demonstrate they match.
 
 ## Usage examples
 
