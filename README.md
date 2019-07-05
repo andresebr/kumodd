@@ -1,14 +1,14 @@
 # kumodd
 
-Kumodd collects files and meta-data from a specified Google Drive account.
+Kumodd downloads files and generates tables of meta-data from a specified Google Drive account.
 
-It can download files, or generate a CSV file of meta-data.  
+It can download files and/or generate a CSV file of meta-data.  
 Files can be filtered by category, such as doc, image, or video.  
 Meta-data columns may be selected in the configuration file.
 
 ## Usage examples
 
-To list all documents, use -l doc:
+To list all documents, use "-l doc":
 ``` shell
 kumodd.py -l doc
 Created (UTC)            Last Modified (UTC)      File Id                                       Remote Path                   Revision   Modified by      Owner            MD5                       
@@ -165,7 +165,7 @@ the available metadata names are shown below. This is the metadata of a Google D
 ```
 
 Meta-data names are translated to CSV column titles, as shown below in
-config/config.yml.  If a title is not defined there, the meta-data name itself is used
+config/config.yml.  If a title is not defined there, the meta-data name is used
 as the title.
 
 ``` yaml
@@ -201,7 +201,7 @@ Google API use, and finally, authorize access to the specified account.
         apt install python3 git
 
     On windows, make sure they are in the PATH environment
-    variable
+    variable.
 
         SET "PATH=%PATH%;C:\Python37"
         SET "PATH=%PATH%;C:\ProgramFiles\Git\bin"
@@ -221,24 +221,24 @@ https://cloud.google.com/billing/docs/how-to/manage-billing-account#create_a_new
     1. [Login to your Google cloud account](https://console.cloud.google.com).
     1. [Create a Project](https://console.cloud.google.com/projectcreate).
     1. [Create Oauth2 API credential for the
-       project](https://console.cloud.google.com/apis/credentials). Or select APIs & Services, then Credentials.
+       project](https://console.cloud.google.com/apis/credentials).
     1. Click "Create Credentials" and select "Oauth client ID".
     1. Select the radio button "Web Application".
     1. In "Authorized redirect URIs", enter: http://localhost:8080
     1. Click "create".  Next, a dialog "OAuth client" will pop up.
-    1. Click OK.  Next, it will show a list of "Oauth 2.0 client IDs".
+    1. Click OK.  Next, it will show the list of "Oauth 2.0 client IDs".
     1. Click the down arrow icon at far right of the new ID.  The ID will download.
     1. Copy the downloaded ID it to kumodd/config/gdrive.json.
 
 1. Authorize kumodd to access the cloud account:
 
     The first time kumodd is used (e.g. kumodd.py -l all), it will open the
-    cloud login page in a web browser.
+    login page in a web browser.
     1. Login to the cloud account. Next, it will request approval.
     1. Click "Approve". Next, kumodd stores the Oauth token in config/gdrive.dat.  
     
     If there is no local browser, or if -no_browser is used, kumodd will
-    instead print a URL of the cloud login page.
+    instead print a URL of the login page.
     1. Copy the URL and paste it into a browser.  
     1. Login to the cloud account.  Next, it will request approval.
     1. Click "Approve". Next, the page will show an access token.
@@ -246,7 +246,7 @@ https://cloud.google.com/billing/docs/how-to/manage-billing-account#create_a_new
     Oauth token in config/gdrive.dat.
 
     Once authorized, the login page will not be shown again unless the token
-    (config/gdrive.dat) expires or is deleted.
+    expires or config/gdrive.dat is deleted.
 
 ## Caveats
 
