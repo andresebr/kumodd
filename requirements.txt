@@ -2,3 +2,4 @@ absl-py
 google-api-python-client
 oauth2client
 socksipy-branch
+jsonpath-ng

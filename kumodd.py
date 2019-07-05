@@ -23,7 +23,7 @@ flags.DEFINE_enum('get_items', None,
                   'Download files and create directories, optionally filtered by category', short_name='d')
 flags.DEFINE_list('usecsv', None,
                   'Download files from the service using a previously generated csv file', short_name='csv')
-flags.DEFINE_string('destination', 'downloaded/', 'Destination folder location', short_name='p')
+flags.DEFINE_string('destination', './downloaded', 'Destination folder location', short_name='p')
 flags.DEFINE_string('metadata_destination', 'metadata/',
                     'Destination folder for metadata information', short_name='m')
 
@@ -34,18 +34,9 @@ def main(argv):
         print( f'{e}\\nUsage: {argv[0]} ARGS\\n{FLAGS}' )
         sys.exit(1)
         
-    if FLAGS.destination == 'downloaded/': 
-        if not os.path.exists(FLAGS.destination):
-            directory = FLAGS.destination
-            logging.info( "Creating directory: %s" % directory )
-            os.makedirs(FLAGS.destination)
+    if not os.path.exists(FLAGS.destination):
+        os.makedirs(FLAGS.destination)
             
-    if FLAGS.list_items != None: 
-        if not os.path.exists('localdata/'):
-            directory = 'localdata/'
-            logging.info( "Creating directory: %s" % directory )
-            os.makedirs('localdata/')
-    
     if FLAGS.service == 'gdrive':
         flags.DEFINE_string('logfile', 'gdrive.log', 'Location of file to write the log' )
         flags.DEFINE_string('drive_id', 'root', 'ID of the folder whose contents are to be fetched' )

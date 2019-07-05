@@ -8,7 +8,7 @@ Meta-data columns may be selected in the configuration file.
 
 ## Usage examples
 
-To list all documents, use -l:
+To list all documents, use -l doc:
 ``` shell
 kumodd.py -l doc
 Created (UTC)            Last Modified (UTC)      File Id                                       Remote Path                   Revision   Modified by      Owner            MD5                       
@@ -17,14 +17,19 @@ Created (UTC)            Last Modified (UTC)      File Id                       
 2019-05-16T23:34:42.665Z 2019-05-17T22:18:07.705Z 0B7pAT_44h5sbs897bsmazZorexlchm0wu90sgzrlu9h  My Drive/Letter to John.docx  1          Johe Doe         Johe Doe         4cb0b987cb879d48f56e4fd2cfd57d83
 2019-04-12T16:21:48.867Z 2019-04-12T16:21:55.245Z 13qAT9ARVaCbGKmCXiN_60XnCAyE5ZrXz_4uKRjaE3mU  My Drive/Todo List            27         Johe Doe         Johe Doe         -                   
 ```
-Use -d (download) and -p (path) to save all PDFs to a folder:
+
+To download (-d) all PDFs to path (-p) /home/user/Desktop/:
 
     kumodd.py -d pdf -p /home/user/Desktop/
 
-Both the list (-l) and download (-d) options create a CSV file equivalent to the table above. 
+Both the options list (-l) and download (-d) will create a CSV file equivalent to the table above. 
 
-The default CSV file is ./filelist-username.csv. The filename consists of a prefix specified
-in config/config.yml (below), appended by the google user name and .csv suffix.
+To download all of the files listed in a previously generated CSV file, use -csv:
+
+    kumodd.py -csv ./filelist-username.csv
+
+The default CSV file is ./filelist-username.csv. Set the filename prefix in
+config/config.yml. The google user name and .csv suffix are appended.
 
 If config/config.yml does not exist, kumodd will create it using:
 ``` yaml
@@ -35,14 +40,9 @@ gdrive:
   metadata: createdDate,modifiedDate,id,path,revisions,lastModifyingUserName,ownerNames,md5Checksum,modifiedByMeDate,lastViewedByMeDate,shared
 
 ```
-
 To select an alternate config file, use -c:
 
     kumodd.py -c config/alternate.yml
-
-To download all of the files listed in a previously generated CSV file, use -csv:
-
-    kumodd.py -csv ./filelist-username.csv
 
 ## Usage
 
@@ -86,27 +86,46 @@ proxy:
 ```
 ## Meta-data
 
-Default meta-data are:
+One can change the meta-data fields output by kumodd.  They are specified by the tag,
+metadata, in config/config.yml shown above.  The default meta-data are:
 
 Name			| Description 
 ------:			| :-----------
-createdDate             |  Created Time (UTC)
-modifiedDate            |  Last Modified Time (UTC)
-id                      |  Unique [Google Drive File ID](https://developers.google.com/drive/api/v3/about-files)
-path                    |  Google Drive File Path
-revisions               |  Number of revisions
-lastModifyingUserName   |  Last Modified by (user name)
-ownerNames              |  Owner (user name)
-md5Checksum             |  MD5 digest.  Only for file types not native to Google Docs.
-modifiedByMeDate        |  Time Last Modified by Account Holder (UTC)
-lastViewedByMeDate      |  Time Last Viewed by Account Holder (UTC)
-shared                  |  Is shared (true/false)
+createdDate             | Created Time (UTC)
+modifiedDate            | Last Modified Time (UTC)
+title			| File name
+category		| one of: doc, xls, ppt, text, pdf, image, audio, video or other
+size			| size (bytes) of download if new or updated.  Otherwise None.
+status			| current, updated, or error if downloading. Otherwise None.
+revisions               | Number of revisions
+mimeType		| MIME file type
+path                    | File path in Google Drive 
+id                      | Unique [Google Drive File ID](https://developers.google.com/drive/api/v3/about-files)
+lastModifyingUserName   | Last Modified by (user name)
+ownerNames              | Owner (user name)
+md5Checksum             | MD5 digest of remote file. None if file is a native Google Apps Document.
+md5local		| md5 of download if new or updated.  Otherwise None
+modifiedByMeDate        | Time Last Modified by Account Holder (UTC)
+lastViewedByMeDate      | Time Last Viewed by Account Holder (UTC)
+shared                  | Is shared (true/false)
 
-One can change the meta-data fields.  They are specified by the tag, metadata, in config/config.yml shown above.
+Shown below are a few of the meta-data that are derived attributes, computed locally by
+kumodd. The names are not found in the data retrieved from google drive, but rather
+computed from the data or meta-data obtained from google drive.
 
-Meta-data names are described in the 
-[Google Drive API Documentation](https://developers.google.com/drive/api/v3/reference/files).
-A few of the available metadata names are shown below. This is the metadata of a Google Doc.
+Name		| Description 
+------:		| :-----------
+path		| a unix style path of remote file in google drive.
+local_path	| path of file in local file system
+revisions	| number of revisions of file
+md5local	| md5 of download if new or updated.  Otherwise None
+size		| size (bytes) of download if new or updated.  Otherwise None.
+status		| current, updated, or error if downloading. Otherwise None.
+
+
+Meta-data names obtained from Google Drive are described in the [Google Drive API
+Documentation](https://developers.google.com/drive/api/v3/reference/files).  A few of
+the available metadata names are shown below. This is the metadata of a Google Doc.
 
 ``` javascript
 {'alternateLink': 'https://docs.google.com/document/d/1Bbouiss7ioabPembZdG9B9bsabaiudfjqBgtXV5-9ldo8/edit?usp=drivesdk',
@@ -246,4 +265,5 @@ supported by Google, and is feature complete and stable.  However, it is not act
 developed.  It has has been replaced by the [Google Cloud client
 libraries](https://github.com/googleapis/google-cloud-python) which are in development,
 and recommended for new work.
+
 
