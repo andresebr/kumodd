@@ -349,7 +349,7 @@ def download_revision(service, drive_file, revision_id, path):
             except httplib2.IncompleteRead:   # zero bytes from socket
                 log( 'Error while reading file %s. Retrying...' % revision['originalFilename'].replace( '/', '_' ) )
                 print( 'Error while reading file %s. Retrying...' % revision['originalFilename'].replace( '/', '_' ) )
-                # xxx potential log flood if there is no sleep delay here
+                time.sleep(1) # avoid log flood
                 continue
             break
 
@@ -423,7 +423,7 @@ def download_file( service, drive_file ):
                 resp, content = service._http.request(download_url)
             except httplib2.IncompleteRead as e:   # zero bytes from socket
                 log( f"Exception {e} while reading {drive_file['local_path']}. Retrying..." )
-                # xxx potential log flood if there is no sleep delay here
+                time.sleep(1) # avoid log flood
                 continue
             if resp.status == 200:
                 try:

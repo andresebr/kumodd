@@ -250,6 +250,11 @@ https://cloud.google.com/billing/docs/how-to/manage-billing-account#create_a_new
 
 ## Caveats
 
+Kumodd looks for multiple revisions of a file, but does not download all of them.
+
+Google drive allows a folder to contain multiple files with the same name, whereas unix
+does not. kumodd downloads only one as it stands. 
+
 Using an HTTP proxy on Windows does not work due to unresolved issues with httplib2.
 
 [Google rate limits API calls](https://console.cloud.google.com/apis/api/drive.googleapis.com/quotas).
@@ -265,5 +270,3 @@ supported by Google, and is feature complete and stable.  However, it is not act
 developed.  It has has been replaced by the [Google Cloud client
 libraries](https://github.com/googleapis/google-cloud-python) which are in development,
 and recommended for new work.
-
-
