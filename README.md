@@ -1,6 +1,6 @@
 # kumodd
 
-Kumodd downloads files and generates tables of meta-data from a specified Google Drive account.
+Kumodd downloads files and/or generates a CSV file of meta-data from a specified Google Drive account.
 
 Files can be filtered by category, such as doc, image, or video.  
 Meta-data columns may be selected in the configuration file.
@@ -20,6 +20,8 @@ Created (UTC)            Last Modified (UTC)      File Id                       
 To download (-d) all PDFs to path (-p) /home/user/Desktop/:
 
     kumodd.py -d pdf -p /home/user/Desktop/
+
+Native Google Apps documents, spreadsheets and presentations are downloaded in LibreOffice format.
 
 Both the options list (-l) and download (-d) will create a CSV file equivalent to the table above. 
 
@@ -174,7 +176,7 @@ csv_title:
   createdDate: Created (UTC)
   id: File Id
   index: Index
-  lastModifyingUserName: Modfied by
+  lastModifyingUserName: Modified by
   lastViewedByMeDate: User Last View
   local_path: Local Path
   md5Checksum: MD5
