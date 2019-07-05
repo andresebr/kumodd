@@ -2,7 +2,6 @@
 
 Kumodd downloads files and generates tables of meta-data from a specified Google Drive account.
 
-It can download files and/or generate a CSV file of meta-data.  
 Files can be filtered by category, such as doc, image, or video.  
 Meta-data columns may be selected in the configuration file.
 
