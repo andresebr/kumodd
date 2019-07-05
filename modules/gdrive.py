@@ -457,36 +457,39 @@ def main(argv):
     if FLAGS.config.find('/'):
         ensure_dir(dirname(FLAGS.config))
     if not os.path.exists(FLAGS.config):
-        yaml.dump({
-            'version': gdrive_version,
-            'gdrive': {
-                'gdrive_auth': 'config/gdrive_config.json',
-                'oauth_id':  'config/gdrive.dat',
-                'csv_prefix': './filelist-',
-                'metadata': 'createdDate,modifiedDate,id,path,revision,lastModifyingUserName,ownerNames,modifiedByMeDate,lastViewedByMeDate,shared,md5Checksum'
-                },
-            'csv_title': {
-                'app':		'Application',
-                'category':	'Category',
-                'createdDate':	'Created (UTC)',
-                'id':		'File Id',
-                'index':	'Index',
-                'lastModifyingUserName':	'Modfied by',
-                'lastViewedByMeDate': 'User Last View',
-                'local_path':	'Local Path',
-                'md5Checksum':	'MD5',
-                'mimeType':	'MIME Type',
-                'modifiedByMeDate':	'User Last Mod',
-                'modifiedDate':	'Last Modified (UTC)',
-                'ownerNames':	'Owner',
-                'path':		'Remote Path',
-                'revision':	'Revision',
-                'shared':	'Is Shared',
-                'time':		'TIME (UTC)',
-                'user':		'User',
-                'version':	'Version',
-                }
-            }, io.open(FLAGS.config, 'w', encoding='utf8'), default_flow_style=False, allow_unicode=True)
+        yaml.dump(yaml.load('''
+gdrive:
+  csv_prefix: ./filelist-
+  gdrive_auth: config/gdrive_config.json
+  oauth_id: config/gdrive.dat
+  metadata: title,category,status,revision,ownerNames,size,createdDate,modifiedDate,mimeType,path,id,lastModifyingUserName,md5Checksum,md5local,modifiedByMeDate,lastViewedByMeDate,shared
+
+csv_title:
+  app: Application
+  category: Category
+  createdDate: Created (UTC)
+  id: File Id
+  index: Index
+  lastModifyingUserName: Modfied by
+  lastViewedByMeDate: User Last View
+  local_path: Local Path
+  md5Checksum: MD5
+  md5local: Local MD5
+  mimeType: MIME Type
+  modifiedByMeDate: User Last Mod
+  modifiedDate: Last Modified (UTC)
+  ownerNames: Owner
+  path: Remote Path
+  revision: Revis
+  shared: Shared
+  size: Bytes
+  status: Status
+  time: Time (UTC)
+  title: Name
+  user: User
+  version: Version
+'''),
+                            io.open(FLAGS.config, 'w', encoding='utf8'), default_flow_style=False, allow_unicode=True)
 
     config = yaml.safe_load(open(FLAGS.config, 'r'))
 
