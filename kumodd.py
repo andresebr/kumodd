@@ -5,6 +5,7 @@ __author__ = 'andrsebr@gmail.com (Andres Barreto), rich.murphey@gmail.com'
 import sys 
 import os
 import logging
+from absl import app
 from absl import flags
 import modules.gdrive as gdrive
 
@@ -51,4 +52,4 @@ def main(argv):
         print( 'No service selected' )
     
 if __name__ == '__main__':
-    main(sys.argv)
+    app.run(main)

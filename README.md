@@ -53,34 +53,48 @@ Native Google Apps documents, spreadsheets and presentations are downloaded in L
 The API does not provide a remote MD5 for native Google Apps docs, sheets or slides.
 As a result, only the local MD5 digest is reported.
 
+
 ## Usage
 
-    kumodd.py [-d <filter>] [-l <filter>] [-csv <filename>]
+    ./kumodd.py [flags]
 
-Only one of -d, -l, or -csv should be used.
-
-Option		| Description 
-------:		| :-----------
--l filter	| List files. Also create a CSV file list. Filters are described below.
--d filter	| Download files. Also create a CSV file list.
--csv path	| Download files listed in path, a previously generated CSV file.  
--log level	| level is either DEBUG, INFO, WARNING, ERROR, or CRITICAL.
--no_browser	| Do not open web browser. Instead print the URL.
--m dir		| Save metadata in dir.
--s service	| Select the cloud service.  gdrive is the only supported service.
-
-
+    flags:
+      -p,--destination: Destination folder location
+        (default: './download')
+      -d,--get_items: <all|doc|xls|ppt|text|pdf|office|image|audio|video|other>: Download files and create directories,
+        optionally filtered by category
+      -l,--list_items: <all|doc|xls|ppt|text|pdf|office|image|audio|video|other>: List files and directories, optionally
+        filtered by category
+      --log: <DEBUG|INFO|WARNING|ERROR|CRITICAL>: Set the level of logging detail.
+        (default: 'ERROR')
+      -m,--metadata_destination: Destination folder for metadata information
+        (default: './metadata')
+      -s,--service: <gdrive|dropbox|box|onedrive>: Service to use
+        (default: 'gdrive')
+      -csv,--usecsv: Download files from the service using a previously generated csv file
+        (a comma separated list)
+      -c,--config: config file
+        (default: 'config/config.yml')
+      --[no]no_browser: disable launching a web browser to authorize access to a google drive account
+        (default: 'false')
+      --[no]no_verify: For local files that do not need to be updated, do not generate and report the MD5 of the local
+        file
+        (default: 'false')
+    
+    Try --helpfull to get a list of all flags.
+    
+    
 The filter option limits output to a selected category of files.  A file's category is determined its mime type.
 
 Filter	| Description 
 ------:	| :-----------
 all	| All files stored in the account
-doc	| Documents including .doc, .docx, and .odf
-xls	| Spreadsheets
-ppt	| Presentation files
+doc	| Documents: Google Docs, doc, docx, odt
+xls	| Spreadsheets: Google Sheets, xls, xlsx, ods
+ppt	| Presentations: Google Slides, ppt, pptx, odp
 text	| Text/source code files
 pdf	| PDF files
-office	| Document, spreadsheet and presentation files
+office	| Documents, spreadsheets and presentations
 image	| Image files
 audio	| Audio files
 video	| Video files

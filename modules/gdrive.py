@@ -1,22 +1,5 @@
 # -*- compile-command: "cd .. ;./kumodd.py -c config/test.yml -d doc|cut -c 1-110"; -*-
-"""Simple command-line sample for the Google Drive API.
-
-Command-line application that retrieves the list of files in google drive.
-
-Usage:
-    $ python drive.py
-
-You can also get help on all the command-line flags the program understands
-by running:
-
-    $ python drive.py --help
-
-To get detailed log output run:
-
-    $ python drive.py --log=DEBUG
-"""
-
-__author__ = 'andrsebr@gmail.com (Andres Barreto)'
+__author__ = 'andrsebr@gmail.com (Andres Barreto), rich.murphey@gmail.com'
 
 from absl import flags
 from apiclient import errors
@@ -94,11 +77,6 @@ def maybe_flatten(maybe_list, separator=' '):
         return separator.join([ maybe_flatten(x) for x in maybe_list ])
     else:
         return str(maybe_list)
-
-# The flags module makes defining command-line options easy for
-# applications. Run this program with the '--help' argument to see
-# all the flags that it understands.
-
 
 def open_logfile():
     if not re.match( '^/', FLAGS.logfile ):
