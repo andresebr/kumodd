@@ -1,4 +1,4 @@
-# -*- compile-command: "cd .. ;./kumodd.py -c config/test.yml -l doc"; -*-
+# -*- compile-command: "cd .. ;./kumodd.py -c config/test.yml -d doc|cut -c 1-110"; -*-
 """Simple command-line sample for the Google Drive API.
 
 Command-line application that retrieves the list of files in google drive.
@@ -19,30 +19,29 @@ To get detailed log output run:
 __author__ = 'andrsebr@gmail.com (Andres Barreto)'
 
 from absl import flags
+from apiclient import errors
+from collections import Iterable
+from datetime import datetime
+from googleapiclient.discovery import build
+from hashlib import md5
+from jsonpath_ng import jsonpath, parse
+from oauth2client.client import AccessTokenRefreshError, flow_from_clientsecrets
+from oauth2client.file import Storage
+from oauth2client.tools import run_flow, argparser
+import csv
 import httplib2
-import socks
+import io
+import json
 import logging
 import os
-import io
+import platform
 import pprint
-import sys
 import re
+import socket
+import socks
+import sys
 import time
 import yaml
-import csv
-import socket
-import platform
-from hashlib import md5
-from collections import Iterable
-from googleapiclient.discovery import build
-from oauth2client.file import Storage
-from oauth2client.client import AccessTokenRefreshError, flow_from_clientsecrets
-from oauth2client.tools import run_flow, argparser
-from jsonpath_ng import jsonpath, parse
-#---
-from apiclient import errors
-import json
-from datetime import datetime
 
 def name_list_to_format_string( names ):
     """generate a format string for a given list of metadata names"""
@@ -52,10 +51,12 @@ def name_list_to_format_string( names ):
             fields.append(f'{{{i}:70}}')
         elif name in ['id']:
             fields.append(f'{{{i}:44}}')
-        elif name in ['md5', 'title']:
+        elif name in ['md5Checksum', 'md5Local']:
             fields.append(f'{{{i}:32}}')
-        elif 'Date' in name or name in ['time']:
+        elif 'Date' in name or name in ['time', 'title']:
             fields.append(f'{{{i}:24}}')
+        elif name in ['md5Match', 'modTimeMatch']:
+            fields.append(f'{{{i}:9}}')
         elif name in ['category', 'revision', 'shared', 'size', 'status', 'version']:
             fields.append(f'{{{i}:6}}')
         else:
@@ -68,6 +69,7 @@ items_updated = 0
 FLAGS = flags.FLAGS
 flags.DEFINE_boolean('no_browser', False, 'disable launching a web browser to authorize access to a google drive account' )
 flags.DEFINE_string('config', 'config/config.yml', 'config file', short_name='c')
+flags.DEFINE_boolean('no_verify', False, 'For local files that do not need to be updated, do not generate and report the MD5 of the local file')
 
 gdrive_version = "1.0"
 
@@ -85,19 +87,6 @@ def get_path(mydict, path):
         pass
     return elem
 
-
-def list_from_metadata_names( obj, metadata_names ):
-    result = []
-    for name in metadata_names:
-        if '.' in name :
-            elem = parse(name).find( obj )[0].value
-        else:
-            elem = obj.get(name)
-        result.append( elem )
-    return result
-
-# print( str( list_from_metadata_names( {'a': {'b': 1, 'c':2}}, ['a.c', 'a.b'] )))
-# sys.exit(1)
 
 def maybe_flatten(maybe_list, separator=' '):
     """return concatenated string from items, possibly nested."""
@@ -139,13 +128,21 @@ def is_google_doc(drive_file):
 import os
 import platform
 
-def file_is_modified(drive_file):
+def local_file_is_valid(drive_file):
     if os.path.exists( drive_file['local_path'] ):
-        rtime = time.mktime( time.strptime( drive_file['modifiedDate'], '%Y-%m-%dT%H:%M:%S.%fZ' ) )
-        ltime = os.path.getmtime( drive_file['local_path'] )
-        return rtime > ltime
-    else:
-        return True
+        # Drive API provides time to milliseconds. 2019-06-24T05:41:17.095Z
+        remote_mod_time = time.mktime( time.strptime( drive_file['modifiedDate'], '%Y-%m-%dT%H:%M:%S.%fZ' ) )
+        # float seconds since the epoch. Actualresolution depends on the file-system.
+        local_mod_time = os.path.getmtime( drive_file['local_path'] )
+        tdiff = abs(float(remote_mod_time) - float(local_mod_time))
+        if tdiff < 1.0:
+            return False
+
+        if drive_file.get('md5Checksum'):
+            local_md5 = md5(open(drive_file['local_path'],'rb').read()).hexdigest()
+            if drive_file.get('md5Checksum') == local_md5:
+                return False
+    return True
 
 def file_type_from_mime(mimetype):
     file_type = 'other'
@@ -169,7 +166,7 @@ def file_type_from_mime(mimetype):
         
     return file_type
 
-def parse_drive_file_metadata(service, drive_file, path):
+def supplement_drive_file_metadata(service, drive_file, path):
     remote_path = path + '/' + drive_file['title'].replace( '/', '_' )
     drive_file['path'] = remote_path
 
@@ -184,42 +181,76 @@ def parse_drive_file_metadata(service, drive_file, path):
 
     drive_file['label_key'] = ''.join(sorted([(k[0] if v else ' ') for k, v in drive_file['labels'].items()])).upper()
 
-def print_file_metadata(service, drive_file, path, writer, metadata_names, output_format):
+    if os.path.exists( drive_file['local_path'] ):
+        # Drive API provides time to milliseconds. 2019-06-24T05:41:17.095Z
+        remote_mod_time = time.mktime( time.strptime( drive_file['modifiedDate'], '%Y-%m-%dT%H:%M:%S.%fZ' ) )
+        # float seconds since the epoch. Actualresolution depends on the file-system.
+        local_mod_time = os.path.getmtime( drive_file['local_path'] )
+        tdiff = abs(float(remote_mod_time) - float(local_mod_time))
+        if tdiff < 1.0:   # timestamps match within one second
+            drive_file['modTimeMatch'] = 'match'
+        else:
+            drive_file['modTimeMatch'] = str(abs(datetime.fromtimestamp(local_mod_time) - datetime.fromtimestamp(remote_mod_time))).replace(" days, ", "d")
+
+        drive_file['md5Local'] = md5(open(drive_file['local_path'],'rb').read()).hexdigest()
+        if drive_file.get('md5Checksum'):
+            if drive_file.get('md5Checksum') == drive_file['md5Local']:
+                drive_file['md5Match'] = 'match'
+            else:
+                drive_file['md5Match'] = 'MISMATCH'
+        else:
+            drive_file['md5Match'] = 'n/a'            
+
+def list_from_metadata_names( obj, metadata_names ):
+    result = []
+    for name in metadata_names:
+        if '.' in name :
+            elem = parse(name).find( obj )[0].value
+        else:
+            elem = obj.get(name)
+        if elem is None:
+            elem = ''
+        result.append( elem )
+    return result
+
+# print( str( list_from_metadata_names( {'a': {'b': 1, 'c':2}}, ['a.c', 'a.b'] )))
+# sys.exit(1)
+
+def print_file_metadata(service, drive_file, path, writer, metadata_names, output_format=None):
     global items_listed
-    parse_drive_file_metadata(service, drive_file, path)
+    supplement_drive_file_metadata(service, drive_file, path)
     data = list_from_metadata_names( drive_file, metadata_names )
     if writer:
         writer.writerow( data )
     items_listed += 1
-    print( output_format.format( *[str(i) for i in data] ))
+    if output_format:
+        print( output_format.format( *[str(i) for i in data] ))
     
-def download_file_and_metadata(service, drive_file, path, metadata_names, output_format=None):
+def download_file_and_metadata(service, drive_file, path, writer, metadata_names, output_format=None):
     global items_updated
-    parse_drive_file_metadata(service, drive_file, path)
-    if not file_is_modified( drive_file ):
-        drive_file['status'] = 'current'
-        log( f"not modified: {drive_file['local_path']}" )
-    else:
+    supplement_drive_file_metadata(service, drive_file, path)
+
+    if ((drive_file.get('md5Checksum') and (drive_file.get('md5Match') != 'match')) or
+        (drive_file.get('modTimeMatch') != 'match')):
         if download_file( service, drive_file ):
-            drive_file['status'] = 'updated'
+            drive_file['status'] = 'update'
             items_updated += 1
             save_metadata(drive_file)
         else:
             drive_file['status'] = 'error'
             log( f"ERROR downloading: {drive_file['local_path']}" )
+    data = list_from_metadata_names( drive_file, metadata_names )
+    if writer:
+        writer.writerow( data )
     if output_format:
-        data = [ maybe_flatten( drive_file.get(name)) for name in metadata_names ]
         print( output_format.format( *[str(i) for i in data] ))
-        output_row = output_format.format( *[str(i) for i in data] )
-        print( output_row )
-        log( output_row )
+
 
 def save_metadata(drive_file):
     metadata_directory = FLAGS.destination + '/' + username + '/' + FLAGS.metadata_destination 
     ensure_dir(metadata_directory)
     with open(metadata_directory + drive_file['id'] + '-' + drive_file['title'] + '.json', 'w+') as metadata_file:
-        json.dump(drive_file, metadata_file)
-    metadata_file.close()
+        yaml.dump(drive_file, metadata_file)
 
 def get_user_info(service):
     """Print information about the user along with the Drive API settings.
@@ -244,8 +275,7 @@ def is_folder(item):
     return item['mimeType'] == 'application/vnd.google-apps.folder'
         
 
-def walk_folder_metadata( service, http, folder, writer=None, metadata_names=None, base_path='.', depth=0 ):
-    output_format = name_list_to_format_string( metadata_names )
+def walk_folder_metadata( service, http, folder, writer=None, metadata_names=None, output_format=None, base_path='.', depth=0 ):
     param = {'q': f"'{folder['id']}' in parents" }
 
     while True:
@@ -256,7 +286,6 @@ def walk_folder_metadata( service, http, folder, writer=None, metadata_names=Non
             log( f"ERROR: Couldn't get contents of folder {file_list['title']}. Retrying..." )
             continue
         folder_items = file_list['items']
-
         path = base_path + '/' + folder['title'].replace( '/', '_' )
     
         if FLAGS.list_items:
@@ -284,10 +313,10 @@ def walk_folder_metadata( service, http, folder, writer=None, metadata_names=Non
                     ( FLAGS.get_items == 'office'
                      and file_type_from_mime(item['mimeType']) in ['doc', 'xls', 'ppt'])
                      ):
-                    download_file_and_metadata(service, item, path, metadata_names, output_format)
+                    download_file_and_metadata(service, item, path, writer, metadata_names, output_format)
 
         for item in filter(is_folder, folder_items):
-            walk_folder_metadata( service, http, item, writer, metadata_names, path, depth+1 )
+            walk_folder_metadata( service, http, item, writer, metadata_names, output_format, path, depth+1 )
             
         if file_list.get('nextPageToken'):
             param['pageToken'] = file_list.get('nextPageToken')
@@ -312,7 +341,7 @@ def download_listed_files(service, http, config, metadata_names=None, output_for
         for row in reader:
             path = dirname(row[index_of_path])
             drive_file = service.files().get(fileId=row[index_of_id]).execute()
-            download_file_and_metadata(service, drive_file, path, metadata_names, output_format)
+            download_file_and_metadata(service, drive_file, path, None, metadata_names, output_format)
 
 def download_revision(service, drive_file, revision_id, path):
     """Print information about the specified revision.
@@ -428,15 +457,48 @@ def download_file( service, drive_file ):
             if resp.status == 200:
                 try:
                     ensure_dir(dirname( drive_file['local_path']))
-                    target = open( drive_file['local_path'], 'wb+' )
+                    with open( drive_file['local_path'], 'wb+' ) as handle:
+                        handle.write( content )
                 except e:
                     log( f"Cannot open {drive_file['local_path']} for writing: {e}" )
                     return False
-                target.write( content )
-                m = md5()
-                m.update( content )
-                drive_file['md5local'] = m.hexdigest()
 
+                drive_file['md5Local'] = md5( content ).hexdigest()
+                
+                if drive_file.get('md5Checksum'):
+                    if drive_file.get('md5Checksum') == drive_file['md5Local']:
+                        drive_file['md5Match'] = 'match'
+                    else:
+                        drive_file['md5Match'] = 'MISMATCH'
+                else:
+                    drive_file['md5Match'] = 'n/a'
+
+                try:
+                    # float time in seconds since eppoch UTC. Resolution is msec.
+                    modify_time = time.mktime( time.strptime( drive_file['modifiedDate'], '%Y-%m-%dT%H:%M:%S.%fZ' ) )
+                    if drive_file.get('lastViewedByMeDate'):
+                        access_time = time.mktime( time.strptime( drive_file['lastViewedByMeDate'], '%Y-%m-%dT%H:%M:%S.%fZ'))
+                    else:
+                        access_time = modify_time
+                    create_time = time.mktime( time.strptime( drive_file['createdDate'], '%Y-%m-%dT%H:%M:%S.%fZ' ) )
+    
+                    # set local file's timestamps equal to the remote file's timestamps.
+                    if platform.system() == 'Windows':
+                        # API to set create timestamp is not cross-platform
+                        handle = win32file.CreateFile(
+                            drive_file['local_path'], win32con.GENERIC_WRITE,
+                            win32con.FILE_SHARE_READ | win32con.FILE_SHARE_WRITE | win32con.FILE_SHARE_DELETE,
+                            None, win32con.OPEN_EXISTING,
+                            win32con.FILE_ATTRIBUTE_NORMAL, None)
+                        win32file.SetFileTime(handle, create_time, modify_time, access_time, UTCTimes=True)
+                        handle.close()
+                    else:
+                        # Note: unix does not store file creation time.
+                        os.utime(drive_file['local_path'], (access_time, modify_time))
+                except Exception as e:
+                    pprint.pprint( e )
+                finally:
+                    handle.close()
                 return True
             else:
                 log( 'An error occurred: %s' % resp )
@@ -462,7 +524,7 @@ gdrive:
   csv_prefix: ./filelist-
   gdrive_auth: config/gdrive_config.json
   oauth_id: config/gdrive.dat
-  metadata: title,category,status,revision,ownerNames,size,createdDate,modifiedDate,mimeType,path,id,lastModifyingUserName,md5Checksum,md5local,modifiedByMeDate,lastViewedByMeDate,shared
+  metadata: title,category,status,revision,ownerNames,size,createdDate,modifiedDate,mimeType,path,id,lastModifyingUserName,md5Checksum,md5Local,modifiedByMeDate,lastViewedByMeDate,shared
 
 csv_title:
   app: Application
@@ -474,7 +536,7 @@ csv_title:
   lastViewedByMeDate: User Last View
   local_path: Local Path
   md5Checksum: MD5
-  md5local: Local MD5
+  md5Local: Local MD5
   mimeType: MIME Type
   modifiedByMeDate: User Last Mod
   modifiedDate: Last Modified (UTC)
@@ -583,7 +645,7 @@ Error: {e}\n""" )
                 writer = csv.writer(csv_handle, delimiter=',')
                 writer.writerow( [ config.get('csv_title').get(name) for name in metadata_names ] )
                 start_folder = service.files().get( fileId=FLAGS.drive_id ).execute()
-                walk_folder_metadata( service, http, start_folder, writer, metadata_names)
+                walk_folder_metadata( service, http, start_folder, writer, metadata_names, output_format)
                 print(f'\n{items_downloaded} files downloaded and {items_updated} updated from {username}')
 
         elif FLAGS.get_items:
@@ -593,7 +655,7 @@ Error: {e}\n""" )
             with open(config.get('gdrive',{}).get('csv_prefix') + username + '.csv', 'w') as csv_handle:
                 writer = csv.writer(csv_handle, delimiter=',')
                 writer.writerow( [ config.get('csv_title').get(name) for name in metadata_names ] )
-                walk_folder_metadata( service, http, start_folder, writer, metadata_names)
+                walk_folder_metadata( service, http, start_folder, writer, metadata_names, output_format)
                 print(f'\n{items_downloaded} files downloaded and {items_updated} updated from {username}')
 
         elif FLAGS.usecsv:

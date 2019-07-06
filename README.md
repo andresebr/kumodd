@@ -5,7 +5,8 @@ Drive account in a forensically sound manner.
 
 Files can be filtered by category, such as doc, image, or video.  
 Meta-data columns may be selected in the configuration file.  
-Kumodd can tabulate the MD5 digests of the cloud file and the downloaded file, to demonstrate they match.
+The last access and last modify times are preserved and verified. On windows, the create time is.
+The remote and local MD5 digests are verified.
 
 ## Usage examples
 
@@ -24,6 +25,8 @@ To download (-d) all PDFs to path (-p) /home/user/Desktop/:
     kumodd.py -d pdf -p /home/user/Desktop/
 
 Native Google Apps documents, spreadsheets and presentations are downloaded in LibreOffice format.
+The API does not provide a remote MD5 for native Google Apps docs, sheets or slides.
+As a result, only the local MD5 digest is reported.
 
 Both the options list (-l) and download (-d) will create a CSV file equivalent to the table above. 
 
@@ -253,10 +256,16 @@ https://cloud.google.com/billing/docs/how-to/manage-billing-account#create_a_new
 
 ## Caveats
 
-Kumodd looks for multiple revisions of a file, but does not download all of them.
-
 Google drive allows a folder to contain multiple files with the same name, whereas unix
 does not. kumodd downloads only one as it stands. 
+
+Downloading native Google Apps docs, sheets and slides is much slower than non-native
+files, due to conversion to Lilbreoffice formats.
+
+Because native Google Apps files do not provide a MD5 digest, kumod currently updates
+only when the local and remote Last Modified time stamps differ by more than one second.
+
+Kumodd looks for multiple revisions of a file, but does not download all of them.
 
 Using an HTTP proxy on Windows does not work due to unresolved issues with httplib2.
 
@@ -273,3 +282,8 @@ supported by Google, and is feature complete and stable.  However, it is not act
 developed.  It has has been replaced by the [Google Cloud client
 libraries](https://github.com/googleapis/google-cloud-python) which are in development,
 and recommended for new work.
+
+## TODO
+
+For native Google Apps files, use the previously saved remote file metadata to detect
+ wether the file has changed, using for instance, the revision number.
