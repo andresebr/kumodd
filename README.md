@@ -33,6 +33,9 @@ Download all of the files listed in a previously generated CSV file:
 The default CSV file is ./filelist-username.csv. Set the filename prefix in
 config/config.yml. The google user name and .csv suffix are appended.
 
+To download from a CSV file, it must include the 'path' and 'id' metadata.  They are
+inclded in the default metadata.
+
 If config/config.yml does not exist, kumodd will create it using:
 ``` yaml
 gdrive:

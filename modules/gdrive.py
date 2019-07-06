@@ -524,7 +524,7 @@ gdrive:
   csv_prefix: ./filelist-
   gdrive_auth: config/gdrive_config.json
   oauth_id: config/gdrive.dat
-  metadata: title,category,status,revision,ownerNames,size,createdDate,modifiedDate,mimeType,path,id,lastModifyingUserName,md5Checksum,md5Local,modifiedByMeDate,lastViewedByMeDate,shared
+  metadata: title,category,modTimeMatch,md5Match,revision,ownerNames,size,modifiedDate,createdDate,mimeType,path,id,lastModifyingUserName,md5Checksum,md5Local,modifiedByMeDate,lastViewedByMeDate,shared
 
 csv_title:
   app: Application
@@ -537,9 +537,11 @@ csv_title:
   local_path: Local Path
   md5Checksum: MD5
   md5Local: Local MD5
+  md5Match: MD5s
   mimeType: MIME Type
   modifiedByMeDate: User Last Mod
   modifiedDate: Last Modified (UTC)
+  modTimeMatch: Mod Time
   ownerNames: Owner
   path: Remote Path
   revision: Revis
