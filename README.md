@@ -262,8 +262,9 @@ does not. kumodd downloads only one as it stands.
 Downloading native Google Apps docs, sheets and slides is much slower than non-native
 files, due to conversion to Lilbreoffice formats.
 
-Because native Google Apps files do not provide a MD5 digest, kumod currently updates
-only when the local and remote Last Modified time stamps differ by more than one second.
+Because native Google Apps files do not provide a MD5 digest, kumod currently only looks
+for time stamp differences to detect file changes. It downloads again only when the
+local and remote Last Modified time stamps differ by more than one second.
 
 Kumodd looks for multiple revisions of a file, but does not download all of them.
 
