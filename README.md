@@ -24,11 +24,7 @@ Download (-d) all PDFs to path (-p) /home/user/Desktop/:
 
     kumodd.py -d pdf -p /home/user/Desktop/
 
-Native Google Apps documents, spreadsheets and presentations are downloaded in LibreOffice format.
-The API does not provide a remote MD5 for native Google Apps docs, sheets or slides.
-As a result, only the local MD5 digest is reported.
-
-Both the options list (-l) and download (-d) will create a CSV file equivalent to the table above. 
+Both the list (-l) and download (-d) options create a CSV file equivalent to the table above. 
 
 Download all of the files listed in a previously generated CSV file:
 
@@ -49,6 +45,10 @@ gdrive:
 Select an alternate config file (-c):
 
     kumodd.py -c config/alternate.yml
+
+Native Google Apps documents, spreadsheets and presentations are downloaded in LibreOffice format.
+The API does not provide a remote MD5 for native Google Apps docs, sheets or slides.
+As a result, only the local MD5 digest is reported.
 
 ## Usage
 
