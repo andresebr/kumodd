@@ -10,7 +10,7 @@ The remote and local MD5 digests are verified.
 
 ## Usage examples
 
-To list all documents, use "-l doc":
+List (-l) all documents:
 ``` shell
 kumodd.py -l doc
 Created (UTC)            Last Modified (UTC)      Remote Path                   Revision   Modified by      Owner            MD5                       
@@ -20,7 +20,7 @@ Created (UTC)            Last Modified (UTC)      Remote Path                   
 2019-04-12T16:21:48.867Z 2019-04-12T16:21:55.245Z My Drive/Todo List            27         Johe Doe         Johe Doe         -                   
 ```
 
-To download (-d) all PDFs to path (-p) /home/user/Desktop/:
+Download (-d) all PDFs to path (-p) /home/user/Desktop/:
 
     kumodd.py -d pdf -p /home/user/Desktop/
 
@@ -30,7 +30,7 @@ As a result, only the local MD5 digest is reported.
 
 Both the options list (-l) and download (-d) will create a CSV file equivalent to the table above. 
 
-To download all of the files listed in a previously generated CSV file, use -csv:
+Download all of the files listed in a previously generated CSV file:
 
     kumodd.py -csv ./filelist-username.csv
 
@@ -46,7 +46,7 @@ gdrive:
   metadata: createdDate,modifiedDate,id,path,revisions,lastModifyingUserName,ownerNames,md5Checksum,modifiedByMeDate,lastViewedByMeDate,shared
 
 ```
-To select an alternate config file, use -c:
+Select an alternate config file (-c):
 
     kumodd.py -c config/alternate.yml
 
