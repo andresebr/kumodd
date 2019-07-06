@@ -1,10 +1,10 @@
 # kumodd
 
-Kumodd downloads files and/or generates a CSV file of meta-data from a specified Google
+Kumodd downloads files and/or generates a CSV file of metadata from a specified Google
 Drive account in a forensically sound manner.
 
 Files can be filtered by category, such as doc, image, or video.  
-Meta-data columns may be selected in the configuration file.  
+metadata columns may be selected in the configuration file.  
 The last access and last modify times are preserved and verified. On windows, the create time is.  
 The remote and local MD5 digests are verified.
 
@@ -34,7 +34,7 @@ The default CSV file is ./filelist-username.csv. Set the filename prefix in
 config/config.yml. The google user name and .csv suffix are appended.
 
 To download from a CSV file, it must include the 'path' and 'id' metadata.  They are
-inclded in the default metadata.
+included in the default metadata.
 
 If config/config.yml does not exist, kumodd will create it using:
 ``` yaml
@@ -66,7 +66,7 @@ Option		| Description
 -csv path	| Download files listed in path, a previously generated CSV file.  
 -log level	| level is either DEBUG, INFO, WARNING, ERROR, or CRITICAL.
 -no_browser	| Do not open web browser. Instead print the URL.
--m dir		| Save meta-data in dir.
+-m dir		| Save metadata in dir.
 -s service	| Select the cloud service.  gdrive is the only supported service.
 
 
@@ -93,10 +93,10 @@ proxy:
   user: username (optional)
   pass: password (optional)
 ```
-## Meta-data
+## Metadata
 
-One can change the meta-data fields output by kumodd.  They are specified by the tag,
-metadata, in config/config.yml shown above.  The default meta-data are:
+One can change the metadata fields output by kumodd.  They are specified by the tag,
+metadata, in config/config.yml shown above.  The default metadata are:
 
 Name			| Description 
 ------:			| :-----------
@@ -118,9 +118,9 @@ modifiedByMeDate        | Time Last Modified by Account Holder (UTC)
 lastViewedByMeDate      | Time Last Viewed by Account Holder (UTC)
 shared                  | Is shared (true/false)
 
-Shown below are a few of the meta-data that are derived attributes, computed locally by
+Shown below are a few of the metadata that are derived attributes, computed locally by
 kumodd. The names are not found in the data retrieved from google drive, but rather
-computed from the data or meta-data obtained from google drive.
+computed from the data or metadata obtained from google drive.
 
 Name		| Description 
 ------:		| :-----------
@@ -132,7 +132,7 @@ size		| size (bytes) of download if new or updated.  Otherwise None.
 status		| current, updated, or error if downloading. Otherwise None.
 
 
-Meta-data names obtained from Google Drive are described in the [Google Drive API
+Metadata names obtained from Google Drive are described in the [Google Drive API
 Documentation](https://developers.google.com/drive/api/v3/reference/files).  A few of
 the available metadata names are shown below. This is the metadata of a Google Doc.
 
@@ -173,8 +173,8 @@ the available metadata names are shown below. This is the metadata of a Google D
  'writersCanShare': True}
 ```
 
-Meta-data names are translated to CSV column titles, as shown below in
-config/config.yml.  If a title is not defined there, the meta-data name is used
+Metadata names are translated to CSV column titles, as shown below in
+config/config.yml.  If a title is not defined there, the metadata name is used
 as the title.
 
 ``` yaml
@@ -263,7 +263,7 @@ Google drive allows a folder to contain multiple files with the same name, where
 does not. kumodd downloads only one as it stands. 
 
 Downloading native Google Apps docs, sheets and slides is much slower than non-native
-files, due to conversion to Lilbreoffice formats.
+files, due to conversion to LibreOffice formats.
 
 Because native Google Apps files do not provide a MD5 digest, kumod currently only looks
 for time stamp differences to detect file changes. It downloads again only when the
@@ -289,5 +289,6 @@ and recommended for new work.
 
 ## TODO
 
-For native Google Apps files, use the previously saved remote file metadata to detect
- wether the file has changed, using for instance, the revision number.
+For native Google Apps files, kumodd should use the previously saved remote file
+metadata to detect whether the file has changed, using for instance, the revision
+number.
