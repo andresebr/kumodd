@@ -168,6 +168,12 @@ def file_type_from_mime(mimetype):
     return file_type
 
 def supplement_drive_file_metadata(service, drive_file, path):
+    # Note: thumbnailLink change each time the metadata is retrieved, which
+    # means a file's metadata changes without any changes to the file. Because
+    # this interferes with verifying the rest of the metadata, we remove it
+    # from the metadata that is preserved locally.
+    drive_file.pop('thumbnailLink', None)
+
     remote_path = path + '/' + drive_file['title'].replace( '/', '_' )
     drive_file['path'] = remote_path
 
@@ -250,7 +256,7 @@ def download_file_and_metadata(service, drive_file, path, writer, metadata_names
 def save_metadata(drive_file):
     metadata_directory = FLAGS.metadata_destination + '/' + username
     ensure_dir(metadata_directory)
-    with open(metadata_directory + drive_file['id'] + '-' + drive_file['title'] + '.json', 'w+') as metadata_file:
+    with open(metadata_directory +'/' + drive_file['id'] + '-' + drive_file['title'] + '.yml', 'w+') as metadata_file:
         yaml.dump(drive_file, metadata_file)
 
 def get_user_info(service):

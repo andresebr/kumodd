@@ -134,43 +134,71 @@ status		| current, updated, or error if downloading. Otherwise None.
 
 Metadata names obtained from Google Drive are described in the [Google Drive API
 Documentation](https://developers.google.com/drive/api/v3/reference/files).  A few of
-the available metadata names are shown below. This is the metadata of a Google Doc.
+the available metadata names are shown below. This is the metadata of a PDF file.
 
-``` javascript
-{'alternateLink': 'https://docs.google.com/document/d/1Bbouiss7ioabPembZdG9B9bsabaiudfjqBgtXV5-9ldo8/edit?usp=drivesdk',
- 'appDataContents': False,
- 'capabilities': {'canCopy': True, 'canEdit': True},
- 'copyRequiresWriterPermission': False,
- 'copyable': True,
- 'createdDate': '2019-06-24T05:04:47.055Z',
- 'editable': True,
- 'embedLink': 'https://docs.google.com/document/d/1Bbouiss7ioabPembZdG9B9bsabaiudfjqBgtXV5-9ldo8/preview?ouid=118325858994091373100',
- 'etag': '"_sqIxUq0fTFLIA71mBDQotbHWsg/TUM2MMT1NgD3NAz5NQ"',
- 'explicitlyTrashed': False,
- 'exportLinks': {'application/epub+zip': 'https://docs.google.com/feeds/download/documents/export/Export?id=1B0IK0SYcsZePmbdZG99BqBtgXVW5py3JJY31W-l9do8&exportFormat=epub', 'application/pdf': 'https://docs.google.com/feeds/download/documents/export/Export?id=1Bbouiss7ioabPembZdG9B9bsabaiudfjqBgtXV5-9ldo8&exportFormat=pdf', 'application/rtf': 'https://docs.google.com/feeds/download/documents/export/Export?id=1Bbouiss7ioabPembZdG9B9bsabaiudfjqBgtXV5-9ldo8&exportFormat=rtf', 'application/vnd.oasis.opendocument.text': 'https://docs.google.com/feeds/download/documents/export/Export?id=1Bbouiss7ioabPembZdG9B9bsabaiudfjqBgtXV5-9ldo8&exportFormat=odt', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document': 'https://docs.google.com/feeds/download/documents/export/Export?id=1Bbouiss7ioabPembZdG9B9bsabaiudfjqBgtXV5-9ldo8&exportFormat=docx', 'application/zip': 'https://docs.google.com/feeds/download/documents/export/Export?id=1Bbouiss7ioabPembZdG9B9bsabaiudfjqBgtXV5-9ldo8&exportFormat=zip', 'text/html': 'https://docs.google.com/feeds/download/documents/export/Export?id=1Bbouiss7ioabPembZdG9B9bsabaiudfjqBgtXV5-9ldo8&exportFormat=html', 'text/plain': 'https://docs.google.com/feeds/download/documents/export/Export?id=1Bbouiss7ioabPembZdG9B9bsabaiudfjqBgtXV5-9ldo8&exportFormat=txt'},
- 'iconLink': 'https://drive-thirdparty.googleusercontent.com/16/type/application/vnd.google-apps.document',
- 'id': '1Bbouiss7ioabPembZdG9B9bsabaiudfjqBgtXV5-9ldo8',
- 'kind': 'drive#file',
- 'labels': {'hidden': False, 'restricted': False, 'starred': False, 'trashed': False, 'viewed': True},
- 'lastModifyingUser': {'displayName': 'John Doe', 'emailAddress': 'john.doe@gmail.com', 'isAuthenticatedUser': True, 'kind': 'drive#user', 'permissionId': '14466611316174614251', 'picture': {'url': 'https://lh5.googleusercontent.com/-ptN2vmCNOi8/AAAAAAAAAAI/AAAAAAAAGkE/NRxpYvByBx0/s64/photo.jpg'}},
- 'lastModifyingUserName': 'John Doe',
- 'lastViewedByMeDate': '2019-06-24T05:41:17.095Z',
- 'markedViewedByMeDate': '1970-01-01T00:00:00.000Z',
- 'mimeType': 'application/vnd.google-apps.document',
- 'modifiedByMeDate': '2019-06-24T05:41:17.095Z',
- 'modifiedDate': '2019-06-24T05:41:17.095Z',
- 'ownerNames': ['John Doe'],
- 'owners': [{'displayName': 'John Doe', 'emailAddress': 'john.doe@gmail.com', 'isAuthenticatedUser': True, 'kind': 'drive#user', 'permissionId': '14466611316174614251', 'picture': {'url': 'https://lh5.googleusercontent.com/-ptN2vmCNOi8/AAAAAAAAAAI/AAAAAAAAGkE/NRxpYvByBx0/s64/photo.jpg'}}],
- 'parents': [{'id': '0AIpnT_44h5smUk9PVA', 'isRoot': True, 'kind': 'drive#parentReference', 'parentLink': 'https://www.googleapis.com/drive/v2/files/0AIpnT_44h5smUk9PVA', 'selfLink': 'https://www.googleapis.com/drive/v2/files/1Bbouiss7ioabPembZdG9B9bsabaiudfjqBgtXV5-9ldo8/parents/0AIpnT_44h5smUk9PVA'}],
- 'quotaBytesUsed': '0',
- 'selfLink': 'https://www.googleapis.com/drive/v2/files/1Bbouiss7ioabPembZdG9B9bsabaiudfjqBgtXV5-9ldo8',
- 'shared': False,
- 'spaces': ['drive'],
- 'thumbnailLink': 'https://docs.google.com/a/feeds/vt?gd=true&id=1Bbouiss7ioabPembZdG9B9bsabaiudfjqBgtXV5-9ldo8&v=5&s=AMedNnoAAAAAXRxA8DRkzkTPYWsf3mzIcWQlHVAxFmMB&sz=s220',
- 'title': 'Untitled document',
- 'userPermission': {'etag': '"_sqIxUq0fTLFIA17mBQDotbHWsg/zxcSjdx1q8ilez4u1L71gst1zd0"', 'id': 'me', 'kind': 'drive#permission', 'role': 'owner', 'selfLink': 'https://www.googleapis.com/drive/v2/files/1Bbouiss7ioabPembZdG9B9bsabaiudfjqBgtXV5-9ldo8/permissions/me', 'type': 'user'},
- 'version': '12',
- 'writersCanShare': True}
+``` yaml
+alternateLink: https://drive.google.com/a/murphey.org/file/d/0s9b2T_442nb0MHBxdmZo3pwnaGRiY01LbmVhcEZEa1FvTWtJ/view?usp=drivesdk
+appDataContents: false
+capabilities: {canCopy: true, canEdit: true}
+category: pdf
+copyRequiresWriterPermission: false
+copyable: true
+createdDate: '2017-09-28T20:06:50.000Z'
+downloadUrl: https://doc-0k-9o-docs.googleusercontent.com/docs/securesc/m7lwc9em35jjdnsnezv7rlslwb7hsf02/0b2slbx08rcsbwz9rilnq9rqup99h7nh/1562400000000/14466611316174614883/14466611316174614883/0s9b2T_442nb0MHBxdmZo3pwnaGRiY01LbmVhcEZEa1FvTWtJ?h=07676726225626533888&e=download&gd=true
+editable: true
+embedLink: https://drive.google.com/a/murphey.org/file/d/0s9b2T_442nb0MHBxdmZo3pwnaGRiY01LbmVhcEZEa1FvTWtJ/preview?usp=drivesdk
+etag: '"_sblwcq0fTsl4917mBslb2bHWsg/MTUwNjYyOTM4OTA2Mg"'
+explicitlyTrashed: false
+fileExtension: pdf
+fileSize: '2843534'
+headRevisionId: 0B4pnT_44h5smaXVvSE9GMUtSMFJjSWVDeXQxTWhCeUFMUW9ZPQ
+iconLink: https://drive-thirdparty.googleusercontent.com/16/type/application/pdf
+id: 0s9b2T_442nb0MHBxdmZo3pwnaGRiY01LbmVhcEZEa1FvTWtJ
+kind: drive#file
+label_key: '     '
+labels: {hidden: false, restricted: false, starred: false, trashed: false, viewed: false}
+lastModifyingUser:
+  displayName: John Doe
+  emailAddress: john.doe@gmail.com
+  isAuthenticatedUser: true
+  kind: drive#user
+  permissionId: '14466611316174614251'
+  picture: {url: 'https://lh5.googleusercontent.com/-ptNwlcuNOi8/AAAAAAAAAAI/AAAAAAAAGkE/NRxpYvByBx0/s64/photo.jpg'}
+lastModifyingUserName: Rich Murphey
+local_path: ./download/rich@murphey.org/./My Drive/TxDOT Accident Report (551632).pdf
+markedViewedByMeDate: '1970-01-01T00:00:00.000Z'
+md5Checksum: 5d5550259da199ca9d426ad90f87e60e
+md5Local: 5d5550259da199ca9d426ad90f87e60e
+md5Match: match
+mimeType: application/pdf
+modifiedByMeDate: '2017-09-28T20:09:49.062Z'
+modifiedDate: '2017-09-28T20:09:49.062Z'
+originalFilename: TxDOT Accident Report (551632).pdf
+ownerNames: [Rich Murphey]
+owners:
+- displayName: Rich Murphey
+  emailAddress: rich@murphey.org
+  isAuthenticatedUser: true
+  kind: drive#user
+  permissionId: '14466611316174614251'
+  picture: {url: 'https://lh5.googleusercontent.com/-ptNwlcuNOi8/AAAAAAAAAAI/AAAAAAAAGkE/NRxpYvByBx0/s64/photo.jpg'}
+parents:
+- {id: 0AIpnT_44h5smUk9PVA, isRoot: true, kind: drive#parentReference, parentLink: 'https://www.googleapis.com/drive/v2/files/0AIpnT_44h5smUk9PVA',
+  selfLink: 'https://www.googleapis.com/drive/v2/files/0s9b2T_442nb0MHBxdmZo3pwnaGRiY01LbmVhcEZEa1FvTWtJ/parents/0AIpnT_44h5smUk9PVA'}
+path: ./My Drive/TxDOT Accident Report (551632).pdf
+quotaBytesUsed: '2843534'
+revision: '1'
+selfLink: https://www.googleapis.com/drive/v2/files/0s9b2T_442nb0MHBxdmZo3pwnaGRiY01LbmVhcEZEa1FvTWtJ
+shared: false
+spaces: [drive]
+status: update
+title: TxDOT Accident Report (551632).pdf
+userPermission: {etag: '"_sblwcq0fTsl4917mBslb2bHWsg/TpnHf_kgQXZabQ7VDW-96dK3owM"',
+  id: me, kind: drive#permission, role: owner, selfLink: 'https://www.googleapis.com/drive/v2/files/0s9b2T_442nb0MHBxdmZo3pwnaGRiY01LbmVhcEZEa1FvTWtJ/permissions/me',
+  type: user}
+version: '5'
+webContentLink: https://drive.google.com/a/murphey.org/uc?id=0s9b2T_442nb0MHBxdmZo3pwnaGRiY01LbmVhcEZEa1FvTWtJ&export=download
+writersCanShare: true
 ```
 
 Metadata names are translated to CSV column titles, as shown below in
@@ -199,6 +227,14 @@ csv_title:
   user: User
   version: Version
 ```
+
+The metadata of each file is saved in YAML format under ./metadata.
+
+Note: Kumodd removes the 'thumbnailLink' attribte because 'thumbnailLink' changes each
+time the metadata is retrieved from Google Drive, even if nothing else has changed.
+Without the 'thumbnailLink' attribute, the metadata should be identical if the file has
+not changed in other ways.  This allows comparison of the MD5 digest of the metadata
+between newly retrieved and previously retrieved metadata or comparison by 'diff'.
 
 ## Setup
 
