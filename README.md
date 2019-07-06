@@ -201,14 +201,14 @@ webContentLink: https://drive.google.com/a/murphey.org/uc?id=0s9b2T_442nb0MHBxdm
 writersCanShare: true
 ```
 
+The metadata of each file is saved in YAML format under ./metadata.
+
 Note: Kumodd removes the 'thumbnailLink' attribute because 'thumbnailLink' changes each
 time the metadata is retrieved from Google Drive, even if nothing else has changed.
 When 'thumbnailLink' is excluded, the metadata should be identical if the file
 has not changed.  This allows comparison of the MD5 digest of the metadata
 between newly retrieved and previously retrieved metadata. It also allows review of
 changes using 'diff'.
-
-The metadata of each file is saved in YAML format under ./metadata.
 
 Metadata names are translated to CSV column titles, as shown below in
 config/config.yml.  If a title is not defined there, the metadata name is used
