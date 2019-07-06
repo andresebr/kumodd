@@ -305,8 +305,6 @@ Because native Google Apps files do not provide a MD5 digest, kumod currently on
 for time stamp differences to detect file changes. It downloads again only when the
 local and remote Last Modified time stamps differ by more than one second.
 
-Kumodd looks for multiple revisions of a file, but does not download all of them.
-
 Using an HTTP proxy on Windows does not work due to unresolved issues with httplib2.
 
 [Google rate limits API calls](https://console.cloud.google.com/apis/api/drive.googleapis.com/quotas).
@@ -328,3 +326,5 @@ and recommended for new work.
 For native Google Apps files, kumodd should use the previously saved remote file
 metadata to detect whether the file has changed, using for instance, the revision
 number.
+
+Kumodd does not retrieve multiple revisions of a file, but has partial code to do so.
