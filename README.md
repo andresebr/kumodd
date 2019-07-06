@@ -5,7 +5,7 @@ Drive account in a forensically sound manner.
 
 Files can be filtered by category, such as doc, image, or video.  
 Meta-data columns may be selected in the configuration file.  
-The last access and last modify times are preserved and verified. On windows, the create time is.
+The last access and last modify times are preserved and verified. On windows, the create time is.  
 The remote and local MD5 digests are verified.
 
 ## Usage examples
