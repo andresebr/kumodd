@@ -23,8 +23,8 @@ flags.DEFINE_enum('get_items', None,
                   'Download files and create directories, optionally filtered by category', short_name='d')
 flags.DEFINE_list('usecsv', None,
                   'Download files from the service using a previously generated csv file', short_name='csv')
-flags.DEFINE_string('destination', './downloaded', 'Destination folder location', short_name='p')
-flags.DEFINE_string('metadata_destination', 'metadata/',
+flags.DEFINE_string('destination', './download', 'Destination folder location', short_name='p')
+flags.DEFINE_string('metadata_destination', './metadata',
                     'Destination folder for metadata information', short_name='m')
 
 def main(argv):

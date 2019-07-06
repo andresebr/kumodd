@@ -120,6 +120,7 @@ def basename(s):
 
 def ensure_dir(directory):
     if not os.path.exists(directory):
+        print(f'create: {directory}')
         os.makedirs(directory)
 
 def is_google_doc(drive_file):
@@ -247,7 +248,7 @@ def download_file_and_metadata(service, drive_file, path, writer, metadata_names
 
 
 def save_metadata(drive_file):
-    metadata_directory = FLAGS.destination + '/' + username + '/' + FLAGS.metadata_destination 
+    metadata_directory = FLAGS.metadata_destination + '/' + username
     ensure_dir(metadata_directory)
     with open(metadata_directory + drive_file['id'] + '-' + drive_file['title'] + '.json', 'w+') as metadata_file:
         yaml.dump(drive_file, metadata_file)
@@ -302,7 +303,6 @@ def walk_folder_metadata( service, http, folder, writer=None, metadata_names=Non
                     print_file_metadata(service, item, path, writer, metadata_names, output_format)
 
         if FLAGS.get_items:    
-            ensure_dir( path )
             for item in filter(is_file, folder_items):
                 if (
                     ( FLAGS.get_items == 'all' )
@@ -633,7 +633,7 @@ Error: {e}\n""" )
         username = user_info['user']['emailAddress']
     else:
         username = '???'
-    ensure_dir(FLAGS.destination + '/' + username + '/')
+    ensure_dir(FLAGS.destination + '/' + username)
     open_logfile()
     output_format = name_list_to_format_string( metadata_names )
     try:
@@ -642,7 +642,7 @@ Error: {e}\n""" )
             print( output_format.format( *[ config.get('csv_title',{}).get(name) for name in metadata_names ]))
             csv_prefix = config.get('gdrive',{}).get('csv_prefix')
             if csv_prefix.find('/'):
-                ensure_dir(csv_prefix)
+                ensure_dir(dirname(csv_prefix))
             with open(config.get('gdrive',{}).get('csv_prefix') + username + '.csv', 'w') as csv_handle:
                 writer = csv.writer(csv_handle, delimiter=',')
                 writer.writerow( [ config.get('csv_title').get(name) for name in metadata_names ] )
