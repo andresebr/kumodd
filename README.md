@@ -204,7 +204,7 @@ writersCanShare: true
 Note: Kumodd removes the 'thumbnailLink' attribute because 'thumbnailLink' changes each
 time the metadata is retrieved from Google Drive, even if nothing else has changed.
 When 'thumbnailLink' is excluded, the metadata should be identical if the file
-has not changed in other ways.  This allows comparison of the MD5 digest of the metadata
+has not changed.  This allows comparison of the MD5 digest of the metadata
 between newly retrieved and previously retrieved metadata. It also allows review of
 changes using 'diff'.
 
