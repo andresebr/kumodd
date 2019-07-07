@@ -181,14 +181,14 @@ csv_title:
   id: File Id
   index: Index
   lastModifyingUserName: Modfied by
-  lastViewedByMeDate: User Last View
+  lastViewedByMeDate: My Last View
   local_path: Local Path
   md5Checksum: MD5
   md5Local: Local MD5
   md5Match: MD5s
   mimeType: MIME Type
   modTimeMatch: Mod Time
-  modifiedByMeDate: User Last Mod
+  modifiedByMeDate: My Last Mod
   modifiedDate: Last Modified (UTC)
   ownerNames: Owner
   path: Remote Path
