@@ -4,8 +4,8 @@ Kumodd downloads files and/or generates a CSV file of metadata from a specified 
 Drive account in a forensically sound manner.
 
 Files can be filtered by category, such as doc, image, or video.  
-metadata columns may be selected in the configuration file.  
-The last access and last modify times are preserved and verified. On windows, the create time is.  
+Metadata columns may be selected in the configuration file.  
+The last access and last modify times are preserved or verified. On windows, the create time is.  
 The remote and local MD5 digests are verified.
 
 ## Usage examples
@@ -123,7 +123,7 @@ proxy:
 One can change the metadata fields output by kumodd.  They are specified by the tag,
 metadata, in config/config.yml shown above.  The default metadata are:
 
-Name			| Description 
+metadata		| Description 
 ------:			| :-----------
 createdDate             | Created Time (UTC)
 modifiedDate            | Last Modified Time (UTC)
@@ -147,7 +147,7 @@ Shown below are a few of the metadata that are derived attributes, computed loca
 kumodd. The names are not found in the data retrieved from google drive, but rather
 computed from the data or metadata obtained from google drive.
 
-Name		| Description 
+metadata	| Description 
 ------:		| :-----------
 path		| a unix style path of remote file in google drive.
 local_path	| path of file in local file system
@@ -156,75 +156,6 @@ md5local	| md5 of download if new or updated.  Otherwise None
 size		| size (bytes) of download if new or updated.  Otherwise None.
 status		| current, updated, or error if downloading. Otherwise None.
 
-
-Metadata provided by the Google Drive are described in the [Google Drive API
-Documentation](https://developers.google.com/drive/api/v3/reference/files).  A few of
-the available metadata are shown below. This is the metadata of a PDF file.
-
-``` yaml
-alternateLink: https://drive.google.com/a/murphey.org/file/d/0s9b2T_442nb0MHBxdmZo3pwnaGRiY01LbmVhcEZEa1FvTWtJ/view?usp=drivesdk
-appDataContents: false
-capabilities: {canCopy: true, canEdit: true}
-category: pdf
-copyRequiresWriterPermission: false
-copyable: true
-createdDate: '2017-09-28T20:06:50.000Z'
-downloadUrl: https://doc-0k-9o-docs.googleusercontent.com/docs/securesc/m7lwc9em35jjdnsnezv7rlslwb7hsf02/0b2slbx08rcsbwz9rilnq9rqup99h7nh/1562400000000/14466611316174614883/14466611316174614883/0s9b2T_442nb0MHBxdmZo3pwnaGRiY01LbmVhcEZEa1FvTWtJ?h=07676726225626533888&e=download&gd=true
-editable: true
-embedLink: https://drive.google.com/a/murphey.org/file/d/0s9b2T_442nb0MHBxdmZo3pwnaGRiY01LbmVhcEZEa1FvTWtJ/preview?usp=drivesdk
-etag: '"_sblwcq0fTsl4917mBslb2bHWsg/MTUwNjYyOTM4OTA2Mg"'
-explicitlyTrashed: false
-fileExtension: pdf
-fileSize: '2843534'
-headRevisionId: 0B4pnT_44h5smaXVvSE9GMUtSMFJjSWVDeXQxTWhCeUFMUW9ZPQ
-iconLink: https://drive-thirdparty.googleusercontent.com/16/type/application/pdf
-id: 0s9b2T_442nb0MHBxdmZo3pwnaGRiY01LbmVhcEZEa1FvTWtJ
-kind: drive#file
-label_key: '     '
-labels: {hidden: false, restricted: false, starred: false, trashed: false, viewed: false}
-lastModifyingUser:
-  displayName: John Doe
-  emailAddress: john.doe@gmail.com
-  isAuthenticatedUser: true
-  kind: drive#user
-  permissionId: '14466611316174614251'
-  picture: {url: 'https://lh5.googleusercontent.com/-ptNwlcuNOi8/AAAAAAAAAAI/AAAAAAAAGkE/NRxpYvByBx0/s64/photo.jpg'}
-lastModifyingUserName: Rich Murphey
-local_path: ./download/rich@murphey.org/./My Drive/TxDOT Accident Report (551632).pdf
-markedViewedByMeDate: '1970-01-01T00:00:00.000Z'
-md5Checksum: 5d5550259da199ca9d426ad90f87e60e
-md5Local: 5d5550259da199ca9d426ad90f87e60e
-md5Match: match
-mimeType: application/pdf
-modifiedByMeDate: '2017-09-28T20:09:49.062Z'
-modifiedDate: '2017-09-28T20:09:49.062Z'
-originalFilename: TxDOT Accident Report (551632).pdf
-ownerNames: [Rich Murphey]
-owners:
-- displayName: Rich Murphey
-  emailAddress: rich@murphey.org
-  isAuthenticatedUser: true
-  kind: drive#user
-  permissionId: '14466611316174614251'
-  picture: {url: 'https://lh5.googleusercontent.com/-ptNwlcuNOi8/AAAAAAAAAAI/AAAAAAAAGkE/NRxpYvByBx0/s64/photo.jpg'}
-parents:
-- {id: 0AIpnT_44h5smUk9PVA, isRoot: true, kind: drive#parentReference, parentLink: 'https://www.googleapis.com/drive/v2/files/0AIpnT_44h5smUk9PVA',
-  selfLink: 'https://www.googleapis.com/drive/v2/files/0s9b2T_442nb0MHBxdmZo3pwnaGRiY01LbmVhcEZEa1FvTWtJ/parents/0AIpnT_44h5smUk9PVA'}
-path: ./My Drive/TxDOT Accident Report (551632).pdf
-quotaBytesUsed: '2843534'
-revision: '1'
-selfLink: https://www.googleapis.com/drive/v2/files/0s9b2T_442nb0MHBxdmZo3pwnaGRiY01LbmVhcEZEa1FvTWtJ
-shared: false
-spaces: [drive]
-status: update
-title: TxDOT Accident Report (551632).pdf
-userPermission: {etag: '"_sblwcq0fTsl4917mBslb2bHWsg/TpnHf_kgQXZabQ7VDW-96dK3owM"',
-  id: me, kind: drive#permission, role: owner, selfLink: 'https://www.googleapis.com/drive/v2/files/0s9b2T_442nb0MHBxdmZo3pwnaGRiY01LbmVhcEZEa1FvTWtJ/permissions/me',
-  type: user}
-version: '5'
-webContentLink: https://drive.google.com/a/murphey.org/uc?id=0s9b2T_442nb0MHBxdmZo3pwnaGRiY01LbmVhcEZEa1FvTWtJ&export=download
-writersCanShare: true
-```
 
 The metadata of each file is saved in YAML format under ./metadata.
 
@@ -348,10 +279,81 @@ and recommended for new work.
 
 To get debug logs to stdout, set 'log_to_stdout: True' in config.yml.
 
-## TODO
+## Todo
 
 For native Google Apps files, kumodd should use the previously saved remote file
 metadata to detect whether the file has changed, using for instance, the revision
 number.
 
 Kumodd does not batch requests to the Google Drive API. Batch limit is 1000.
+
+## Example raw metadata
+
+Metadata provided by the Google Drive are described in the [Google Drive API
+Documentation](https://developers.google.com/drive/api/v3/reference/files).  A few of
+the available metadata are shown below. This is the metadata of a PDF file.
+
+``` yaml
+alternateLink: https://drive.google.com/a/murphey.org/file/d/0s9b2T_442nb0MHBxdmZo3pwnaGRiY01LbmVhcEZEa1FvTWtJ/view?usp=drivesdk
+appDataContents: false
+capabilities: {canCopy: true, canEdit: true}
+category: pdf
+copyRequiresWriterPermission: false
+copyable: true
+createdDate: '2017-09-28T20:06:50.000Z'
+downloadUrl: https://doc-0k-9o-docs.googleusercontent.com/docs/securesc/m7lwc9em35jjdnsnezv7rlslwb7hsf02/0b2slbx08rcsbwz9rilnq9rqup99h7nh/1562400000000/14466611316174614883/14466611316174614883/0s9b2T_442nb0MHBxdmZo3pwnaGRiY01LbmVhcEZEa1FvTWtJ?h=07676726225626533888&e=download&gd=true
+editable: true
+embedLink: https://drive.google.com/a/murphey.org/file/d/0s9b2T_442nb0MHBxdmZo3pwnaGRiY01LbmVhcEZEa1FvTWtJ/preview?usp=drivesdk
+etag: '"_sblwcq0fTsl4917mBslb2bHWsg/MTUwNjYyOTM4OTA2Mg"'
+explicitlyTrashed: false
+fileExtension: pdf
+fileSize: '2843534'
+headRevisionId: 0B4pnT_44h5smaXVvSE9GMUtSMFJjSWVDeXQxTWhCeUFMUW9ZPQ
+iconLink: https://drive-thirdparty.googleusercontent.com/16/type/application/pdf
+id: 0s9b2T_442nb0MHBxdmZo3pwnaGRiY01LbmVhcEZEa1FvTWtJ
+kind: drive#file
+label_key: '     '
+labels: {hidden: false, restricted: false, starred: false, trashed: false, viewed: false}
+lastModifyingUser:
+  displayName: John Doe
+  emailAddress: john.doe@gmail.com
+  isAuthenticatedUser: true
+  kind: drive#user
+  permissionId: '14466611316174614251'
+  picture: {url: 'https://lh5.googleusercontent.com/-ptNwlcuNOi8/AAAAAAAAAAI/AAAAAAAAGkE/NRxpYvByBx0/s64/photo.jpg'}
+lastModifyingUserName: Rich Murphey
+local_path: ./download/rich@murphey.org/./My Drive/TxDOT Accident Report (551632).pdf
+markedViewedByMeDate: '1970-01-01T00:00:00.000Z'
+md5Checksum: 5d5550259da199ca9d426ad90f87e60e
+md5Local: 5d5550259da199ca9d426ad90f87e60e
+md5Match: match
+mimeType: application/pdf
+modifiedByMeDate: '2017-09-28T20:09:49.062Z'
+modifiedDate: '2017-09-28T20:09:49.062Z'
+originalFilename: TxDOT Accident Report (551632).pdf
+ownerNames: [Rich Murphey]
+owners:
+- displayName: Rich Murphey
+  emailAddress: rich@murphey.org
+  isAuthenticatedUser: true
+  kind: drive#user
+  permissionId: '14466611316174614251'
+  picture: {url: 'https://lh5.googleusercontent.com/-ptNwlcuNOi8/AAAAAAAAAAI/AAAAAAAAGkE/NRxpYvByBx0/s64/photo.jpg'}
+parents:
+- {id: 0AIpnT_44h5smUk9PVA, isRoot: true, kind: drive#parentReference, parentLink: 'https://www.googleapis.com/drive/v2/files/0AIpnT_44h5smUk9PVA',
+  selfLink: 'https://www.googleapis.com/drive/v2/files/0s9b2T_442nb0MHBxdmZo3pwnaGRiY01LbmVhcEZEa1FvTWtJ/parents/0AIpnT_44h5smUk9PVA'}
+path: ./My Drive/TxDOT Accident Report (551632).pdf
+quotaBytesUsed: '2843534'
+revision: '1'
+selfLink: https://www.googleapis.com/drive/v2/files/0s9b2T_442nb0MHBxdmZo3pwnaGRiY01LbmVhcEZEa1FvTWtJ
+shared: false
+spaces: [drive]
+status: update
+title: TxDOT Accident Report (551632).pdf
+userPermission: {etag: '"_sblwcq0fTsl4917mBslb2bHWsg/TpnHf_kgQXZabQ7VDW-96dK3owM"',
+  id: me, kind: drive#permission, role: owner, selfLink: 'https://www.googleapis.com/drive/v2/files/0s9b2T_442nb0MHBxdmZo3pwnaGRiY01LbmVhcEZEa1FvTWtJ/permissions/me',
+  type: user}
+version: '5'
+webContentLink: https://drive.google.com/a/murphey.org/uc?id=0s9b2T_442nb0MHBxdmZo3pwnaGRiY01LbmVhcEZEa1FvTWtJ&export=download
+writersCanShare: true
+```
