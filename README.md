@@ -129,7 +129,7 @@ modifiedDate            | Last Modified Time (UTC)
 modTimeMatch		| 'match' if local and remote Last Modification times match, else MISMATCH.
 md5Checksum             | MD5 digest of remote file. None if file is a native Google Apps Document.
 md5Local		| md5 of download if new or updated.  Otherwise None
-md5Match		| 'match' if local and remote MD5s match, else MISMATCH.
+md5Match		| 'match' if local and remote MD5s match, else time difference.
 fileSize		| Number of bytes in file
 sizeMatch		| 'match' if local and remote sizes match, else %local/remote.
 revision                | Number of available revisions
