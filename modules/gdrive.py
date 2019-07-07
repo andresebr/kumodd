@@ -3,6 +3,8 @@ __author__ = 'andrsebr@gmail.com (Andres Barreto), rich.murphey@gmail.com'
 
 # Todo
 
+# windows last mod time is sometimes not preserved.
+
 # For native Google Apps files, kumodd should use the previously saved remote file
 # metadata to detect whether the file has changed, using for instance, the revision
 # number.
@@ -488,9 +490,7 @@ def download_file( service, drive_file ):
                             win32con.FILE_ATTRIBUTE_NORMAL, None)
                         win32file.SetFileTime(handle, pywintypes.Time(create_time), pywintypes.Time(modify_time), pywintypes.Time(access_time), UTCTimes=True)
                         handle.close()
-                    else:
-                        # Note: unix does not store file creation time.
-                        os.utime(drive_file['local_path'] + drive_file['extension'], (access_time, modify_time))
+                    os.utime(drive_file['local_path'] + drive_file['extension'], (access_time, modify_time))
                 except Exception as e:
                     logging.critical( f"While setting file times, got exception: {e}", exc_info=True)
                 finally:
