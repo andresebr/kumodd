@@ -3,11 +3,11 @@
 Kumodd downloads files and/or generates a CSV file of metadata from a specified Google
 Drive account in a forensically sound manner.
 
-Files can be filtered by category, such as doc, image, or video.  
-Metadata columns may be selected in the configuration file.  
-Available Google Drive API metadata is preserved.  
-File time stamps are preserved and verified.  
-MD5 digests are preserved and verified.
+- Files can be filtered by category, such as doc, image, or video.  
+- Metadata columns may be selected in the configuration file.  
+- Available Google Drive API metadata is preserved.  
+- File time stamps are preserved and verified.  
+- MD5 digests are preserved and verified.
 
 ## Usage examples
 
