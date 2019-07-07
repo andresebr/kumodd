@@ -210,7 +210,7 @@ Google API use, and finally, authorize access to the specified account.
 
         apt install python3 git
 
-    On windows, one option is to use a[Chocolatey package
+    On windows, one option is to use the [Chocolatey package
     manager](https://chocolatey.org/install).
 
         cinst -y python git
