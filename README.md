@@ -125,20 +125,20 @@ Metadata		| Description
 ------:			| :-----------
 title			| File name
 category		| one of: doc, xls, ppt, text, pdf, image, audio, video or other
-modTimeMatch		| 'match' if local and remote Last Modification times match, else MISMATCH.
-md5Match		| 'match' if local and remote MD5s match, else MISMATCH.
-sizeMatch		| 'match' if local and remote sizes match, else %local/remote.
-revisions               | Number of revisions
-ownerNames              | A list of owner user names
-fileSize		| Number of bytes in file
 modifiedDate            | Last Modified Time (UTC)
+modTimeMatch		| 'match' if local and remote Last Modification times match, else MISMATCH.
+md5Checksum             | MD5 digest of remote file. None if file is a native Google Apps Document.
+md5Local		| md5 of download if new or updated.  Otherwise None
+md5Match		| 'match' if local and remote MD5s match, else MISMATCH.
+fileSize		| Number of bytes in file
+sizeMatch		| 'match' if local and remote sizes match, else %local/remote.
+revision                | Number of available revisions
+ownerNames              | A list of owner user names
 createdDate             | Created Time (UTC)
 mimeType		| MIME file type
 path                    | File path in Google Drive 
 id                      | Unique [Google Drive File ID](https://developers.google.com/drive/api/v3/about-files)
 lastModifyingUserName   | Last Modified by (user name)
-md5Checksum             | MD5 digest of remote file. None if file is a native Google Apps Document.
-md5Local		| md5 of download if new or updated.  Otherwise None
 modifiedByMeDate        | Time Last Modified by Account Holder (UTC)
 lastViewedByMeDate      | Time Last Viewed by Account Holder (UTC)
 shared                  | Is shared (true/false)
