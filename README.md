@@ -20,9 +20,20 @@ Created (UTC)            Last Modified (UTC)      Remote Path                   
 2019-04-12T16:21:48.867Z 2019-04-12T16:21:55.245Z My Drive/Todo List            27         Johe Doe         Johe Doe         -                   
 ```
 
-Download (-d) all PDFs to path (-p) /home/user/Desktop/:
+Download (-d) all PDF files to path (-p) /home/user/Desktop/:
 
     kumodd.py -d pdf -p /home/user/Desktop/
+
+Download (-d) all documents to ./download (the default location).
+
+    kumodd.py -d doc
+
+By defalt, native Google Apps files, including documents, spreadsheets and
+presentations, are downloaded in PDF format. To instead download them in LibreOffice
+format, use the '--nopdf' option.
+
+Every revision of each file is downloaded unless --norevisions is specified, in which
+case only the most recent revision is downloaded.
 
 Both the list (-l) and download (-d) options create a CSV file equivalent to the table above. 
 
@@ -49,10 +60,8 @@ Select an alternate config file (-c):
 
     kumodd.py -c config/alternate.yml
 
-Native Google Apps documents, spreadsheets and presentations are downloaded in LibreOffice format.
-The API does not provide a remote MD5 for native Google Apps docs, sheets or slides.
+The API does not provide a remote MD5 for native Google Apps files.
 As a result, only the local MD5 digest is reported.
-
 
 ## Usage
 
@@ -73,13 +82,12 @@ As a result, only the local MD5 digest is reported.
         (default: 'gdrive')
       -csv,--usecsv: Download files from the service using a previously generated csv file
         (a comma separated list)
+      --[no]browser: open a web browser to authorize access to the google drive account
+        (default: 'true')
       -c,--config: config file
         (default: 'config/config.yml')
-      --[no]no_browser: disable launching a web browser to authorize access to a google drive account
-        (default: 'false')
-      --[no]no_verify: For local files that do not need to be updated, do not generate and report the MD5 of the local
-        file
-        (default: 'false')
+      --[no]revisions: Download every revision of each file.
+        (default: 'true')
     
     Try --helpfull to get a list of all flags.
     
@@ -297,7 +305,7 @@ https://cloud.google.com/billing/docs/how-to/manage-billing-account#create_a_new
     1. Login to the cloud account. Next, it will request approval.
     1. Click "Approve". Next, kumodd stores the Oauth token in config/gdrive.dat.  
     
-    If there is no local browser, or if -no_browser is used, kumodd will
+    If there is no local browser, or if --nobrowser is used, kumodd will
     instead print a URL of the login page.
     1. Copy the URL and paste it into a browser.  
     1. Login to the cloud account.  Next, it will request approval.
@@ -309,9 +317,6 @@ https://cloud.google.com/billing/docs/how-to/manage-billing-account#create_a_new
     expires or config/gdrive.dat is deleted.
 
 ## Caveats
-
-Google drive allows a folder to contain multiple files with the same name, whereas unix
-does not. kumodd downloads only one as it stands. 
 
 Downloading native Google Apps docs, sheets and slides is much slower than non-native
 files, due to conversion to LibreOffice formats.
@@ -336,10 +341,14 @@ developed.  It has has been replaced by the [Google Cloud client
 libraries](https://github.com/googleapis/google-cloud-python) which are in development,
 and recommended for new work.
 
+## Developer Notes
+
+To get debug logs to stdout, set 'log_to_stdout: True' in config.yml.
+
 ## TODO
 
 For native Google Apps files, kumodd should use the previously saved remote file
 metadata to detect whether the file has changed, using for instance, the revision
 number.
 
-Kumodd does not retrieve multiple revisions of a file, but has partial code to do so.
+KUmodd does not batch requests to the Google Drive API. Batch limit is 1000.

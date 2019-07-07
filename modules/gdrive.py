@@ -11,6 +11,7 @@ from jsonpath_ng import jsonpath, parse
 from oauth2client.client import AccessTokenRefreshError, flow_from_clientsecrets
 from oauth2client.file import Storage
 from oauth2client.tools import run_flow, argparser
+from pprint import pprint
 import csv
 import httplib2
 import io
@@ -18,7 +19,6 @@ import json
 import logging
 import os
 import platform
-import pprint
 import re
 import socket
 import socks
@@ -50,42 +50,12 @@ items_listed = 0
 items_downloaded = 0
 items_updated = 0
 FLAGS = flags.FLAGS
-flags.DEFINE_boolean('no_browser', False, 'disable launching a web browser to authorize access to a google drive account' )
+flags.DEFINE_boolean('browser', True, 'open a web browser to authorize access to the google drive account' )
 flags.DEFINE_string('config', 'config/config.yml', 'config file', short_name='c')
-flags.DEFINE_boolean('no_verify', False, 'For local files that do not need to be updated, do not generate and report the MD5 of the local file')
+flags.DEFINE_boolean('revisions', True, 'Download every revision of each file.')
+flags.DEFINE_boolean('pdf', False, 'Convert all native Google Apps files to PDF.')
 
 gdrive_version = "1.0"
-
-def get_path(mydict, path):
-    """ get_path({a: {b; 1, c:2}}, 'a.c' ) -> '2'    """
-    elem = mydict
-    try:
-        for x in path.strip(".").split("."):
-            try:
-                x = int(x)
-                elem = elem[x]
-            except ValueError:
-                elem = elem.get(x)
-    except:
-        pass
-    return elem
-
-
-def maybe_flatten(maybe_list, separator=' '):
-    """return concatenated string from items, possibly nested."""
-    if isinstance(maybe_list, Iterable) and not isinstance(maybe_list, (str, bytes)):
-        return separator.join([ maybe_flatten(x) for x in maybe_list ])
-    else:
-        return str(maybe_list)
-
-def open_logfile():
-    if not re.match( '^/', FLAGS.logfile ):
-        FLAGS.logfile = FLAGS.destination + '/' + username + '/' + FLAGS.logfile
-    global LOG_FILE
-    LOG_FILE = open( FLAGS.logfile, 'a' )
-    
-def log(str):
-    LOG_FILE.write( (str + '\n') )
 
 def dirname(s):
     index = s.rfind('/')
@@ -98,14 +68,10 @@ def basename(s):
 
 def ensure_dir(directory):
     if not os.path.exists(directory):
-        print(f'create: {directory}')
         os.makedirs(directory)
 
 def is_google_doc(drive_file):
     return True if re.match( '^application/vnd\.google-apps\..+', drive_file['mimeType'] ) else False
-
-import os
-import platform
 
 def local_file_is_valid(drive_file):
     if os.path.exists( drive_file['local_path'] ):
@@ -154,6 +120,9 @@ def supplement_drive_file_metadata(service, drive_file, path):
 
     remote_path = path + '/' + drive_file['title'].replace( '/', '_' )
     drive_file['path'] = remote_path
+
+    download_url, extension = get_url_and_ext(drive_file, drive_file)
+    drive_file['extension'] = extension
 
     local_path = FLAGS.destination + '/' + username + '/' + remote_path
     drive_file['local_path'] = local_path
@@ -223,7 +192,9 @@ def download_file_and_metadata(service, drive_file, path, writer, metadata_names
             save_metadata(drive_file)
         else:
             drive_file['status'] = 'error'
-            log( f"ERROR downloading: {drive_file['local_path']}" )
+            logging.error( f"downloading: {drive_file['local_path']}" )
+    else:
+        drive_file['status'] = 'verify'
     data = list_from_metadata_names( drive_file, metadata_names )
     if writer:
         writer.writerow( data )
@@ -265,11 +236,14 @@ def walk_folder_metadata( service, http, folder, writer=None, metadata_names=Non
 
     while True:
         try:
+            # exceptions are defined in
+            # https://github.com/googleapis/google-api-python-client/blob/master/googleapiclient/errors.py
             file_list = service.files().list(**param).execute()
+        except (urllib.errors.HTTPError, http.client.IncompleteRead):
+            continue
         except Exception as e:
             print( f'cautght: {e}' )
-            log( f"ERROR: Couldn't get contents of folder {file_list['title']}. Retrying..." )
-            continue
+            logging.error( f"Couldn't get contents of folder {file_list['title']}", exc_info=True)
         folder_items = file_list['items']
         path = base_path + '/' + folder['title'].replace( '/', '_' )
     
@@ -287,6 +261,7 @@ def walk_folder_metadata( service, http, folder, writer=None, metadata_names=Non
                     print_file_metadata(service, item, path, writer, metadata_names, output_format)
 
         if FLAGS.get_items:    
+            ensure_dir(FLAGS.destination + '/' + username + '/' + path)
             for item in filter(is_file, folder_items):
                 if (
                     ( FLAGS.get_items == 'all' )
@@ -324,7 +299,12 @@ def download_listed_files(service, http, config, metadata_names=None, output_for
         index_of_id = header.index( config.get('csv_title',{}).get('id'))
         for row in reader:
             path = dirname(row[index_of_path])
-            drive_file = service.files().get(fileId=row[index_of_id]).execute()
+            while True:
+                try:
+                    drive_file = service.files().get(fileId=row[index_of_id]).execute()
+                except (urllib.errors.HTTPError, http.client.IncompleteRead):
+                    continue
+                break
             download_file_and_metadata(service, drive_file, path, None, metadata_names, output_format)
 
 def download_revision(service, drive_file, revision_id, path):
@@ -337,45 +317,35 @@ def download_revision(service, drive_file, revision_id, path):
     """
     file_id = drive_file['id']
     
-    try:
-        revision = service.revisions().get(fileId=file_id, revisionId=revision_id).execute()
-    except errors.HttpError as error:
-        print( 'An error occurred: %s' % error )
-        
-    file_location = path + '/' + "(" + revision['modifiedDate'] + ")" + drive_file['title'].replace( '/', '_' )
-    if is_google_doc(drive_file):
-        if drive_file['mimeType'] == 'application/vnd.google-apps.document':
-            download_url = revision['exportLinks']['application/vnd.oasis.opendocument.text']
-        if drive_file['mimeType'] == 'application/vnd.google-apps.presentation':
-            download_url = revision['exportLinks']['application/pdf']
-        if drive_file['mimeType'] == 'application/vnd.google-apps.spreadsheet':
-            download_url = revision['exportLinks']['application/vnd.openxmlformats-officedocument.spreadsheetml.sheet']
-        if drive_file['mimeType'] == 'application/vnd.google-apps.drawing':
-            download_url = revision['exportLinks']['image/jpeg']
-    else:
-        download_url = revision['downloadUrl']
-    
+    while True:
+        try:
+            revision = service.revisions().get(fileId=file_id, revisionId=revision_id).execute()
+        except (urllib.errors.HTTPError, http.client.IncompleteRead):
+            continue
+        break
+
+    download_url, extension = get_url_and_ext(drive_file, revision)
+    file_location = path + f"_({revision['modifiedDate']}){extension}"   #v{revision_id}_
+
     if download_url:
         while True:
             try:
                 resp, content = service._http.request(download_url)
-            except httplib2.IncompleteRead:   # zero bytes from socket
-                log( 'Error while reading file %s. Retrying...' % revision['originalFilename'].replace( '/', '_' ) )
-                print( 'Error while reading file %s. Retrying...' % revision['originalFilename'].replace( '/', '_' ) )
-                time.sleep(1) # avoid log flood
+            except (urllib.errors.HTTPError, httplib2.IncompleteRead):
                 continue
             break
 
         if resp.status == 200:
             try:
-                with open( file_location, 'w+' ) as handle:
+                with open( file_location, 'wb+' ) as handle:
                     handle.write( content )
-            except:
-                log( "Could not open file %s for writing. Please check permissions." % file_location )
+            except Exception as e:
+                print( f'cautght: {e}' )
+                logging.error( f"{file_location} Could not open file %s for writing. Please check permissions.", exc_info=True)
                 return False
             return True
         else:
-            log( 'An error occurred: %s' % resp )
+            logging.error( resp )
             return False
     else:
         return False
@@ -389,14 +359,43 @@ def retrieve_revisions(service, file_id):
     Returns:
     List of revisions.
     """
-    try:
-        revisions = service.revisions().list(fileId=file_id).execute()
-        if len(revisions.get('items', [])) > 1:
-            return revisions.get('items', [])
-        return None    
-    except errors.HttpError as error:
-        return None
+    while True:
+        try:
+            revisions = service.revisions().list(fileId=file_id).execute()
+        except (urllib.errors.HTTPError, httplib2.IncompleteRead):
+            continue
+        break
+    if len(revisions.get('items', [])) > 1:
+        return revisions.get('items', [])
+    return None    
 
+
+def get_url_and_ext(drive_file, revision):
+    if is_google_doc(drive_file):
+        if FLAGS.pdf:
+            download_url = revision['exportLinks']['application/pdf']
+            extension = '.pdf'
+        elif drive_file['mimeType'] == 'application/vnd.google-apps.document':
+            download_url = revision['exportLinks']['application/vnd.oasis.opendocument.text']
+            extension = '.odt'
+        elif drive_file['mimeType'] == 'application/vnd.google-apps.presentation':
+            download_url = revision['exportLinks']['application/vnd.oasis.opendocument.presentation']
+            extension = '.odp'
+        elif drive_file['mimeType'] == 'application/vnd.google-apps.spreadsheet':
+            # was: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet
+            download_url = revision['exportLinks']['application/vnd.oasis.opendocument.spreadsheet']
+            extension = '.ods'
+        elif drive_file['mimeType'] == 'application/vnd.google-apps.drawing':
+            # was: image/jpeg
+            download_url = revision['exportLinks']['application/vnd.oasis.opendocument.graphics']
+            extension = '.odg'
+        else:
+            download_url = revision['exportLinks']['application/pdf']
+            extension = '.pdf'
+    else:
+        download_url = revision['downloadUrl']
+        extension = ''
+    return [download_url, extension]
 
 def download_file( service, drive_file ):
     """Download a file's content.
@@ -409,24 +408,14 @@ def download_file( service, drive_file ):
       True if successful, else False.
     """
     
-    revision_list = retrieve_revisions(service, drive_file['id'])
-
-    if revision_list != None:
-        del revision_list[len(revision_list)-1]
-        for item in revision_list:
-            download_revision(service, drive_file, item['id'], drive_file['local_path'])
+    if FLAGS.revisions:
+        revision_list = retrieve_revisions(service, drive_file['id'])
+        if revision_list != None:
+            del revision_list[len(revision_list)-1]
+            for item in revision_list:
+                download_revision(service, drive_file, item['id'], drive_file['local_path'])
     
-    if is_google_doc(drive_file):
-        if drive_file['mimeType'] == 'application/vnd.google-apps.document':
-            download_url = drive_file['exportLinks']['application/vnd.oasis.opendocument.text']
-        if drive_file['mimeType'] == 'application/vnd.google-apps.presentation':
-            download_url = drive_file['exportLinks']['application/pdf']
-        if drive_file['mimeType'] == 'application/vnd.google-apps.spreadsheet':
-            download_url = drive_file['exportLinks']['application/vnd.openxmlformats-officedocument.spreadsheetml.sheet']
-        if drive_file['mimeType'] == 'application/vnd.google-apps.drawing':
-            download_url = drive_file['exportLinks']['image/jpeg']
-    else:
-        download_url = drive_file['downloadUrl']
+    download_url, extension = get_url_and_ext(drive_file, drive_file)
 
     if not download_url:
         return False
@@ -434,17 +423,15 @@ def download_file( service, drive_file ):
         while True:
             try:
                 resp, content = service._http.request(download_url)
-            except httplib2.IncompleteRead as e:   # zero bytes from socket
-                log( f"Exception {e} while reading {drive_file['local_path']}. Retrying..." )
-                time.sleep(1) # avoid log flood
+            except (urllib.errors.HTTPError, httplib2.IncompleteRead) as e:
+                logging.error( f"Exception {e} while reading {drive_file['local_path']}. Retrying...", exc_info=True)
                 continue
             if resp.status == 200:
                 try:
-                    ensure_dir(dirname( drive_file['local_path']))
-                    with open( drive_file['local_path'], 'wb+' ) as handle:
+                    with open( drive_file['local_path'] + extension, 'wb+' ) as handle:
                         handle.write( content )
                 except e:
-                    log( f"Cannot open {drive_file['local_path']} for writing: {e}" )
+                    logging.error( f"Cannot open {drive_file['local_path'] + drive_file['extension']} for writing: {e}", exc_info=True)
                     return False
 
                 drive_file['md5Local'] = md5( content ).hexdigest()
@@ -470,7 +457,7 @@ def download_file( service, drive_file ):
                     if platform.system() == 'Windows':
                         # API to set create timestamp is not cross-platform
                         handle = win32file.CreateFile(
-                            drive_file['local_path'], win32con.GENERIC_WRITE,
+                            drive_file['local_path'] + drive_file['extension'], win32con.GENERIC_WRITE,
                             win32con.FILE_SHARE_READ | win32con.FILE_SHARE_WRITE | win32con.FILE_SHARE_DELETE,
                             None, win32con.OPEN_EXISTING,
                             win32con.FILE_ATTRIBUTE_NORMAL, None)
@@ -478,14 +465,14 @@ def download_file( service, drive_file ):
                         handle.close()
                     else:
                         # Note: unix does not store file creation time.
-                        os.utime(drive_file['local_path'], (access_time, modify_time))
+                        os.utime(drive_file['local_path'] + drive_file['extension'], (access_time, modify_time))
                 except Exception as e:
-                    pprint.pprint( e )
+                    logging.error( f"While setting file times, got exception: {e}", exc_info=True)
                 finally:
                     handle.close()
                 return True
             else:
-                log( 'An error occurred: %s' % resp )
+                logging.error( resp )
                 return False
 
 
@@ -496,9 +483,6 @@ def main(argv):
     except flags.FlagsError as e:
         print( f'{e}\\nUsage: {argv[0]} ARGS\\n{FLAGS}' )
         sys.exit(1)
-
-    # Set the logging according to the command-line flag
-    logging.getLogger().setLevel(getattr(logging, FLAGS.log))
 
     if FLAGS.config.find('/'):
         ensure_dir(dirname(FLAGS.config))
@@ -540,6 +524,15 @@ csv_title:
                             io.open(FLAGS.config, 'w', encoding='utf8'), default_flow_style=False, allow_unicode=True)
 
     config = yaml.safe_load(open(FLAGS.config, 'r'))
+
+    # Set the logging according to the command-line flag
+    logging.basicConfig(level=FLAGS.log, format='%(asctime)s %(levelname)s %(message)s', datefmt='%d-%b-%y %H:%M:%S')
+    if config.get('log_to_stdout'):
+        handler = logging.StreamHandler(sys.stdout)
+        handler.setLevel(logging.ERROR)
+        formatter = logging.Formatter('%(levelname)s: %(message)s')
+        handler.setFormatter(formatter)
+        logging.getLogger().addHandler(handler)
 
     api_credentials_file = config.get('gdrive',{}).get('gdrive_auth')
     metadata_names = (config.get('gdrive',{}).get('metadata')).split(',')
@@ -604,7 +597,7 @@ Error: {e}\n""" )
 
     if credentials is None or credentials.invalid:
         oflags = argparser.parse_args([])
-        oflags.noauth_local_webserver = FLAGS.no_browser
+        oflags.noauth_local_webserver = not FLAGS.browser
         credentials = run_flow(FLOW, storage, oflags, http)
     http = credentials.authorize(http)
 
@@ -618,8 +611,8 @@ Error: {e}\n""" )
     else:
         username = '???'
     ensure_dir(FLAGS.destination + '/' + username)
-    open_logfile()
     output_format = name_list_to_format_string( metadata_names )
+
     try:
         start_time = datetime.now()
         if FLAGS.list_items:
@@ -630,19 +623,29 @@ Error: {e}\n""" )
             with open(config.get('gdrive',{}).get('csv_prefix') + username + '.csv', 'w') as csv_handle:
                 writer = csv.writer(csv_handle, delimiter=',')
                 writer.writerow( [ config.get('csv_title').get(name) for name in metadata_names ] )
-                start_folder = service.files().get( fileId=FLAGS.drive_id ).execute()
+                while True:
+                    try:
+                        start_folder = service.files().get( fileId=FLAGS.drive_id ).execute()
+                    except (urllib.errors.HTTPError, httplib2.IncompleteRead):
+                        continue
+                    break
                 walk_folder_metadata( service, http, start_folder, writer, metadata_names, output_format)
-                print(f'\n{items_downloaded} files downloaded and {items_updated} updated from {username}')
+            print(f'\n{items_downloaded} files downloaded and {items_updated} updated from {username}')
 
         elif FLAGS.get_items:
             print('download files')
             print( output_format.format( *[ config.get('csv_title').get(name) for name in metadata_names ]))
-            start_folder = service.files().get( fileId=FLAGS.drive_id ).execute()
+            while True:
+                try:
+                    start_folder = service.files().get( fileId=FLAGS.drive_id ).execute()
+                except (urllib.errors.HTTPError, httplib2.IncompleteRead):
+                    continue
+                break
             with open(config.get('gdrive',{}).get('csv_prefix') + username + '.csv', 'w') as csv_handle:
                 writer = csv.writer(csv_handle, delimiter=',')
                 writer.writerow( [ config.get('csv_title').get(name) for name in metadata_names ] )
                 walk_folder_metadata( service, http, start_folder, writer, metadata_names, output_format)
-                print(f'\n{items_downloaded} files downloaded and {items_updated} updated from {username}')
+            print(f'\n{items_downloaded} files downloaded and {items_updated} updated from {username}')
 
         elif FLAGS.usecsv:
             print('download listed files')
