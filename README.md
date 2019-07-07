@@ -202,11 +202,10 @@ Google API use, and finally, authorize access to the specified account.
 
         apt install python3 git
 
-    On windows, make sure they are in the PATH environment
-    variable.
+    On windows, one option is to use [Chocolatey package
+    manager](https://chocolatey.org/install).
 
-        SET "PATH=%PATH%;C:\Python37"
-        SET "PATH=%PATH%;C:\ProgramFiles\Git\bin"
+        cinst -y python git
 
 1. Download kumodd and install the required packages.
 
