@@ -28,12 +28,13 @@ Download (-d) all documents to ./download (the default location).
 
     kumodd.py -d doc
 
-By defalt, native Google Apps files, including documents, spreadsheets and
+By def alt, native Google Apps files, including documents, spreadsheets and
 presentations, are downloaded in PDF format. To instead download them in LibreOffice
 format, use the '--nopdf' option.
 
-Every revision of each file is downloaded unless --norevisions is specified, in which
-case only the most recent revision is downloaded.
+By default, every revision is downloaded unless --norevisions is specified, in which
+case only the current file (most recent revision) is downloaded.  Previous revisions are
+saved as filename_(last modification date).
 
 Both the list (-l) and download (-d) options create a CSV file equivalent to the table above. 
 
@@ -353,4 +354,4 @@ For native Google Apps files, kumodd should use the previously saved remote file
 metadata to detect whether the file has changed, using for instance, the revision
 number.
 
-KUmodd does not batch requests to the Google Drive API. Batch limit is 1000.
+Kumodd does not batch requests to the Google Drive API. Batch limit is 1000.
