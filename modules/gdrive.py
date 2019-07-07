@@ -488,7 +488,7 @@ def download_file( service, drive_file ):
                             win32con.FILE_SHARE_READ | win32con.FILE_SHARE_WRITE | win32con.FILE_SHARE_DELETE,
                             None, win32con.OPEN_EXISTING,
                             win32con.FILE_ATTRIBUTE_NORMAL, None)
-                        win32file.SetFileTime(handle, pywintypes.Time(create_time), pywintypes.Time(modify_time), pywintypes.Time(access_time), UTCTimes=True)
+                        win32file.SetFileTime(handle, pywintypes.Time(create_time), None, None, UTCTimes=True)
                         handle.close()
                     os.utime(drive_file['local_path'] + drive_file['extension'], (access_time, modify_time))
                 except Exception as e:
