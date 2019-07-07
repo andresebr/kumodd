@@ -5,8 +5,9 @@ Drive account in a forensically sound manner.
 
 Files can be filtered by category, such as doc, image, or video.  
 Metadata columns may be selected in the configuration file.  
-The last access and last modify times are preserved or verified. On windows, the create time is.  
-The remote and local MD5 digests are verified.
+Available Google Drive API metadata is preserved.
+File time stamps are preserved and verified.
+MD5 digests are preserved and verified.
 
 ## Usage examples
 
@@ -145,13 +146,12 @@ Note that path, local_path, md5local, md5Match, localSize, sizeMatch, modTimeMat
 revision are computed by Kmodd.  These names are not found in the data retrieved from
 google drive, but rather computed from the metadata retrieved from Google Drive.
 
-md5Match is either 'match', 'MISMATCH' or 'n/a' for native Google Apps filest that do no
+md5Match is either 'match', 'MISMATCH' or 'n/a' for native Google Apps filest that do not
 report a fileSize.
 
-sizeMatch is either 'match', 'MISMATCH' or a percentge ratio of local/remove file size.
+sizeMatch is either 'match' or a percentge ratio of local/remote file size.
 
-modTimeMatch is either 'match', 'MISMATCH' or days HH:MM:SS of the remote - local Last
-Modified time.
+modTimeMatch is either 'match' or the time difference of Last Modified time in DAYS HH:MM:SS.
 
 revision is the number of available revisions in Google drive.
 
