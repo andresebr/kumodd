@@ -206,21 +206,23 @@ csv_title:
 To setup kumodd, install python and git, then install kumodd and requirements, obtain an Oauth ID required for
 Google API use, and finally, authorize access to the specified account.
 
-1. Install python 3 and git.
+1. Install python 3 and git. then download kumodd and install the required packages.
 
-        apt install python3 git
+    ``` shell
+    apt install python3 git
+    git clone https://github.com/rich-murphey/kumodd.git
+    cd kumodd
+    python3 -m pip install --user -r requirements.txt
+    ```
 
     On windows, one option is to use the [Chocolatey package
     manager](https://chocolatey.org/install).
 
-        cinst -y python git
-
-1. Download kumodd and install the required packages.
-
     ``` shell
+    cinst -y python git
     git clone https://github.com/rich-murphey/kumodd.git
     cd kumodd
-    python3 -m pip install --user -r requirements.txt
+    python -m pip install --user -r requirements.txt
     ```
 
 1. Obtain a Google Oauth client ID (required for Google Drive API):
