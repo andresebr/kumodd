@@ -12,8 +12,8 @@ Drive account in a forensically sound manner.
 
 ## Usage examples
 
-Both the list (-l) and download (-d) options create a CSV file and a stdout text
-containing identical colums.
+Both the list (-l) and download (-d) options create a CSV file and a text table on
+standard output.
 
 List (-l) all documents:
 ``` shell
@@ -40,7 +40,7 @@ By default, every available revision is downloaded unless --norevisions is speci
 which case only the current file (latest revision) is downloaded.  Previous
 revisions are saved as filename_(revision id_last modified date).
 
-Download all of the files listed in a previously generated CSV file:
+To download all of the files listed in a previously generated CSV file, use:
 
     kumodd.py -csv ./filelist-username.csv
 
@@ -65,8 +65,8 @@ To set the timestamps in exported files, Kumod maps these values as follows:
 
 Windows has all three; however, setting the Created time in python via the win32 API has
 proven unreliable.  Certain more recent Unix file systems have a created time stamp,
-including Ext4, UFS2, Hammer, LFS, and ZFS. See [Wikipedia Comparison of File
-Systems](https://en.wikipedia.org/wiki/Comparison_of_file_systems).  However, the Linux
+including Ext4, UFS2, Hammer, LFS, and ZFS (*see* [Wikipedia Comparison of File
+Systems](https://en.wikipedia.org/wiki/Comparison_of_file_systems)).  However, the Linux
 kernel provides no method (i.g. system call or library) to read or write the Created
 time, so Created time is not available to kumodd on Linux.  markedViewedByMeDate is
 not always available in Google Drive.  The Last Accessed time stamps may be overwritten
@@ -85,11 +85,11 @@ metadata paths would be:
 - ./download/john.doe@gmail.com/My Drive/foo.doc
 - ./download/metadata/john.doe@gmail.com/My Drive/foo.doc.yml
 
-One can configure which metadata fields are written to stdout and CSV files.  They are
-specified by the tag 'csv_columns' in config/config.yml (*see*
-[Configuration](#configuration)).  The default CSV columns are:
+One can configure which columns are written to stdout and CSV files.  They are specified
+by the tag 'csv_columns' in config/config.yml (*see* [Configuration](#configuration)).
+The default CSV columns are:
 
-Metadata		| Description 
+CSV Columns		| Description 
 ------:			| :-----------
 title			| File name
 category		| one of: doc, xls, ppt, text, pdf, image, audio, video or other
@@ -111,126 +111,27 @@ modifiedByMeDate        | Time Last Modified by Account Holder (UTC)
 lastViewedByMeDate      | Time Last Viewed by Account Holder (UTC)
 shared                  | Is shared (true/false)
 
-Certain metadata are computed by Kmodd. These include path, local_path, md5local,
-md5Match, localSize, sizeMatch, modTimeMatch and revision.  These names are not found in
-the data retrieved from google drive, but rather computed from the metadata retrieved
-from Google Drive.
+Certain metadata are computed by Kmodd. These include catetory, path, local_path,
+md5local, md5Match, localSize, sizeMatch, modTimeMatch and revision.  These names are
+not found in the data retrieved from google drive, but instead are computed from the
+metadata retrieved from Google Drive.
 
-md5Match is either 'match', 'MISMATCH' or 'n/a'.
-md5Match is 'n/a' when the  MD5 digest is not available from Google Drive, including for
-native Google Apps files and certain PDFs.
+Computed Metadata	| Value
+----:			| :----
+md5Match		| either 'match', 'MISMATCH' or 'n/a'. md5Match is 'n/a' when the  MD5 digest is not available from Google Drive, including for native Google Apps files and certain PDFs.
+sizeMatch		| either 'match' or a percentage ratio of local/remote file size.
+modTimeMatch		| either 'match' or the time difference of Last Modified time in DAYS HH:MM:SS.
+revision		| the number of revisions available in Google drive.
 
-sizeMatch is either 'match' or a percentage ratio of local/remote file size.
+Note: The 'thumbnailLink' attribute is transient. Kumodd removes 'thumbnailLink' because
+it changes each time the metadata is retrieved from Google Drive, even if the file and
+other metadata have not changed.  When 'thumbnailLink' is excluded, the metadata is
+reproducible (identical each time retrieved) if the file has not changed.  This also
+improves time efficient review of changes in the YAML using 'diff'.
 
-modTimeMatch is either 'match' or the time difference of Last Modified time in DAYS HH:MM:SS.
-
-revision is the number of available revisions in Google drive.
-
-Note: Kumodd removes the 'thumbnailLink' attribute because 'thumbnailLink' changes each
-time the metadata is retrieved from Google Drive, even if the file and other metadata
-have not changed.  When 'thumbnailLink' is excluded, the metadata is reproducible
-(identical each time retrieved) if the file has not changed.  This also improves time
-efficient review of changes using 'diff'.
-
-Metadata names are translated to CSV column titles, as shown below in
-config/config.yml.  If a title is not defined there, the metadata name is used
-as the title.
-
-## Usage
-
-    ./kumodd.py [flags]
-
-    flags:
-      -p,--destination: Destination file path
-        (default: './download')
-      -d,--get_items: <all|doc|xls|ppt|text|pdf|office|image|audio|video|other>: Download files and create directories, optionally filtered by category
-      -l,--list_items: <all|doc|xls|ppt|text|pdf|office|image|audio|video|other>: List files and directories, optionally filtered by category
-      --log: <DEBUG|INFO|WARNING|ERROR|CRITICAL>: Set the level of logging detail.
-        (default: 'ERROR')
-      -m,--metadata_destination: Destination file path for metadata information
-        (default: './download/metadata')
-      -csv,--usecsv: Download files from the service using a previously generated CSV file
-        (a comma separated list)
-      --[no]browser: open a web browser to authorize access to the google drive account
-        (default: 'true')
-      -c,--config: config file
-        (default: 'config/config.yml')
-      --[no]pdf: Convert all native Google Apps files to PDF.
-        (default: 'false')
-      --[no]revisions: Download every revision of each file.
-        (default: 'true')
-    
-    Try --helpfull to get a list of all flags.
-    
-    
-The filter option limits output to a selected category of files.  A file's category is
-determined its mime type.
-
-Filter	| Description 
-------:	| :-----------
-all	| All files stored in the account
-doc	| Documents: Google Docs, doc, docx, odt
-xls	| Spreadsheets: Google Sheets, xls, xlsx, ods
-ppt	| Presentations: Google Slides, ppt, pptx, odp
-text	| Text/source code files
-pdf	| PDF files
-office	| Documents, spreadsheets and presentations
-image	| Image files
-audio	| Audio files
-video	| Video files
-
-To relay kumodd access though an HTTP proxy, specify the proxy in config/config.yml:
-``` yaml
-proxy:
-  host: proxy.host.com
-  port: 8888 (optional)
-  user: username (optional)
-  pass: password (optional)
-```
-
-## Configuration
-
-If config/config.yml does not exist, kumodd will create it using:
-``` yaml
-gdrive:
-  gdrive_auth: config/gdrive_config.json
-  oauth_id: config/gdrive.dat
-  csv_prefix: ./filelist-
-  csv_columns: title,category,modTimeMatch,md5Match,revision,ownerNames,fileSize,modifiedDate,createdDate,mimeType,path,id,lastModifyingUserName,md5Checksum,md5Local,modifiedByMeDate,lastViewedByMeDate,shared
-
-csv_title:
-  app: Application
-  category: Category
-  createdDate: Created (UTC)
-  fileSize: Bytes
-  id: File Id
-  index: Index
-  lastModifyingUserName: Modfied by
-  lastViewedByMeDate: My Last View
-  local_path: Local Path
-  md5Checksum: MD5
-  md5Local: Local MD5
-  md5Match: MD5s
-  mimeType: MIME Type
-  modTimeMatch: Mod Time
-  modifiedByMeDate: My Last Mod
-  modifiedDate: Last Modified (UTC)
-  ownerNames: Owner
-  path: Remote Path
-  revision: Revisions
-  shared: Shared
-  status: Status
-  time: Time (UTC)
-  title: Name
-  user: User
-  version: Version
-```
-
-csv_prefix specifes the CSV file location.  The full path is <csv_prefix><user name>.csv.
-
-Select an alternate config file, use -c:
-
-    kumodd.py -c config/alternate.yml
+Metadata names are translated to CSV column titles using 'csv_title' in the
+configuration file (*see* [Configuration](#configuration)).  If a title is not defined
+there, the metadata name is used as the CSV column title.
 
 ## Setup
 
@@ -293,21 +194,128 @@ Google API use, and finally, authorize access to the specified account.
     Once authorized, the login page will not be shown again unless the token
     expires or config/gdrive.dat is deleted.
 
+## Usage
+
+    ./kumodd.py [flags]
+
+    flags:
+      -p,--destination: Destination file path
+        (default: './download')
+      -d,--get_items: <all|doc|xls|ppt|text|pdf|office|image|audio|video|other>: Download files and create directories, optionally filtered by category
+      -l,--list_items: <all|doc|xls|ppt|text|pdf|office|image|audio|video|other>: List files and directories, optionally filtered by category
+      --log: <DEBUG|INFO|WARNING|ERROR|CRITICAL>: Set the level of logging detail.
+        (default: 'ERROR')
+      -m,--metadata_destination: Destination file path for metadata information
+        (default: './download/metadata')
+      -csv,--usecsv: Download files from the service using a previously generated CSV file
+        (a comma separated list)
+      --[no]browser: open a web browser to authorize access to the google drive account
+        (default: 'true')
+      -c,--config: config file
+        (default: 'config/config.yml')
+      --gdrive_auth: Google Drive acccount authorization file.  Configured in config/config.yml if not specifed on command line.
+      --[no]pdf: Convert all native Google Apps files to PDF.
+        (default: 'false')
+      --[no]revisions: Download every revision of each file.
+        (default: 'true')
+    
+    Try --helpfull to get a list of all flags.
+    
+    
+The filter option limits output to a selected category of files.  A file's category is
+determined its mime type.
+
+Filter	| Description 
+------:	| :-----------
+all	| All files stored in the account
+doc	| Documents: Google Docs, doc, docx, odt
+xls	| Spreadsheets: Google Sheets, xls, xlsx, ods
+ppt	| Presentations: Google Slides, ppt, pptx, odp
+text	| Text/source code files
+pdf	| PDF files
+office	| Documents, spreadsheets and presentations
+image	| Image files
+audio	| Audio files
+video	| Video files
+
+To relay kumodd access though an HTTP proxy, specify the proxy in config/config.yml:
+``` yaml
+proxy:
+  host: proxy.host.com
+  port: 8888 (optional)
+  user: username (optional)
+  pass: password (optional)
+```
+
+## Configuration
+
+Command line arguments are used for configuration specific to a data set or case, while
+a YAML file is used for configuration items not specific to a data set or case.  This is
+intended to support reproducibility.  Multiple configuration files can be used to
+generate multiple arrangements of CSV columns.
+
+If config/config.yml does not exist, kumodd will create it using:
+``` yaml
+gdrive:
+  gdrive_auth: config/gdrive_config.json
+  oauth_id: config/gdrive.dat
+  csv_prefix: ./filelist-
+  csv_columns: title,category,modTimeMatch,md5Match,revision,ownerNames,fileSize,modifiedDate,createdDate,mimeType,path,id,lastModifyingUserName,md5Checksum,md5Local,modifiedByMeDate,lastViewedByMeDate,shared
+
+csv_title:
+  app:			Application
+  category:		Category
+  createdDate:		Created (UTC)
+  fileSize:		Bytes
+  id:			File Id
+  index:		Index
+  lastModifyingUserName: Modfied by
+  lastViewedByMeDate:	My Last View
+  local_path:		Local Path
+  md5Checksum:		MD5
+  md5Local:		Local MD5
+  md5Match:		MD5s
+  mimeType:		MIME Type
+  modTimeMatch:		Mod Time
+  modifiedByMeDate:	My Last Mod
+  modifiedDate:		Last Modified (UTC)
+  ownerNames:		Owner
+  path:			Remote Path
+  revision:		Revisions
+  shared:		Shared
+  status:		Status
+  time:			Time (UTC)
+  title:		Name
+  user:			User
+  version:		Version
+```
+
+Config item	| Description
+-----:		| :-----
+gdrive_auth	| filename of the google drive account authorization. Ignored if provided on command line.
+oauth_id	| filename of the Oauth client ID credentials
+csv_prefix	| the leading portion of the CSV file path.  Username and .csv are appended.
+csv_title	| list of column titles for each metadata name
+
+
 ## Caveats
 
 Google Drive permits duplicate file names within a folder, whereas Unix and Windows
-filesystems generally prohibit this.  This causes missing files and mismatching
-metadata.  This could be remedied by exporting to a logical forensic image format.
-
+filesystems generally refuse it.  Duplicates within a folder cause missing files and
+mismatching metadata.  As it stands, Kumodd does not export directly to a logical
+forensic image format, which would resolve this.
 
 Downloading native Google Apps docs, sheets and slides is much slower than non-native
-files, due to conversion to LibreOffice formats.
+files, because format conversion to PDF of LibreOffice is required.
 
-Because native Google Apps files do not provide a MD5 digest, kumod currently only looks
-for time stamp differences to detect file changes. It downloads again only when the
-local and remote Last Modified time stamps differ by more than one second.
+Validation is limited to available data. Native Google Apps and certain PDF files do not
+provide a MD5 digest. Last Modify time is the only reliable file system time stamp.  To
+detect changes, kumod compares the MD5, file size and Last Modify time. If any of these
+differ from Google Drive's metadata, kumodd will download and update the file and YAML
+metadata.
 
-Using an HTTP proxy on Windows does not work due to unresolved issues with httplib2.
+Using an HTTP proxy on Windows does not work due to unresolved issues with python 3's
+httplib2.
 
 [Google rate limits API calls](https://console.cloud.google.com/apis/api/drive.googleapis.com/quotas).
 At the time of writing, the default rate limits are:
@@ -331,7 +339,8 @@ To get debug logs to stdout, set 'log_to_stdout: True' in config.yml.
 
 Metadata provided by the Google Drive are described in the [Google Drive API
 Documentation](https://developers.google.com/drive/api/v3/reference/files).  A few of
-the available metadata are shown below. This is the metadata of a PDF file.
+the available metadata are shown in the following YAML. This is the metadata of a PDF
+file.
 
 ``` yaml
 alternateLink: https://drive.google.com/a/murphey.org/file/d/0s9b2T_442nb0MHBxdmZo3pwnaGRiY01LbmVhcEZEa1FvTWtJ/view?usp=drivesdk

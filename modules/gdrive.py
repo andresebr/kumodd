@@ -70,6 +70,7 @@ flags.DEFINE_boolean('browser', True, 'open a web browser to authorize access to
 flags.DEFINE_string('config', 'config/config.yml', 'config file', short_name='c')
 flags.DEFINE_boolean('revisions', True, 'Download every revision of each file.')
 flags.DEFINE_boolean('pdf', False, 'Convert all native Google Apps files to PDF.')
+flags.DEFINE_string('gdrive_auth', None, 'Google Drive acccount authorization file.  Configured in config/config.yml if not specifed on command line.')
 
 gdrive_version = "1.0"
 
@@ -206,9 +207,6 @@ def list_from_metadata_names( obj, metadata_names ):
             elem = ''
         result.append( elem )
     return result
-
-# print( str( list_from_metadata_names( {'a': {'b': 1, 'c':2}}, ['a.c', 'a.b'] )))
-# sys.exit(1)
 
 def print_file_metadata(service, drive_file, path, writer, metadata_names, output_format=None):
     global items_listed
@@ -523,7 +521,7 @@ gdrive:
   csv_prefix: ./filelist-
   gdrive_auth: config/gdrive_config.json
   oauth_id: config/gdrive.dat
-  metadata: title,category,modTimeMatch,md5Match,revision,ownerNames,fileSize,modifiedDate,createdDate,mimeType,path,id,lastModifyingUserName,md5Checksum,md5Local,modifiedByMeDate,lastViewedByMeDate,shared
+  csv_columns: title,category,modTimeMatch,md5Match,revision,ownerNames,fileSize,modifiedDate,createdDate,mimeType,path,id,lastModifyingUserName,md5Checksum,md5Local,modifiedByMeDate,lastViewedByMeDate,shared
 
 csv_title:
   app: Application
@@ -567,8 +565,8 @@ csv_title:
         httplib2.debuglevel = -1
     logging.getLogger().setLevel(FLAGS.log)
 
-    api_credentials_file = config.get('gdrive',{}).get('gdrive_auth')
-    metadata_names = (config.get('gdrive',{}).get('metadata')).split(',')
+    api_credentials_file = FLAGS.gdrive_auth or config.get('gdrive',{}).get('gdrive_auth')
+    metadata_names = (config.get('gdrive',{}).get('csv_columns')).split(',')
 
     # Set up a Flow object that opens a web browser or prints a URL for
     # approval of access to the given google drive account.
