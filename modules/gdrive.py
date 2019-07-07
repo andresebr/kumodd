@@ -34,7 +34,9 @@ import sys
 import time
 import yaml
 if platform.system() == 'Windows':
-    from win32 import win32file, win32con
+    from win32 import win32file
+    import win32con
+    import pywintypes
 
 def name_list_to_format_string( names ):
     """generate a format string for a given list of metadata names"""
@@ -484,7 +486,7 @@ def download_file( service, drive_file ):
                             win32con.FILE_SHARE_READ | win32con.FILE_SHARE_WRITE | win32con.FILE_SHARE_DELETE,
                             None, win32con.OPEN_EXISTING,
                             win32con.FILE_ATTRIBUTE_NORMAL, None)
-                        win32file.SetFileTime(handle, create_time, modify_time, access_time, UTCTimes=True)
+                        win32file.SetFileTime(handle, pywintypes.Time(create_time), pywintypes.Time(modify_time), pywintypes.Time(access_time), UTCTimes=True)
                         handle.close()
                     else:
                         # Note: unix does not store file creation time.

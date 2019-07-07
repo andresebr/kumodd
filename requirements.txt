@@ -4,3 +4,4 @@ oauth2client
 socksipy-branch
 jsonpath-ng
 pyyaml
+pypiwin32; sys_platform == 'win32'
