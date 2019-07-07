@@ -162,11 +162,11 @@ via the Google Drive API.
 The metadata of each file is saved in YAML format under ./metadata.
 
 Note: Kumodd removes the 'thumbnailLink' attribute because 'thumbnailLink' changes each
-time the metadata is retrieved from Google Drive, even if nothing else has changed.
-When 'thumbnailLink' is excluded, the metadata is reproducible (identical each time) if
-the file has not changed.  This allows comparison of the MD5 digest to detect changes in
-metadata between newly retrieved and previously retrieved metadata. It also allows more
-time efficient review of changes using 'diff'.
+time the metadata is retrieved from Google Drive, even if the file and other metadata
+have not changed.  When 'thumbnailLink' is excluded, the metadata is reproducible
+(identical each time) if the file has not changed.  This allows comparison of the MD5
+digest to detect changes in metadata between newly retrieved and previously retrieved
+metadata. It also allows more time efficient review of changes using 'diff'.
 
 Metadata names are translated to CSV column titles, as shown below in
 config/config.yml.  If a title is not defined there, the metadata name is used
@@ -177,20 +177,26 @@ csv_title:
   app: Application
   category: Category
   createdDate: Created (UTC)
+  fileSize: Bytes
   id: File Id
   index: Index
-  lastModifyingUserName: Modified by
+  lastModifyingUserName: Modfied by
   lastViewedByMeDate: User Last View
   local_path: Local Path
   md5Checksum: MD5
+  md5Local: Local MD5
+  md5Match: MD5s
   mimeType: MIME Type
+  modTimeMatch: Mod Time
   modifiedByMeDate: User Last Mod
   modifiedDate: Last Modified (UTC)
   ownerNames: Owner
   path: Remote Path
-  revisions: Revisions
-  shared: Is Shared
-  time: TIME (UTC)
+  revision: Revisions
+  shared: Shared
+  status: Status
+  time: Time (UTC)
+  title: Name
   user: User
   version: Version
 ```

@@ -538,9 +538,9 @@ csv_title:
   modifiedDate: Last Modified (UTC)
   ownerNames: Owner
   path: Remote Path
-  revision: Revision
+  revision: Revisions
   shared: Shared
-  status: Action
+  status: Status
   time: Time (UTC)
   title: Name
   user: User
