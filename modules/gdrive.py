@@ -3,6 +3,8 @@ __author__ = 'andrsebr@gmail.com (Andres Barreto), rich.murphey@gmail.com'
 
 # Todo
 
+# use the latest last access time.
+
 # windows last mod time is sometimes not preserved.
 
 # For native Google Apps files, kumodd should use the previously saved remote file
@@ -471,16 +473,14 @@ def download_file( service, drive_file ):
                     logging.critical( f"Cannot open {drive_file['local_path'] + drive_file['extension']} for writing: {e}", exc_info=True)
                     return False
 
+                def date_or_zero( file, attr ):
+                    return time.strptime( file[attr], '%Y-%m-%dT%H:%M:%S.%fZ' ) if file.get(attr) else 0.
                 try:
-                    # float time in seconds since eppoch UTC. Resolution is msec.
-                    modify_time = time.mktime( time.strptime( drive_file['modifiedDate'], '%Y-%m-%dT%H:%M:%S.%fZ' ) )
-                    if drive_file.get('lastViewedByMeDate'):
-                        access_time = time.mktime( time.strptime( drive_file['lastViewedByMeDate'], '%Y-%m-%dT%H:%M:%S.%fZ'))
-                    else:
-                        access_time = modify_time
-                    create_time = time.mktime( time.strptime( drive_file['createdDate'], '%Y-%m-%dT%H:%M:%S.%fZ' ) )
+                    # time stamps set on exported files
+                    modify_time = time.mktime( date_or_zero( drive_file, 'modifiedDate' ))
+                    access_time = time.mktime( date_or_zero( drive_file, 'markedViewedByMeDate' ))
+                    create_time = time.mktime( date_or_zero( drive_file, 'createdDate' ))
     
-                    # set local file's timestamps equal to the remote file's timestamps.
                     if platform.system() == 'Windows':
                         # API to set create timestamp is not cross-platform
                         # Setting the modify and access time is unreliable via SetFileTIme, so we only set create.
@@ -492,6 +492,7 @@ def download_file( service, drive_file ):
                         win32file.SetFileTime(handle, pywintypes.Time(create_time), None, None, UTCTimes=True)
                         handle.close()
                     os.utime(drive_file['local_path'] + drive_file['extension'], (access_time, modify_time))
+
                 except Exception as e:
                     logging.critical( f"While setting file times, got exception: {e}", exc_info=True)
                 finally:

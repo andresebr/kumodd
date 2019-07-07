@@ -6,11 +6,14 @@ Drive account in a forensically sound manner.
 - Files can be filtered by category, such as doc, image, or video.  
 - Metadata columns may be selected in the configuration file.  
 - Available Google Drive API metadata is preserved.  
-- File time stamps are preserved and verified.  
-- MD5 digests are preserved and verified.
+- Last Modified file system time stamp is preserved and verified.  
+- MD5 digest is preserved and verified.
 - File size is preserved and verified.
 
 ## Usage examples
+
+Both the list (-l) and download (-d) options create a CSV file and a stdout text
+containing identical colums.
 
 List (-l) all documents:
 ``` shell
@@ -22,49 +25,116 @@ Created (UTC)            Last Modified (UTC)      Remote Path                   
 2019-04-12T16:21:48.867Z 2019-04-12T16:21:55.245Z My Drive/Todo List            27         Johe Doe         Johe Doe         -                   
 ```
 
-Download (-d) all PDF files to path (-p) /home/user/Desktop/:
-
-    kumodd.py -d pdf -p /home/user/Desktop/
-
 Download (-d) all documents to ./download (the default location).
 
     kumodd.py -d doc
 
-By default, native Google Apps files, including documents, spreadsheets and
-presentations, are downloaded in PDF format. To instead download them in LibreOffice
-format, use the '--nopdf' option.
+Download (-d) all PDF files to path (-p) /home/user/Desktop/:
+
+    kumodd.py -d pdf -p /home/user/Desktop/
+
+By default, native Google Apps files (docs, sheets and slides) are downloaded in PDF
+format. To instead download them in LibreOffice format, use the '--nopdf' option.
 
 By default, every available revision is downloaded unless --norevisions is specified, in
 which case only the current file (latest revision) is downloaded.  Previous
-revisions are saved as filename_(revision id_last modification date).
-
-Both the list (-l) and download (-d) options create a CSV file equivalent to the table above. 
+revisions are saved as filename_(revision id_last modified date).
 
 Download all of the files listed in a previously generated CSV file:
 
     kumodd.py -csv ./filelist-username.csv
 
-The default CSV file is ./filelist-username.csv. Set the filename prefix in
-config/config.yml. The google user name and .csv suffix are appended.
+## Time Stamps
 
-To download from a CSV file, it must include the 'path' and 'id' metadata.  They are
-included in the default metadata.
+As a convenience, kumodd sets the time stamps of files that are exported.  However, due
+to file system and kernel limitations, the only reliable file system timestamp is the
+Last Written time of exported files.  Other file system time stamps on exported files
+are unreliable. For any analysis, time stamps should instead be taken directly from the
+preserved metadata (e.g. foo.doc.yml metadata for a given foo.doc).
 
-If config/config.yml does not exist, kumodd will create it using:
-``` yaml
-gdrive:
-  gdrive_auth: config/gdrive_config.json
-  oauth_id: config/gdrive.dat
-  csv_prefix: ./filelist-
-  metadata: title,category,modTimeMatch,md5Match,revision,ownerNames,fileSize,modifiedDate,createdDate,mimeType,path,id,lastModifyingUserName,md5Checksum,md5Local,modifiedByMeDate,lastViewedByMeDate,shared
+Time stamps available in Google Drive generally includes the following:
+- createdDate
+- markedViewedByMeDate
+- modifiedByMeDate
+- modifiedDate
 
-```
-Select an alternate config file (-c):
+To set the timestamps in exported files, Kumod maps these values as follows:
+- Last Modified time = modifiedDate
+- Last Accessed time = markedViewedByMeDate
+- Created time = createdDate
 
-    kumodd.py -c config/alternate.yml
+Windows has all three; however, setting the Created time in python via the win32 API has
+proven unreliable.  Certain more recent Unix file systems have a created time stamp,
+including Ext4, UFS2, Hammer, LFS, and ZFS. See [Wikipedia Comparison of File
+Systems](https://en.wikipedia.org/wiki/Comparison_of_file_systems).  However, the Linux
+kernel provides no method (i.g. system call or library) to read or write the Created
+time, so Created time is not available to kumodd on Linux.  markedViewedByMeDate is
+not always available in Google Drive.  The Last Accessed time stamps may be overwritten
+by subsequent reading of exported files.
 
-The API does not provide a remote MD5 for native Google Apps files.
-As a result, only the local MD5 digest is reported.
+In conclusion, file system time stamps on exported files should not be relied on for any
+analysis.  Instead of file system time stamps, analysis should use the time stamps taken
+directly from the preserved metadata.
+
+## Metadata
+
+Metadata provided by the Google Drive API is preserved in YAML format (*see* [Example
+raw metadata](#example-raw-metadata)).  Files are stored in ./download and their
+corresponding metadata are saved in ./download/metadata.  For foo.doc, the file and its
+metadata paths would be:
+- ./download/john.doe@gmail.com/My Drive/foo.doc
+- ./download/metadata/john.doe@gmail.com/My Drive/foo.doc.yml
+
+One can configure which metadata fields are written to stdout and CSV files.  They are
+specified by the tag 'csv_columns' in config/config.yml (*see*
+[Configuration](#configuration)).  The default CSV columns are:
+
+Metadata		| Description 
+------:			| :-----------
+title			| File name
+category		| one of: doc, xls, ppt, text, pdf, image, audio, video or other
+modifiedDate            | Last Modified Time (UTC)
+modTimeMatch		| 'match' if local and remote Last Modification times match, else MISMATCH.
+md5Checksum             | MD5 digest of remote file. None if file is a native Google Apps Document.
+md5Local		| md5 of download if new or updated.  Otherwise None
+md5Match		| 'match' if local and remote MD5s match, else time difference.
+fileSize		| Number of bytes in file
+sizeMatch		| 'match' if local and remote sizes match, else %local/remote.
+revision                | Number of available revisions
+ownerNames              | A list of owner user names
+createdDate             | Created Time (UTC)
+mimeType		| MIME file type
+path                    | File path in Google Drive 
+id                      | Unique [Google Drive File ID](https://developers.google.com/drive/api/v3/about-files)
+lastModifyingUserName   | Last Modified by (user name)
+modifiedByMeDate        | Time Last Modified by Account Holder (UTC)
+lastViewedByMeDate      | Time Last Viewed by Account Holder (UTC)
+shared                  | Is shared (true/false)
+
+Certain metadata are computed by Kmodd. These include path, local_path, md5local,
+md5Match, localSize, sizeMatch, modTimeMatch and revision.  These names are not found in
+the data retrieved from google drive, but rather computed from the metadata retrieved
+from Google Drive.
+
+md5Match is either 'match', 'MISMATCH' or 'n/a'.
+md5Match is 'n/a' when the  MD5 digest is not available from Google Drive, including for
+native Google Apps files and certain PDFs.
+
+sizeMatch is either 'match' or a percentage ratio of local/remote file size.
+
+modTimeMatch is either 'match' or the time difference of Last Modified time in DAYS HH:MM:SS.
+
+revision is the number of available revisions in Google drive.
+
+Note: Kumodd removes the 'thumbnailLink' attribute because 'thumbnailLink' changes each
+time the metadata is retrieved from Google Drive, even if the file and other metadata
+have not changed.  When 'thumbnailLink' is excluded, the metadata is reproducible
+(identical each time retrieved) if the file has not changed.  This also improves time
+efficient review of changes using 'diff'.
+
+Metadata names are translated to CSV column titles, as shown below in
+config/config.yml.  If a title is not defined there, the metadata name is used
+as the title.
 
 ## Usage
 
@@ -93,7 +163,8 @@ As a result, only the local MD5 digest is reported.
     Try --helpfull to get a list of all flags.
     
     
-The filter option limits output to a selected category of files.  A file's category is determined its mime type.
+The filter option limits output to a selected category of files.  A file's category is
+determined its mime type.
 
 Filter	| Description 
 ------:	| :-----------
@@ -116,63 +187,17 @@ proxy:
   user: username (optional)
   pass: password (optional)
 ```
-## Metadata
 
-One can change the metadata fields output by kumodd.  They are specified by the tag
-'metadata' in config/config.yml shown above.  The default metadata are:
+## Configuration
 
-Metadata		| Description 
-------:			| :-----------
-title			| File name
-category		| one of: doc, xls, ppt, text, pdf, image, audio, video or other
-modifiedDate            | Last Modified Time (UTC)
-modTimeMatch		| 'match' if local and remote Last Modification times match, else MISMATCH.
-md5Checksum             | MD5 digest of remote file. None if file is a native Google Apps Document.
-md5Local		| md5 of download if new or updated.  Otherwise None
-md5Match		| 'match' if local and remote MD5s match, else time difference.
-fileSize		| Number of bytes in file
-sizeMatch		| 'match' if local and remote sizes match, else %local/remote.
-revision                | Number of available revisions
-ownerNames              | A list of owner user names
-createdDate             | Created Time (UTC)
-mimeType		| MIME file type
-path                    | File path in Google Drive 
-id                      | Unique [Google Drive File ID](https://developers.google.com/drive/api/v3/about-files)
-lastModifyingUserName   | Last Modified by (user name)
-modifiedByMeDate        | Time Last Modified by Account Holder (UTC)
-lastViewedByMeDate      | Time Last Viewed by Account Holder (UTC)
-shared                  | Is shared (true/false)
-
-Note that path, local_path, md5local, md5Match, localSize, sizeMatch, modTimeMatch and
-revision are computed by Kmodd.  These names are not found in the data retrieved from
-google drive, but rather computed from the metadata retrieved from Google Drive.
-
-md5Match is either 'match', 'MISMATCH' or 'n/a' for native Google Apps filest that do not
-report a fileSize.
-
-sizeMatch is either 'match' or a percentge ratio of local/remote file size.
-
-modTimeMatch is either 'match' or the time difference of Last Modified time in DAYS HH:MM:SS.
-
-revision is the number of available revisions in Google drive.
-
-THe section "Metadata raw example" below shows additional metadata that are available
-via the Google Drive API.
-
-The metadata of each file is saved in YAML format under ./metadata.
-
-Note: Kumodd removes the 'thumbnailLink' attribute because 'thumbnailLink' changes each
-time the metadata is retrieved from Google Drive, even if the file and other metadata
-have not changed.  When 'thumbnailLink' is excluded, the metadata is reproducible
-(identical each time) if the file has not changed.  This allows comparison of the MD5
-digest to detect changes in metadata between newly retrieved and previously retrieved
-metadata. It also allows more time efficient review of changes using 'diff'.
-
-Metadata names are translated to CSV column titles, as shown below in
-config/config.yml.  If a title is not defined there, the metadata name is used
-as the title.
-
+If config/config.yml does not exist, kumodd will create it using:
 ``` yaml
+gdrive:
+  gdrive_auth: config/gdrive_config.json
+  oauth_id: config/gdrive.dat
+  csv_prefix: ./filelist-
+  csv_columns: title,category,modTimeMatch,md5Match,revision,ownerNames,fileSize,modifiedDate,createdDate,mimeType,path,id,lastModifyingUserName,md5Checksum,md5Local,modifiedByMeDate,lastViewedByMeDate,shared
+
 csv_title:
   app: Application
   category: Category
@@ -201,6 +226,12 @@ csv_title:
   version: Version
 ```
 
+csv_prefix specifes the CSV file location.  The full path is <csv_prefix><user name>.csv.
+
+Select an alternate config file, use -c:
+
+    kumodd.py -c config/alternate.yml
+
 ## Setup
 
 To setup kumodd, install python and git, then install kumodd and requirements, obtain an Oauth ID required for
@@ -215,6 +246,7 @@ Google API use, and finally, authorize access to the specified account.
     git clone https://github.com/rich-murphey/kumodd.git
     cd kumodd
     python3 -m pip install --user -r requirements.txt
+    ./kmodd.py --helpfull
     ```
 
     On Windows, one option is to use the [Chocolatey package
@@ -225,12 +257,12 @@ Google API use, and finally, authorize access to the specified account.
     git clone https://github.com/rich-murphey/kumodd.git
     cd kumodd
     python -m pip install --user -r requirements.txt
+    ./kmodd.py --helpfull
     ```
 
 1. Obtain a Google Oauth client ID (required for Google Drive API):
 
-    1. [Create a free google cloud account](
-https://cloud.google.com/billing/docs/how-to/manage-billing-account#create_a_new_billing_account).  
+    1. [Create a free google cloud account](https://cloud.google.com/billing/docs/how-to/manage-billing-account#create_a_new_billing_account).  
     1. [Login to your Google cloud account](https://console.cloud.google.com).
     1. [Create a Project](https://console.cloud.google.com/projectcreate).
     1. [Create Oauth2 API credential for the
@@ -329,8 +361,8 @@ lastModifyingUser:
   kind: drive#user
   permissionId: '14466611316174614251'
   picture: {url: 'https://lh5.googleusercontent.com/-ptNwlcuNOi8/AAAAAAAAAAI/AAAAAAAAGkE/NRxpYvByBx0/s64/photo.jpg'}
-lastModifyingUserName: Rich Murphey
-local_path: ./download/rich@murphey.org/./My Drive/TxDOT Accident Report (551632).pdf
+lastModifyingUserName: John Doe
+local_path: ./download/john.doe@gmail.com/./My Drive/TxDOT Accident Report (551632).pdf
 markedViewedByMeDate: '1970-01-01T00:00:00.000Z'
 md5Checksum: 5d5550259da199ca9d426ad90f87e60e
 md5Local: 5d5550259da199ca9d426ad90f87e60e
@@ -339,10 +371,10 @@ mimeType: application/pdf
 modifiedByMeDate: '2017-09-28T20:09:49.062Z'
 modifiedDate: '2017-09-28T20:09:49.062Z'
 originalFilename: TxDOT Accident Report (551632).pdf
-ownerNames: [Rich Murphey]
+ownerNames: [John Doe]
 owners:
-- displayName: Rich Murphey
-  emailAddress: rich@murphey.org
+- displayName: John Doe
+  emailAddress: john.doe@gmail.com
   isAuthenticatedUser: true
   kind: drive#user
   permissionId: '14466611316174614251'
