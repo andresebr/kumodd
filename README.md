@@ -32,9 +32,9 @@ By default, native Google Apps files, including documents, spreadsheets and
 presentations, are downloaded in PDF format. To instead download them in LibreOffice
 format, use the '--nopdf' option.
 
-By default, every revision is downloaded unless --norevisions is specified, in which
-case only the current file (most recent revision) is downloaded.  Previous revisions are
-saved as filename_(last modification date).
+By default, every available revision is downloaded unless --norevisions is specified, in
+which case only the current file (latest revision) is downloaded.  Previous
+revisions are saved as filename_(revision id_last modification date).
 
 Both the list (-l) and download (-d) options create a CSV file equivalent to the table above. 
 
@@ -54,7 +54,7 @@ gdrive:
   gdrive_auth: config/gdrive_config.json
   oauth_id: config/gdrive.dat
   csv_prefix: ./filelist-
-  metadata: createdDate,modifiedDate,id,path,revisions,lastModifyingUserName,ownerNames,md5Checksum,modifiedByMeDate,lastViewedByMeDate,shared
+  metadata: title,category,modTimeMatch,md5Match,revision,ownerNames,fileSize,modifiedDate,createdDate,mimeType,path,id,lastModifyingUserName,md5Checksum,md5Local,modifiedByMeDate,lastViewedByMeDate,shared
 
 ```
 Select an alternate config file (-c):
@@ -69,19 +69,15 @@ As a result, only the local MD5 digest is reported.
     ./kumodd.py [flags]
 
     flags:
-      -p,--destination: Destination folder location
+      -p,--destination: Destination file path
         (default: './download')
-      -d,--get_items: <all|doc|xls|ppt|text|pdf|office|image|audio|video|other>: Download files and create directories,
-        optionally filtered by category
-      -l,--list_items: <all|doc|xls|ppt|text|pdf|office|image|audio|video|other>: List files and directories, optionally
-        filtered by category
+      -d,--get_items: <all|doc|xls|ppt|text|pdf|office|image|audio|video|other>: Download files and create directories, optionally filtered by category
+      -l,--list_items: <all|doc|xls|ppt|text|pdf|office|image|audio|video|other>: List files and directories, optionally filtered by category
       --log: <DEBUG|INFO|WARNING|ERROR|CRITICAL>: Set the level of logging detail.
         (default: 'ERROR')
-      -m,--metadata_destination: Destination folder for metadata information
-        (default: './metadata')
-      -s,--service: <gdrive|dropbox|box|onedrive>: Service to use
-        (default: 'gdrive')
-      -csv,--usecsv: Download files from the service using a previously generated csv file
+      -m,--metadata_destination: Destination file path for metadata information
+        (default: './download/metadata')
+      -csv,--usecsv: Download files from the service using a previously generated CSV file
         (a comma separated list)
       --[no]browser: open a web browser to authorize access to the google drive account
         (default: 'true')
@@ -120,42 +116,47 @@ proxy:
 ```
 ## Metadata
 
-One can change the metadata fields output by kumodd.  They are specified by the tag,
-metadata, in config/config.yml shown above.  The default metadata are:
+One can change the metadata fields output by kumodd.  They are specified by the tag
+'metadata' in config/config.yml shown above.  The default metadata are:
 
-metadata		| Description 
+Metadata		| Description 
 ------:			| :-----------
-createdDate             | Created Time (UTC)
-modifiedDate            | Last Modified Time (UTC)
 title			| File name
 category		| one of: doc, xls, ppt, text, pdf, image, audio, video or other
-size			| size (bytes) of download if new or updated.  Otherwise None.
-status			| current, updated, or error if downloading. Otherwise None.
+modTimeMatch		| 'match' if local and remote Last Modification times match, else MISMATCH.
+md5Match		| 'match' if local and remote MD5s match, else MISMATCH.
+sizeMatch		| 'match' if local and remote sizes match, else %local/remote.
 revisions               | Number of revisions
+ownerNames              | A list of owner user names
+fileSize		| Number of bytes in file
+modifiedDate            | Last Modified Time (UTC)
+createdDate             | Created Time (UTC)
 mimeType		| MIME file type
 path                    | File path in Google Drive 
 id                      | Unique [Google Drive File ID](https://developers.google.com/drive/api/v3/about-files)
 lastModifyingUserName   | Last Modified by (user name)
-ownerNames              | Owner (user name)
 md5Checksum             | MD5 digest of remote file. None if file is a native Google Apps Document.
-md5local		| md5 of download if new or updated.  Otherwise None
+md5Local		| md5 of download if new or updated.  Otherwise None
 modifiedByMeDate        | Time Last Modified by Account Holder (UTC)
 lastViewedByMeDate      | Time Last Viewed by Account Holder (UTC)
 shared                  | Is shared (true/false)
 
-Shown below are a few of the metadata that are derived attributes, computed locally by
-kumodd. The names are not found in the data retrieved from google drive, but rather
-computed from the metadata retrieved from google drive.
+Note that path, local_path, md5local, md5Match, localSize, sizeMatch, modTimeMatch and
+revision are computed by Kmodd.  These names are not found in the data retrieved from
+google drive, but rather computed from the metadata retrieved from Google Drive.
 
-metadata	| Description 
-------:		| :-----------
-path		| a unix style path of remote file in google drive.
-local_path	| path of file in local file system
-revisions	| number of revisions of file
-md5local	| md5 of download if new or updated.  Otherwise None
-size		| size (bytes) of download if new or updated.  Otherwise None.
-status		| current, updated, or error if downloading. Otherwise None.
+md5Match is either 'match', 'MISMATCH' or 'n/a' for native Google Apps filest that do no
+report a fileSize.
 
+sizeMatch is either 'match', 'MISMATCH' or a percentge ratio of local/remove file size.
+
+modTimeMatch is either 'match', 'MISMATCH' or days HH:MM:SS of the remote - local Last
+Modified time.
+
+revision is the number of available revisions in Google drive.
+
+THe section "Metadata raw example" below shows additional metadata that are available
+via the Google Drive API.
 
 The metadata of each file is saved in YAML format under ./metadata.
 
@@ -202,7 +203,7 @@ Google API use, and finally, authorize access to the specified account.
 
         apt install python3 git
 
-    On windows, one option is to use [Chocolatey package
+    On windows, one option is to use a[Chocolatey package
     manager](https://chocolatey.org/install).
 
         cinst -y python git
@@ -251,6 +252,11 @@ https://cloud.google.com/billing/docs/how-to/manage-billing-account#create_a_new
 
 ## Caveats
 
+Google Drive permits duplicate file names within a folder, whereas Unix and Windows
+filesystems generally prohibit this.  This causes missing files and mismatching
+metadata.  This could be remedied by exporting to a logical forensic image format.
+
+
 Downloading native Google Apps docs, sheets and slides is much slower than non-native
 files, due to conversion to LibreOffice formats.
 
@@ -277,14 +283,6 @@ and recommended for new work.
 ## Developer Notes
 
 To get debug logs to stdout, set 'log_to_stdout: True' in config.yml.
-
-## Todo
-
-For native Google Apps files, kumodd should use the previously saved remote file
-metadata to detect whether the file has changed, using for instance, the revision
-number.
-
-Kumodd does not batch requests to the Google Drive API. Batch limit is 1000.
 
 ## Example raw metadata
 

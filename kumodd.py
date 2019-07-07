@@ -2,12 +2,11 @@
 # -*- compile-command: "./kumodd.py -c config/test.cfg -s gdrive -l doc"; -*-
 __author__ = 'andrsebr@gmail.com (Andres Barreto), rich.murphey@gmail.com'
 
-import sys 
-import os
+from absl import app, flags
 import logging
-from absl import app
-from absl import flags
 import modules.gdrive as gdrive
+import os
+import sys 
 
 FLAGS = flags.FLAGS
 
@@ -25,7 +24,7 @@ flags.DEFINE_enum('get_items', None,
 flags.DEFINE_list('usecsv', None,
                   'Download files from the service using a previously generated csv file', short_name='csv')
 flags.DEFINE_string('destination', './download', 'Destination folder location', short_name='p')
-flags.DEFINE_string('metadata_destination', './metadata',
+flags.DEFINE_string('metadata_destination', './download/metadata',
                     'Destination folder for metadata information', short_name='m')
 
 def main(argv):
