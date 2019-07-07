@@ -161,10 +161,10 @@ The metadata of each file is saved in YAML format under ./metadata.
 
 Note: Kumodd removes the 'thumbnailLink' attribute because 'thumbnailLink' changes each
 time the metadata is retrieved from Google Drive, even if nothing else has changed.
-When 'thumbnailLink' is excluded, the metadata should be reproducible (identical each
-time) if the file has not changed.  This allows comparison of the MD5 digest to detect
-changes in metadata between newly retrieved and previously retrieved metadata. It also
-allows more time efficient review of changes using 'diff'.
+When 'thumbnailLink' is excluded, the metadata is reproducible (identical each time) if
+the file has not changed.  This allows comparison of the MD5 digest to detect changes in
+metadata between newly retrieved and previously retrieved metadata. It also allows more
+time efficient review of changes using 'diff'.
 
 Metadata names are translated to CSV column titles, as shown below in
 config/config.yml.  If a title is not defined there, the metadata name is used
