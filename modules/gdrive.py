@@ -483,6 +483,7 @@ def download_file( service, drive_file ):
                     # set local file's timestamps equal to the remote file's timestamps.
                     if platform.system() == 'Windows':
                         # API to set create timestamp is not cross-platform
+                        # Setting the modify and access time is unreliable via SetFileTIme, so we only set create.
                         handle = win32file.CreateFile(
                             drive_file['local_path'] + drive_file['extension'], win32con.GENERIC_WRITE,
                             win32con.FILE_SHARE_READ | win32con.FILE_SHARE_WRITE | win32con.FILE_SHARE_DELETE,
