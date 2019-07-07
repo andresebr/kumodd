@@ -86,6 +86,8 @@ As a result, only the local MD5 digest is reported.
         (default: 'true')
       -c,--config: config file
         (default: 'config/config.yml')
+      --[no]pdf: Convert all native Google Apps files to PDF.
+        (default: 'false')
       --[no]revisions: Download every revision of each file.
         (default: 'true')
     
