@@ -8,6 +8,7 @@ Drive account in a forensically sound manner.
 - Available Google Drive API metadata is preserved.  
 - File time stamps are preserved and verified.  
 - MD5 digests are preserved and verified.
+- File size is verified.
 
 ## Usage examples
 
