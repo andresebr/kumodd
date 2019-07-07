@@ -145,7 +145,7 @@ shared                  | Is shared (true/false)
 
 Shown below are a few of the metadata that are derived attributes, computed locally by
 kumodd. The names are not found in the data retrieved from google drive, but rather
-computed from the data or metadata obtained from google drive.
+computed from the metadata retrieved from google drive.
 
 metadata	| Description 
 ------:		| :-----------
