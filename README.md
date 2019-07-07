@@ -28,7 +28,7 @@ Download (-d) all documents to ./download (the default location).
 
     kumodd.py -d doc
 
-By def alt, native Google Apps files, including documents, spreadsheets and
+By default, native Google Apps files, including documents, spreadsheets and
 presentations, are downloaded in PDF format. To instead download them in LibreOffice
 format, use the '--nopdf' option.
 
