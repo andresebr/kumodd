@@ -39,19 +39,19 @@ def name_list_to_format_string( names ):
     fields = []
     for i, name in enumerate(names):
         if 'path' in name:
-            fields.append(f'{{{i}:70}}')
-        elif name in ['id']:
-            fields.append(f'{{{i}:44}}')
+            fields.append(f'{{{i}:70.70}}')
+        elif name in ['id', 'title']:
+            fields.append(f'{{{i}:44.44}}')
         elif name in ['md5Checksum', 'md5Local']:
-            fields.append(f'{{{i}:32}}')
-        elif 'Date' in name or name in ['time', 'title']:
-            fields.append(f'{{{i}:24}}')
+            fields.append(f'{{{i}:32.32}}')
+        elif 'Date' in name or name in ['time']:
+            fields.append(f'{{{i}:24.24}}')
         elif name in ['md5Match', 'modTimeMatch', 'sizeMatch']:
-            fields.append(f'{{{i}:9}}')
+            fields.append(f'{{{i}:9.9}}')
         elif name in ['category', 'revision', 'shared', 'fileSize', 'status', 'version']:
-            fields.append(f'{{{i}:6}}')
+            fields.append(f'{{{i}:6.6}}')
         else:
-            fields.append(f'{{{i}:20}}')
+            fields.append(f'{{{i}:20.20}}')
     return ' '.join( fields )
 
 items_listed = 0
@@ -174,6 +174,18 @@ def supplement_drive_file_metadata(service, drive_file, path):
                 # 'MISMATCH'
         else:
             drive_file['sizeMatch'] = 'n/a'
+
+        if (( not drive_file.get('fileSize') or (drive_file['sizeMatch'] == 'match'))
+            and
+            ( not drive_file.get('md5Checksum') or (drive_file['md5Match'] == 'match'))
+            and
+            ( drive_file['modTimeMatch'] == 'match' )):
+            drive_file['status'] = 'valid'
+        else:
+            drive_file['status'] = 'INVALID'
+    else:
+        drive_file['status'] = 'missing'
+
 
 def list_from_metadata_names( obj, metadata_names ):
     result = []
@@ -526,7 +538,7 @@ csv_title:
   modifiedDate: Last Modified (UTC)
   ownerNames: Owner
   path: Remote Path
-  revision: Revis
+  revision: Revision
   shared: Shared
   status: Action
   time: Time (UTC)
@@ -630,7 +642,7 @@ Error: {e}\n""" )
     try:
         start_time = datetime.now()
         if FLAGS.list_items:
-            print( output_format.format( *[ config.get('csv_title',{}).get(name) for name in metadata_names ]))
+            print( output_format.format( *[ config.get('csv_title',{}).get(name) or name for name in metadata_names ]))
             csv_prefix = config.get('gdrive',{}).get('csv_prefix')
             if csv_prefix.find('/'):
                 ensure_dir(dirname(csv_prefix))
