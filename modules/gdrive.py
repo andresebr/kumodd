@@ -34,7 +34,7 @@ import sys
 import time
 import yaml
 if platform.system() == 'Windows':
-    from win32 import win32file
+    from win32 import win32file, win32con
 
 def name_list_to_format_string( names ):
     """generate a format string for a given list of metadata names"""
