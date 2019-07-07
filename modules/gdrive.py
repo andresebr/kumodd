@@ -158,7 +158,7 @@ def supplement_drive_file_metadata(service, drive_file, path):
         if tdiff < 1.0:   # timestamps match within one second
             drive_file['modTimeMatch'] = 'match'
         else:
-            drive_file['modTimeMatch'] = str(abs(datetime.fromtimestamp(local_mod_time) - datetime.fromtimestamp(remote_mod_time))).replace(" days, ", " ")
+            drive_file['modTimeMatch'] = str(abs(datetime.fromtimestamp(local_mod_time) - datetime.fromtimestamp(remote_mod_time))).replace(" days, ", " ").replace(" day, ", " ")
 
         drive_file['md5Local'] = md5(open(drive_file['local_path'] + drive_file['extension'],'rb').read()).hexdigest()
         if drive_file.get('md5Checksum'):
