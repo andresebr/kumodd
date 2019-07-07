@@ -238,7 +238,7 @@ def save_metadata(drive_file):
     metadata_path = FLAGS.metadata_destination + '/' + username + '/' +  drive_file['path'] + '.yml'
     ensure_dir(dirname(metadata_path))
     with open(metadata_path, 'w+') as handle:
-        yaml.dump(drive_file, handle)
+        yaml.dump(drive_file, handle, Dumper=yaml.Dumper)
 
 def get_user_info(service):
     """Print information about the user along with the Drive API settings.
@@ -512,7 +512,7 @@ def main(argv):
     if FLAGS.config.find('/'):
         ensure_dir(dirname(FLAGS.config))
     if not os.path.exists(FLAGS.config):
-        yaml.dump(yaml.load('''
+        yaml.dump(yaml.safe_load('''
 gdrive:
   csv_prefix: ./filelist-
   gdrive_auth: config/gdrive_config.json
@@ -546,7 +546,8 @@ csv_title:
   user: User
   version: Version
 '''),
-                            io.open(FLAGS.config, 'w', encoding='utf8'), default_flow_style=False, allow_unicode=True)
+                  io.open(FLAGS.config, 'w', encoding='utf8'), Dumper=yaml.Dumper,
+                  default_flow_style=False, allow_unicode=True)
 
     config = yaml.safe_load(open(FLAGS.config, 'r'))
 
