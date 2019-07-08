@@ -70,7 +70,7 @@ flags.DEFINE_boolean('browser', True, 'open a web browser to authorize access to
 flags.DEFINE_string('config', 'config/config.yml', 'config file', short_name='c')
 flags.DEFINE_boolean('revisions', True, 'Download every revision of each file.')
 flags.DEFINE_boolean('pdf', False, 'Convert all native Google Apps files to PDF.')
-flags.DEFINE_string('gdrive_auth', None, 'Google Drive acccount authorization file.  Configured in config/config.yml if not specifed on command line.')
+flags.DEFINE_string('gdrive_auth', None, 'Google Drive account authorization file.  Configured in config/config.yml if not specified on command line.')
 
 gdrive_version = "1.0"
 
@@ -530,7 +530,7 @@ csv_title:
   fileSize: Bytes
   id: File Id
   index: Index
-  lastModifyingUserName: Modfied by
+  lastModifyingUserName: Modified by
   lastViewedByMeDate: My Last View
   local_path: Local Path
   md5Checksum: MD5

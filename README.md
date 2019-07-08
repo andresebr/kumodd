@@ -5,7 +5,7 @@ Drive account in a forensically sound manner.
 
 - Files can be filtered by category, such as doc, image, or video.  
 - Extensive Google Drive metadata of each file is preserved as a corresponding YAML file.  
-- Metadata colummns of exported CSV may be selected in the configuration file.  
+- Metadata columns of exported CSV may be selected in the configuration file.  
 - Last Modified file system time stamp is preserved and verified.  
 - MD5 digest is preserved and verified.
 - File size is preserved and verified.
@@ -76,10 +76,37 @@ In conclusion, file system time stamps on exported files should not be relied on
 analysis.  Instead of file system time stamps, analysis should use the time stamps taken
 directly from the preserved metadata.
 
+## File and Metadata Verification
+
+Certain metadata are computed by Kmodd. These include category, path, local_path,
+md5local, md5Match, localSize, sizeMatch, modTimeMatch and revision.  These names are
+not found in the data retrieved from google drive, but instead are computed from the
+metadata retrieved from Google Drive.
+
+Computed Metadata	| Value
+----:			| :----
+md5Match		| either 'match', 'MISMATCH' or 'n/a'. md5Match is 'n/a' when the  MD5 digest is not available from Google Drive, including for native Google Apps files and certain PDFs.
+sizeMatch		| either 'match' or a percentage ratio of local/remote file size.
+modTimeMatch		| either 'match' or the time difference of Last Modified time in DAYS HH:MM:SS.
+revision		| the number of revisions available in Google drive.
+
+Validation is performed when listing or downloading files. Validation limited to
+available data. Native Google Apps and certain PDF files do not provide a MD5
+digest. Last Modify time is the only reliable file system time stamp.  To detect
+changes, kumod compares the MD5, file size and Last Modify time.
+
+When downloading, if any of MD5, file size or Last Modify time differ from Google
+Drive's metadata, kumodd will download and update the file and YAML metadata. Next, it
+will re-read the file to recompute the md5Match, sizeMatch and modTimeMatch, to ensure
+the reported values reflect what is on disk.
+
+When listing, md5Match, sizeMatch and modTimeMatch report the comparison between the
+file on disk and the metadata in Google Drive at that time.
+
 ## Metadata
 
-Metadata provided by the Google Drive API is preserved in YAML format (*see* [Example
-raw metadata](#example-raw-metadata)).  Files are stored in ./download and their
+Google Drive API Metadata of each file is preserved in YAML format (*see* [Example raw
+metadata](#example-raw-metadata)).  Files are stored in ./download and their
 corresponding metadata are saved in ./download/metadata.  For foo.doc, the file and its
 metadata paths would be:
 - ./download/john.doe@gmail.com/My Drive/foo.doc
@@ -110,18 +137,6 @@ lastModifyingUserName   | Last Modified by (user name)
 modifiedByMeDate        | Time Last Modified by Account Holder (UTC)
 lastViewedByMeDate      | Time Last Viewed by Account Holder (UTC)
 shared                  | Is shared (true/false)
-
-Certain metadata are computed by Kmodd. These include catetory, path, local_path,
-md5local, md5Match, localSize, sizeMatch, modTimeMatch and revision.  These names are
-not found in the data retrieved from google drive, but instead are computed from the
-metadata retrieved from Google Drive.
-
-Computed Metadata	| Value
-----:			| :----
-md5Match		| either 'match', 'MISMATCH' or 'n/a'. md5Match is 'n/a' when the  MD5 digest is not available from Google Drive, including for native Google Apps files and certain PDFs.
-sizeMatch		| either 'match' or a percentage ratio of local/remote file size.
-modTimeMatch		| either 'match' or the time difference of Last Modified time in DAYS HH:MM:SS.
-revision		| the number of revisions available in Google drive.
 
 Note: The 'thumbnailLink' attribute is transient. Kumodd removes 'thumbnailLink' because
 it changes each time the metadata is retrieved from Google Drive, even if the file and
@@ -213,7 +228,7 @@ Google API use, and finally, authorize access to the specified account.
         (default: 'true')
       -c,--config: config file
         (default: 'config/config.yml')
-      --gdrive_auth: Google Drive acccount authorization file.  Configured in config/config.yml if not specifed on command line.
+      --gdrive_auth: Google Drive account authorization file.  Configured in config/config.yml if not specified on command line.
       --[no]pdf: Convert all native Google Apps files to PDF.
         (default: 'false')
       --[no]revisions: Download every revision of each file.
@@ -269,7 +284,7 @@ csv_title:
   fileSize:		Bytes
   id:			File Id
   index:		Index
-  lastModifyingUserName: Modfied by
+  lastModifyingUserName: Modified by
   lastViewedByMeDate:	My Last View
   local_path:		Local Path
   md5Checksum:		MD5
@@ -301,18 +316,12 @@ csv_title	| list of column titles for each metadata name
 ## Caveats
 
 Google Drive permits duplicate file names within a folder, whereas Unix and Windows
-filesystems generally refuse it.  Duplicates within a folder cause missing files and
+file systems generally refuse it.  Duplicates within a folder cause missing files and
 mismatching metadata.  As it stands, Kumodd does not export directly to a logical
 forensic image format, which would resolve this.
 
 Downloading native Google Apps docs, sheets and slides is much slower than non-native
 files, because format conversion to PDF of LibreOffice is required.
-
-Validation is limited to available data. Native Google Apps and certain PDF files do not
-provide a MD5 digest. Last Modify time is the only reliable file system time stamp.  To
-detect changes, kumod compares the MD5, file size and Last Modify time. If any of these
-differ from Google Drive's metadata, kumodd will download and update the file and YAML
-metadata.
 
 Using an HTTP proxy on Windows does not work due to unresolved issues with python 3's
 httplib2.
