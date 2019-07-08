@@ -80,8 +80,8 @@ directly from the preserved metadata.
 
 Certain metadata are computed by Kmodd. These include category, path, local_path,
 md5local, md5Match, localSize, sizeMatch, modTimeMatch and revision.  These names are
-not found in the data retrieved from google drive, but instead are computed from the
-metadata retrieved from Google Drive.
+not found in the data retrieved from google drive, but instead are computed from data
+retrieved from Google Drive.
 
 Computed Metadata	| Value
 ----:			| :----
