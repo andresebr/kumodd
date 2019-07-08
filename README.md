@@ -67,7 +67,7 @@ Windows has all three; however, setting the Created time in python via the win32
 proven unreliable.  Certain more recent Unix file systems have a created time stamp,
 including Ext4, UFS2, Hammer, LFS, and ZFS (*see* [Wikipedia Comparison of File
 Systems](https://en.wikipedia.org/wiki/Comparison_of_file_systems)).  However, the Linux
-kernel provides no method (i.g. system call or library) to read or write the Created
+kernel provides no method (e.g. system call or library) to read or write the Created
 time, so Created time is not available to kumodd on Linux.  markedViewedByMeDate is
 not always available in Google Drive.  The Last Accessed time stamps may be overwritten
 by subsequent reading of exported files.
@@ -371,7 +371,7 @@ lastModifyingUser:
   permissionId: '14466611316174614251'
   picture: {url: 'https://lh5.googleusercontent.com/-ptNwlcuNOi8/AAAAAAAAAAI/AAAAAAAAGkE/NRxpYvByBx0/s64/photo.jpg'}
 lastModifyingUserName: John Doe
-local_path: ./download/john.doe@gmail.com/./My Drive/TxDOT Accident Report (551632).pdf
+local_path: ./download/john.doe@gmail.com/./My Drive/report.pdf
 markedViewedByMeDate: '1970-01-01T00:00:00.000Z'
 md5Checksum: 5d5550259da199ca9d426ad90f87e60e
 md5Local: 5d5550259da199ca9d426ad90f87e60e
@@ -379,7 +379,7 @@ md5Match: match
 mimeType: application/pdf
 modifiedByMeDate: '2017-09-28T20:09:49.062Z'
 modifiedDate: '2017-09-28T20:09:49.062Z'
-originalFilename: TxDOT Accident Report (551632).pdf
+originalFilename: report.pdf
 ownerNames: [John Doe]
 owners:
 - displayName: John Doe
@@ -391,14 +391,14 @@ owners:
 parents:
 - {id: 0AIpnT_44h5smUk9PVA, isRoot: true, kind: drive#parentReference, parentLink: 'https://www.googleapis.com/drive/v2/files/0AIpnT_44h5smUk9PVA',
   selfLink: 'https://www.googleapis.com/drive/v2/files/0s9b2T_442nb0MHBxdmZo3pwnaGRiY01LbmVhcEZEa1FvTWtJ/parents/0AIpnT_44h5smUk9PVA'}
-path: ./My Drive/TxDOT Accident Report (551632).pdf
+path: ./My Drive/report.pdf
 quotaBytesUsed: '2843534'
 revision: '1'
 selfLink: https://www.googleapis.com/drive/v2/files/0s9b2T_442nb0MHBxdmZo3pwnaGRiY01LbmVhcEZEa1FvTWtJ
 shared: false
 spaces: [drive]
 status: update
-title: TxDOT Accident Report (551632).pdf
+title: report.pdf
 userPermission: {etag: '"_sblwcq0fTsl4917mBslb2bHWsg/TpnHf_kgQXZabQ7VDW-96dK3owM"',
   id: me, kind: drive#permission, role: owner, selfLink: 'https://www.googleapis.com/drive/v2/files/0s9b2T_442nb0MHBxdmZo3pwnaGRiY01LbmVhcEZEa1FvTWtJ/permissions/me',
   type: user}
