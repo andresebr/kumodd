@@ -144,8 +144,8 @@ Drive's metadata, kumodd will download and update the file and YAML metadata. Ne
 will re-read the file to recompute the md5Match, sizeMatch and modTimeMatch, to ensure
 the reported values reflect what is on disk.
 
-When listing, md5Match, sizeMatch and modTimeMatch report the comparison between the
-file on disk and the metadata in Google Drive at that time.
+In Kumodd output, md5Match, sizeMatch and modTimeMatch report the comparison between the
+file on disk and the metadata in Google Drive at the time kumodd was run.
 
 ## Metadata Verification
 
