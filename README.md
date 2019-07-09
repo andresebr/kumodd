@@ -45,6 +45,13 @@ To download all of the files listed in a previously generated CSV file, use:
 
     kumodd.py -csv ./filelist-username.csv
 
+## Duplicate File Names
+
+Google Drive folders can hold duplicate file names that are differentiated by their
+version number. Unix and Windows file systems require filenames within a folder are
+unique.  So, in order to save various version of a given file, kumodd appends
+'(version)' before the extension.  For example: ./My Drive/Untitled document(12).pdf
+
 ## Time Stamps
 
 As a convenience, kumodd sets the time stamps of files that are exported.  However, due
@@ -384,11 +391,6 @@ csv_title	| list of column titles for each metadata name
 
 
 ## Caveats
-
-Google Drive permits duplicate file names within a folder, whereas Unix and Windows
-file systems generally refuse it.  Duplicates within a folder cause missing files and
-mismatching metadata.  As it stands, Kumodd does not export directly to a logical
-forensic image format, which would resolve this.
 
 Downloading native Google Apps docs, sheets and slides is much slower than non-native
 files, because format conversion to PDF of LibreOffice is required.

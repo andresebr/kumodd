@@ -92,17 +92,17 @@ def is_google_doc(drive_file):
     return True if re.match( '^application/vnd\.google-apps\..+', drive_file['mimeType'] ) else False
 
 def local_file_is_valid(drive_file):
-    if os.path.exists( local_data_dir( drive_file ) + '/' + file_name(drive_file) + drive_file['extension'] ):
+    if os.path.exists( local_data_dir( drive_file ) + '/' + file_name(drive_file) ):
         # Drive API provides time to milliseconds. 2019-06-24T05:41:17.095Z
         remote_mod_time = time.mktime( time.strptime( drive_file['modifiedDate'], '%Y-%m-%dT%H:%M:%S.%fZ' ) )
         # float seconds since the epoch. Actualresolution depends on the file-system.
-        local_mod_time = os.path.getmtime( local_data_dir( drive_file ) + '/' + file_name(drive_file) + drive_file['extension'] )
+        local_mod_time = os.path.getmtime( local_data_dir( drive_file ) + '/' + file_name(drive_file) )
         tdiff = abs(float(remote_mod_time) - float(local_mod_time))
         if tdiff < 1.0:
             return False
 
         if drive_file.get('md5Checksum'):
-            local_md5 = md5(open(local_data_dir( drive_file ) + '/' + file_name(drive_file) + drive_file['extension'],'rb').read()).hexdigest()
+            local_md5 = md5(open(local_data_dir( drive_file ) + '/' + file_name(drive_file),'rb').read()).hexdigest()
             if drive_file.get('md5Checksum') == local_md5:
                 return False
     return True
@@ -174,10 +174,20 @@ def MD5_of_yaml_of(dict_in):
 def supplement_drive_file_metadata(service, drive_file, path):
     drive_file['path'] = path
 
-    download_url, extension = get_url_and_ext(drive_file, drive_file)
-    drive_file['extension'] = extension
-    drive_file['filename'] = file_name( drive_file ) + extension
-    drive_file['fullpath'] = path + '/' + file_name( drive_file ) + extension
+    name = drive_file['title'].replace( '/', '_' )
+    if drive_file['mimeType'].startswith('application/vnd.google'):
+        download_url, extension = get_url_and_ext(drive_file, drive_file)
+        drive_file['extension'] = extension
+        drive_file['filename'] = name
+    else:
+        if '.' in name:
+            drive_file['extension'] = name[name.rfind('.'):]
+            drive_file['filename'] = name[0:name.rfind('.')]
+        else:
+            drive_file['extension'] = ''
+            drive_file['filename'] = name
+
+    drive_file['fullpath'] = drive_file['path'] + '/' + file_name(drive_file)
 
     revision_list = retrieve_revisions(service, drive_file['id'])
     drive_file['revisions'] = revision_list
@@ -187,18 +197,18 @@ def supplement_drive_file_metadata(service, drive_file, path):
     drive_file['label_key'] = ''.join(sorted([(k[0] if v else ' ') for k, v in drive_file['labels'].items()])).upper()
 
 def compare_local_data(service, drive_file, path):
-    if os.path.exists( local_data_dir( drive_file ) + '/' + file_name(drive_file) + drive_file['extension'] ):
+    if os.path.exists( local_data_dir( drive_file ) + '/' + file_name(drive_file) ):
         # Drive API provides time to milliseconds. 2019-06-24T05:41:17.095Z
         remote_mod_time = time.mktime( time.strptime( drive_file['modifiedDate'], '%Y-%m-%dT%H:%M:%S.%fZ' ) )
         # float seconds since the epoch. Actualresolution depends on the file-system.
-        local_mod_time = os.path.getmtime( local_data_dir( drive_file ) + '/' + file_name(drive_file) + drive_file['extension'] )
+        local_mod_time = os.path.getmtime( local_data_dir( drive_file ) + '/' + file_name(drive_file) )
         tdiff = abs(float(remote_mod_time) - float(local_mod_time))
         if tdiff < 1.0:   # timestamps match within one second
             drive_file['modTimeMatch'] = 'match'
         else:
             drive_file['modTimeMatch'] = str(abs(datetime.fromtimestamp(local_mod_time) - datetime.fromtimestamp(remote_mod_time))).replace(" days, ", " ").replace(" day, ", " ")
 
-        drive_file['md5Local'] = md5(open(local_data_dir( drive_file ) + '/' + file_name(drive_file) + drive_file['extension'],'rb').read()).hexdigest()
+        drive_file['md5Local'] = md5(open(local_data_dir( drive_file ) + '/' + file_name(drive_file),'rb').read()).hexdigest()
         if drive_file.get('md5Checksum'):
             if drive_file.get('md5Checksum') == drive_file['md5Local']:
                 drive_file['md5Match'] = 'match'
@@ -208,7 +218,7 @@ def compare_local_data(service, drive_file, path):
             drive_file['md5Match'] = 'n/a'            
 
         if drive_file.get('fileSize'):
-            drive_file['localSize'] = str(os.path.getsize(local_data_dir( drive_file ) + '/' + file_name(drive_file) + drive_file['extension']))
+            drive_file['localSize'] = str(os.path.getsize(local_data_dir( drive_file ) + '/' + file_name(drive_file)))
             if drive_file['localSize'] == drive_file.get('fileSize'):
                 drive_file['sizeMatch'] = 'match'
             else:
@@ -230,7 +240,7 @@ def compare_local_data(service, drive_file, path):
 
 def compare_local_metadata(service, drive_file, path):
     drive_file['yamlMetadataMD5'] = MD5_of_yaml_of(drive_file)
-    metadata_path = local_metadata_dir( drive_file ) + '/' + file_name(drive_file) + drive_file['extension'] + '.yml'
+    metadata_path = local_metadata_dir( drive_file ) + '/' + file_name(drive_file) + '.yml'
     if os.path.exists( metadata_path ):
         drive_file['yamlMetadataMD5Local'] = MD5_of_yaml_of(yaml.safe_load(open(metadata_path,'rb').read()))
         if drive_file.get('yamlMetadataMD5Local') == drive_file['yamlMetadataMD5']:
@@ -264,7 +274,7 @@ def print_file_metadata(service, drive_file, path, writer, metadata_names, outpu
         print( output_format.format( *[str(i) for i in data] ))
 
     if drive_file.get('yamlMD5Match', None) == 'MISMATCH':
-        metadata_path = local_metadata_dir( drive_file ) + '/' + file_name(drive_file) + drive_file['extension'] + '.yml'
+        metadata_path = local_metadata_dir( drive_file ) + '/' + file_name(drive_file) + '.yml'
         print(22*'_', path)
         diff = difflib.ndiff(
             redacted_yaml(drive_file).splitlines(keepends=True),
@@ -284,10 +294,6 @@ def download_file_and_metadata(service, drive_file, path, writer, metadata_names
         (drive_file.get('sizeMatch') != 'match') or
         (drive_file.get('yamlMD5Match') != 'match')):
 
-        logging.info( f"downloading: {local_data_dir( drive_file ) + '/' + file_name(drive_file) + drive_file['extension']}" )
-        if output_format:
-            print( output_format.format( *[str(i) for i in list_from_metadata_names( drive_file, metadata_names )] ))
-
         if download_file( service, drive_file ):
             items_updated += 1
             drive_file['status'] = 'update'
@@ -296,7 +302,7 @@ def download_file_and_metadata(service, drive_file, path, writer, metadata_names
             compare_local_metadata(service, drive_file, path)
         else:
             drive_file['status'] = 'error'
-            logging.critical( f"failed to download: {local_data_dir( drive_file ) + '/' + file_name(drive_file) + drive_file['extension']}: {e}")
+            logging.critical( f"failed to download: {local_data_dir( drive_file ) + '/' + file_name(drive_file)}: {e}")
     else:
         drive_file['status'] = 'verify'
     data = list_from_metadata_names( drive_file, metadata_names )
@@ -305,7 +311,7 @@ def download_file_and_metadata(service, drive_file, path, writer, metadata_names
     if output_format:
         print( output_format.format( *[str(i) for i in data] ))
     if drive_file['yamlMD5Match'] == 'MISMATCH':
-        metadata_path = local_metadata_dir( drive_file ) + '/' + file_name(drive_file) + drive_file['extension'] + '.yml'
+        metadata_path = local_metadata_dir( drive_file ) + '/' + file_name(drive_file) + '.yml'
         print(44*'_', drive_file['title'])
         diff = difflib.ndiff(
             redacted_yaml(drive_file).splitlines(keepends=True),
@@ -315,7 +321,7 @@ def download_file_and_metadata(service, drive_file, path, writer, metadata_names
 
 
 def save_metadata(drive_file):
-    metadata_path = local_metadata_dir( drive_file ) + '/' + file_name(drive_file) + drive_file['extension'] + '.yml'
+    metadata_path = local_metadata_dir( drive_file ) + '/' + file_name(drive_file) + '.yml'
     ensure_dir(dirname(metadata_path))
     yaml.dump(drive_file, open(metadata_path, 'w+'), Dumper=yaml.Dumper)
 
@@ -431,7 +437,7 @@ def download_revision(service, drive_file, revision):
         print( f'cautght: {e}' )
         logging.critical( f"Request Failed for: {revision}", exc_info=True)
     download_url, extension = get_url_and_ext(drive_file, revision)
-    file_location = local_data_dir( drive_file ) + '/' + file_name(drive_file) + f"_({revision['id']:0>4}_{revision['modifiedDate']}){drive_file['extension']}"
+    file_location = local_data_dir( drive_file ) + '/' + file_name(drive_file, revision)
 
     if download_url:
         try:
@@ -505,11 +511,12 @@ def local_data_dir( drive_file ):
     return '/'.join([ FLAGS.destination, username, drive_file['path'] ])
 
 def file_name( drive_file, revision=None ):
-    name = drive_file['title'].replace( '/', '_' )
+    name = drive_file['filename']
     if int(drive_file.get('version', 1)) > 1:
         name += f"({drive_file['version']})"
     if revision:
         name += f"_({revision['id']:0>4}_{revision['modifiedDate']})"
+    name += drive_file['extension']
     return name
 
 def local_metadata_dir( drive_file ):
@@ -542,14 +549,14 @@ def download_file( service, drive_file ):
             try:
                 resp, content = service._http.request(download_url)
             except Exception as e:
-                logging.critical( f"Exception {e} while reading {local_data_dir( drive_file ) + '/' + file_name(drive_file) + drive_file['extension']}. Retrying...", exc_info=True)
+                logging.critical( f"Exception {e} while reading {local_data_dir( drive_file ) + '/' + file_name(drive_file)}. Retrying...", exc_info=True)
                 continue
             if resp.status == 200:
                 try:
-                    with open( local_data_dir( drive_file ) + '/' + file_name(drive_file) + drive_file['extension'], 'wb+' ) as handle:
+                    with open( local_data_dir( drive_file ) + '/' + file_name(drive_file), 'wb+' ) as handle:
                         handle.write( content )
                 except e:
-                    logging.critical( f"Cannot open {local_data_dir( drive_file ) + '/' + file_name(drive_file) + drive_file['extension']} for writing: {e}", exc_info=True)
+                    logging.critical( f"Cannot open {local_data_dir( drive_file ) + '/' + file_name(drive_file)} for writing: {e}", exc_info=True)
                     return False
 
                 def date_or_zero( file, attr ):
@@ -564,13 +571,13 @@ def download_file( service, drive_file ):
                         # API to set create timestamp is not cross-platform
                         # Setting the modify and access time is unreliable via SetFileTIme, so we only set create.
                         handle = win32file.CreateFile(
-                            local_data_dir( drive_file ) + '/' + file_name(drive_file) + drive_file['extension'], win32con.GENERIC_WRITE,
+                            local_data_dir( drive_file ) + '/' + file_name(drive_file), win32con.GENERIC_WRITE,
                             win32con.FILE_SHARE_READ | win32con.FILE_SHARE_WRITE | win32con.FILE_SHARE_DELETE,
                             None, win32con.OPEN_EXISTING,
                             win32con.FILE_ATTRIBUTE_NORMAL, None)
                         win32file.SetFileTime(handle, pywintypes.Time(create_time), None, None, UTCTimes=True)
                         handle.close()
-                    os.utime(local_data_dir( drive_file ) + '/' + file_name(drive_file) + drive_file['extension'], (access_time, modify_time))
+                    os.utime(local_data_dir( drive_file ) + '/' + file_name(drive_file), (access_time, modify_time))
 
                 except Exception as e:
                     logging.critical( f"While setting file times, got exception: {e}", exc_info=True)
