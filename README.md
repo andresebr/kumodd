@@ -9,6 +9,7 @@ Drive account in a forensically sound manner.
 - Last Modified file system time stamp is preserved and verified.  
 - MD5 digest is preserved and verified.
 - File size is preserved and verified.
+- Metadata is preserved and verified.
 
 ## Usage examples
 
@@ -168,6 +169,15 @@ The MD5 of the redacted metadata on disk can be verified independetly as follows
 sudo -Hi python -m pip install yq
 yq -y '.|with_entries(select(.key|test("(Link|Match|status|Url|yaml)")|not))' <'download/metadata/john.doe@gmail.com/My Drive/report_1424.pdf.yml'|md5sum
 216843a1258df13bdfe817e2e52d0c70  -
+```
+The validations can be reviewed by selecting the 'match' metadata items:
+``` yaml
+  csv_columns: status,md5Match,sizeMatch,modTimeMatch,yamlMD5Match,yamlMetadataMD5,fullpath
+```
+In which case Kumodd output looks like this:
+``` shell
+Status Drive MD5 sizeMatch Mod Time  YAML MD5  fullpath
+verify match     match     match     match     ./My Drive/report_1424.pdf
 ```
 
 ## Metadata Output
