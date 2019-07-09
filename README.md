@@ -76,19 +76,62 @@ In conclusion, file system time stamps on exported files should not be relied on
 analysis.  Instead of file system time stamps, analysis should use the time stamps taken
 directly from the preserved metadata.
 
-## File and Metadata Verification
+## Metadata
 
-Certain metadata are computed by Kmodd. These include category, path, local_path,
-md5local, md5Match, localSize, sizeMatch, modTimeMatch and revision.  These names are
-not found in the data retrieved from google drive, but instead are computed from data
-retrieved from Google Drive.
+Google Drive API Metadata of each file is preserved in YAML format (*see* [Example raw
+metadata](#example-raw-metadata)).  Files are stored in ./download and their
+corresponding metadata are saved in ./download/metadata.  For foo.doc, the file and its
+metadata paths would be:
+- ./download/john.doe@gmail.com/My Drive/foo.doc
+- ./download/metadata/john.doe@gmail.com/My Drive/foo.doc.yml
 
-Computed Metadata	| Value
+## File Validation
+
+When Kumodd saves a file, it also computes the MD5 digest of the contents.  
+Kumodd saves it as 'md5Local' in the metadata.
+``` shell
+grep md5Local 'download/metadata/john.doe@gmail.com/My Drive/report_1424.pdf.yml'
+md5Local: 5d5550259da199ca9d426ad90f87e60e
+```
+For certain file types (exclding Google Apps files), Google Drive provides an MD5 of the
+data.
+``` shell
+grep md5Checksum 'download/metadata/john.doe@gmail.com/My Drive/report_1424.pdf.yml'
+md5Local: 5d5550259da199ca9d426ad90f87e60e
+```
+When this is present, kumodd verifies Google Drive's MD5 (md5Checksum) is identical to
+the file's MD5 (md5Local). This ensures that the file on disk is identical to the file in Google Drive.
+Kumodd also records whether they match in the metadata 'md5Match':
+``` shell
+grep md5Match 'download/metadata/john.doe@gmail.com/My Drive/report_1424.pdf.yml'
+md5Match: match
+```
+The MD5 of the file can be verified using other tools:
+``` shell
+md5sum 'download/john.doe@gmail.com/My Drive/My Drive/report_1424.yml'
+5d5550259da199ca9d426ad90f87e60e  download/john.doe@gmail.com/My Drive/My Drive/report_1424.yml
+```
+
+In summary, Kumodd saves metadata for the file's MD5 in the following:
+Content MD5 Metadata	| Value
 ----:			| :----
-md5Match		| either 'match', 'MISMATCH' or 'n/a'. md5Match is 'n/a' when the  MD5 digest is not available from Google Drive, including for native Google Apps files and certain PDFs.
-sizeMatch		| either 'match' or a percentage ratio of local/remote file size.
-modTimeMatch		| either 'match' or the time difference of Last Modified time in DAYS HH:MM:SS.
-revision		| the number of revisions available in Google drive.
+md5Checksum		| MD5 of the data in Google Drive. Not preset for Google Apps files.
+md5Local		| MD5 of the file's contents on disk.
+md5Match		| match if md5Local == md5Checksum. n/a if there is no md5Checksum. Else MISMATCH.
+
+
+Similaryly, Kmodd compares the file size to that in Google Drive:
+File Size Metadata	| Value
+----:			| :----
+fileSize		| Size (bytes) of the data in Google Drive.
+localSize		| Size (bytes) file on disk.
+md5Match		| match if localSize == fileSize, else MISMATCH.
+
+Similaryly, Kmodd compares the file system Last Modified time to Google Drive's modifiedDate:
+Last Mod Metadata	| Value
+----:			| :----
+modifiedDate		| Last Modified time (UTC) of the data in Google Drive.
+md5Match		| match if Last Modified time in Google Drive and on disk are equal.
 
 Validation is performed when listing or downloading files. Validation limited to
 available data. Native Google Apps and certain PDF files do not provide a MD5
@@ -103,14 +146,31 @@ the reported values reflect what is on disk.
 When listing, md5Match, sizeMatch and modTimeMatch report the comparison between the
 file on disk and the metadata in Google Drive at that time.
 
-## Metadata
+## Metadata Verification
 
-Google Drive API Metadata of each file is preserved in YAML format (*see* [Example raw
-metadata](#example-raw-metadata)).  Files are stored in ./download and their
-corresponding metadata are saved in ./download/metadata.  For foo.doc, the file and its
-metadata paths would be:
-- ./download/john.doe@gmail.com/My Drive/foo.doc
-- ./download/metadata/john.doe@gmail.com/My Drive/foo.doc.yml
+Kumodd also verifies metadata. However, some of the values must be excluded because they
+are inconsistent. For example, the value of 'thumbnailLink' changes every time the
+metadata is retrieved from Google Drive.  Other 'Link' values may change after a few weeks.
+
+Kumod saves the complete metadata in a YAML file.  Before computing the MD5, Kumod
+redacts all metadata names containing the words: Link, Match, status, Url and yaml.
+When these names are redacted, the metadata is reproducible (identical each time
+retrieved from Google Drive, and unique on disk) if the file has not changed.
+
+The MD5 of the redacted metadata is saved as yamlMetadataMD5:
+``` shell
+grep yamlMetadataMD5 'download/metadata/john.doe@gmail.com/My Drive/report_1424.pdf.yml'
+yamlMetadataMD5: 216843a1258df13bdfe817e2e52d0c70
+```
+
+The MD5 of the redacted metadata on disk can be verified independetly as follows:
+``` shell
+sudo -Hi python -m pip install yq
+yq -y '.|with_entries(select(.key|test("(Link|Match|status|Url|yaml)")|not))' <'download/metadata/john.doe@gmail.com/My Drive/report_1424.pdf.yml'|md5sum
+216843a1258df13bdfe817e2e52d0c70  -
+```
+
+## Metadata Output
 
 One can configure which columns are written to stdout and CSV files.  They are specified
 by the tag 'csv_columns' in config/config.yml (*see* [Configuration](#configuration)).

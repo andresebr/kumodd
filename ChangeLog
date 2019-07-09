@@ -1,0 +1,31 @@
+2019-07-09  rich  <rich@r>
+
+        * googleapiclient librariy handles retries, so we don't need a loop for
+        IncompleteReqest exception. Use '-log DEBUG' to view the repeated requests.
+        use 'log_to_stdout: True' in config.yml to view them on stadnard output.
+
+        * Google Drive folders can hold duplicate file names that are differentiated by
+        their version number.  In order to save them as uniqe files on Unix and Windows
+        file systems we append (version) to the filename.
+        For example: ./My Drive/Untitled document(12).pdf
+
+        Versions are not revisions. Each version can have multiple revisions.  
+        
+        * Verify the message digest of the metadata.  Certain keys are not reproducible.
+        In other words, for a given file that has not changed, the API will return
+        differing values of the key over time.  This inclues any keys that contain the
+        words: Link, Match, status, Url, yaml.
+
+        If we exclude those keys, we can digest the metadata retrieved at various times
+        and compare the digest to validate whether changes have occurred.
+        Conversely, if the digest of the metadata on disk is the same as the digest of
+        the metadata in Google Drive, then then there have been no changes in the data.
+        If revisions had occrred, the revsisions tag would have changed.
+
+        So, for native Google Apps documents, we could use the digest of the metadata to
+        detect whether we need to download an updated document.
+
+        The MD5 of the metadata on disk can be verified using:
+        
+        sudo -Hi python -m pip install yq
+        yq -y '.|with_entries(select(.key|test("(Link|Match|status|Url|yaml)")|not))'
