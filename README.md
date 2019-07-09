@@ -6,7 +6,7 @@ Drive account in a forensically sound manner.
 - Files can be filtered by category, such as doc, image, or video.  
 - Extensive Google Drive metadata of each file is preserved as a corresponding YAML file.  
 - Metadata columns of exported CSV may be selected in the configuration file.  
-- Last Modified file system time stamp is preserved and verified.  
+- Last Modified time stamp is preserved and verified.  
 - MD5 digest is preserved and verified.
 - File size is preserved and verified.
 - Metadata is preserved and verified.
