@@ -5,3 +5,4 @@ socksipy-branch
 jsonpath-ng
 pyyaml
 pypiwin32; sys_platform == 'win32'
+yq

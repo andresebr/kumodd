@@ -85,7 +85,7 @@ metadata preserved exactly as retrieved from the Google Drive API.
 ## Metadata
 
 Google Drive API Metadata of each file is preserved in YAML format (*see* [Example raw
-metadata](#example-raw-metadata)).  Files are stored in ./download and their
+metadata](#example-raw-metadata)).  While files are stored in ./download, their
 corresponding metadata are saved in ./download/metadata.  For foo.doc, the file and its
 metadata paths would be:
 - ./download/john.doe@gmail.com/My Drive/foo.doc
@@ -104,8 +104,8 @@ md5Match		| match if MD5 on disk = in Google Drive. n/a if there is no md5Checks
 fileSize		| Size (bytes) of the data in Google Drive.
 sizeMatch		| match if local size = size in google drive, else MISMATCH.
 modifiedByMeDate	| Last Modified time (UTC) of the data in Google Drive.
-modTimeMatch		| match if Last Modified time in Google Drive and on disk are equal.
-lastViewedByMeDate	| Last Viewed By Account User (UTC) of the data in Google Drive.
+modTimeMatch		| match if Last Modified time on disk = in Google Drive.
+lastViewedByMeDate	| Last Viewed By Account User (UTC) on disk = in Google Drive.
 accTimeMatch		| match if lastViewedByMeDate and FS Last Access Time are equal.
 
 For certain file types (excluding Google Apps files), Google Drive provides an MD5 of the
@@ -155,12 +155,15 @@ The MD5 of the redacted metadata is saved as yamlMetadataMD5:
 grep yamlMetadataMD5 'download/metadata/john.doe@gmail.com/My Drive/report_1424.pdf.yml'
 yamlMetadataMD5: 216843a1258df13bdfe817e2e52d0c70
 ```
-The MD5 of the redacted metadata on disk can be verified independetly as follows:
+Other tools can be used to cross-check MD5 validation of the metadata:
 ``` shell
 sudo -Hi python -m pip install yq
 yq -y '.|with_entries(select(.key|test("(Link|Match|status|Url|yaml)")|not))' <'download/metadata/john.doe@gmail.com/My Drive/report_1424.pdf.yml'|md5sum
 216843a1258df13bdfe817e2e52d0c70  -
 ```
+
+If there are changes in the metadata, diff can be used to identify the altered
+properties. Kumodd also generates diffs when altered metadata is detected.
 
 ## Verification Summary
 
@@ -223,7 +226,7 @@ Google API use, and finally, authorize access to the specified account.
     On Debian or Ubuntu:
 
     ``` shell
-    apt install python3 git
+    apt install python3 git diff
     git clone https://github.com/rich-murphey/kumodd.git
     cd kumodd
     python3 -m pip install --user -r requirements.txt
@@ -234,7 +237,7 @@ Google API use, and finally, authorize access to the specified account.
     manager](https://chocolatey.org/install).
 
     ``` shell
-    cinst -y python git
+    cinst -y python git diff
     git clone https://github.com/rich-murphey/kumodd.git
     cd kumodd
     python -m pip install --user -r requirements.txt
