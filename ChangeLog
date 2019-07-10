@@ -1,3 +1,13 @@
+2019-07-10  rich  <rich@r>
+
+        * README.md, gdrive.py: verified accuracy of preservation of last access and
+        last modify times in the file system.  Revised gdrive.py to use exact match for
+        comparing FS to GD values.
+
+        Added verification of Last Access time stamp, and discssion of it in README.
+        
+        Refactored comparison of local file attribtes with Google Drive metadata.
+        
 2019-07-09  rich  <rich@r>
 
         * googleapiclient librariy handles retries, so we don't need a loop for

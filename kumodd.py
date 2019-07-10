@@ -15,10 +15,10 @@ flags.DEFINE_enum('log', 'ERROR',
                   'Set the level of logging detail.')
 flags.DEFINE_enum('service', 'gdrive',
                   ['gdrive','dropbox','box','onedrive'], 'Service to use', short_name='s' )
-flags.DEFINE_enum('list_items', None,
+flags.DEFINE_enum('list', None,
                   ['all', 'doc', 'xls', 'ppt', 'text', 'pdf', 'office', 'image', 'audio', 'video', 'other'],
                   'List files and directories, optionally filtered by category', short_name='l')
-flags.DEFINE_enum('get_items', None,
+flags.DEFINE_enum('download', None,
                   ['all', 'doc', 'xls', 'ppt', 'text', 'pdf', 'office', 'image', 'audio', 'video', 'other'],
                   'Download files and create directories, optionally filtered by category', short_name='d')
 flags.DEFINE_list('usecsv', None,
