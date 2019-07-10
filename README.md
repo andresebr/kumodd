@@ -13,30 +13,9 @@ Drive account in a forensically sound manner.
 
 ## Usage examples
 
-
-
-When downloading, Kumodd rereads the data on disk, and reports whether downloaded files
-succesfully validate.
+To list all documents (google doc, .doc, .docx, .odt etc), use:
 ``` shell
-kumod.py --download pdf
-Status File MD5  Size      Mod Time  Acc Time  Metadata  fullpath
-valid  match     match     match     match     match     ./My Drive/report_1424.pdf
-```
-
-When listing files, Kumodd rereads the data on disk, reretrieves metadata from Google
-Drive, and reports whether downloaded files succesfully verify compared to the data in
-Google Drive at the time kumod runs.
-``` shell
-kumod.py --list pdf
-Status File MD5  Size      Mod Time  Acc Time  Metadata  fullpath
-valid  match     match     match     match     match     ./My Drive/report_1424.pdf
-```
-
-Other output formats can be set in the  [Kumodd YAML configuration
-file](#configuration).  Komod geraates a CSV output file, and a text table on standard
-output, such as:
-``` shell
-kumodd.py --llist doc
+kumodd.py -l doc
 Created (UTC)            Last Modified (UTC)      Remote Path                   Revision   Modified by      Owner            MD5                       
 2019-06-24T05:04:47.055Z 2019-06-24T05:41:17.095Z My Drive/Untitled document    3          Johe Doe         Johe Doe         -
 2019-05-18T06:16:19.084Z 2019-05-18T06:52:49.972Z My Drive/notes.docx           1          Johe Doe         Johe Doe         1376e9bf5fb781c3e428356b4b9aa21c
@@ -44,7 +23,7 @@ Created (UTC)            Last Modified (UTC)      Remote Path                   
 2019-04-12T16:21:48.867Z 2019-04-12T16:21:55.245Z My Drive/Todo List            27         Johe Doe         Johe Doe         -                   
 ```
 
-Download (-d) all documents to ./download (the default location).
+Download (-d) all documents to ./download (the default location):
 
     kumodd.py -d doc
 
@@ -77,14 +56,12 @@ file systems have greater resolution. In practice this allows Kumodd to set file
 time stamps to match exactly the time stamps in Google Drive.
 
 Kumod maps Google Drive time stamps to file system time stamps as follows:
+
 Google Drive Time Stamp	| File System Time Stamp
 :----------------	| :----------------
 modifiedByMeDate	| Last Modified time
 lastViewedByMeDate	| Last Accessed time
 createdDate		| Created time
-
-Google Drive also provides a modifiedDate; however, Kumodd uses ByMe dates for Last
-Modified and Accessed to avoid potential confusion.
 
 Last Access times can be altered by subsequent access to downloaded files.  This can be
 avoided on Linux using the noatime mount option.  It can be avoided on Windows using
@@ -116,59 +93,46 @@ metadata paths would be:
 
 ## File Validation
 
-When Kumodd saves a file, it also computes the MD5 digest of the contents.  
-Kumodd saves it as 'md5Local' in the metadata.
-``` shell
-grep md5Local 'download/metadata/john.doe@gmail.com/My Drive/report_1424.pdf.yml'
-md5Local: 5d5550259da199ca9d426ad90f87e60e
-```
+Kumodd validates files by comparing their MD5, size, Last Modified, and Last Acceessed
+time.  It reports whether they match in correspnding properties.  Kmodd stores these in
+the YAML metadata file correesponding to each file.
+
+Metadata		| Description
+:----			| :----
+md5Checksum		| MD5 of the data in Google Drive. Not preset for Google Apps files.
+md5Match		| match if MD5 on disk = in Google Drive. n/a if there is no md5Checksum. Else MISMATCH.
+fileSize		| Size (bytes) of the data in Google Drive.
+sizeMatch		| match if local size = size in google drive, else MISMATCH.
+modifiedByMeDate	| Last Modified time (UTC) of the data in Google Drive.
+modTimeMatch		| match if Last Modified time in Google Drive and on disk are equal.
+lastViewedByMeDate	| Last Viewed By Account User (UTC) of the data in Google Drive.
+accTimeMatch		| match if lastViewedByMeDate and FS Last Access Time are equal.
+
 For certain file types (excluding Google Apps files), Google Drive provides an MD5 of the
-data.
+data. 
 ``` shell
 grep md5Checksum 'download/metadata/john.doe@gmail.com/My Drive/report_1424.pdf.yml'
 md5Checksum: 5d5550259da199ca9d426ad90f87e60e
 ```
-When this is present, kumodd verifies Google Drive's MD5 (md5Checksum) is identical to
-the file's MD5 (md5Local). This ensures that the file on disk is identical to the file in Google Drive.
-Kumodd also records whether they match in the metadata 'md5Match':
+When Kumodd saves a file, it rereads the file, and computes the MD5 digest of the
+contents.  It compares the values and reports either 'matched' or 'MISMATCHED' in the
+md5Match property.
 ``` shell
-grep md5Match 'download/metadata/john.doe@gmail.com/My Drive/report_1424.pdf.yml'
+grep md5Local 'download/metadata/john.doe@gmail.com/My Drive/report_1424.pdf.yml'
 md5Match: match
 ```
-File MD5 Metadata	| Description
-:----			| :----
-md5Checksum		| MD5 of the data in Google Drive. Not preset for Google Apps files.
-md5Match		| match if md5Local == md5Checksum. n/a if there is no md5Checksum. Else MISMATCH.
-
 Other tools can be used to cross-check MD5 validation of file contents:
 ``` shell
 md5sum 'download/john.doe@gmail.com/My Drive/My Drive/report_1424.yml'
 5d5550259da199ca9d426ad90f87e60e  download/john.doe@gmail.com/My Drive/My Drive/report_1424.yml
 ```
 
-After the file is written to the filesystem, Kumodd rereads the file attribues to verify them.
-
-File Size Metadata	| Description
-:----			| :----
-fileSize		| Size (bytes) of the data in Google Drive.
-sizeMatch		| match if localSize == fileSize, else MISMATCH.
-
-Last Modified Metadata	| Description
-:----			| :----
-modifiedByMeDate	| Last Modified time (UTC) of the data in Google Drive.
-modTimeMatch		| match if Last Modified time in Google Drive and on disk are equal.
-
-Last Access Metadata	| Description
-:----			| :----
-lastViewedByMeDate	| Last Viewed By Account User (UTC) of the data in Google Drive.
-accTimeMatch		| match if lastViewedByMeDate and FS Last Access Time are equal.
-
-Validation is performed when listing or downloading files. Validation limited to
-available data. Native Google Apps and certain PDF files do not provide a MD5 digest. To
-detect changes, kumod compares the MD5, file size and Last Modify time.
+Validation is performed when listing or downloading files.  Native Google Apps and
+certain PDF files do not provide a MD5 digest. To detect changes, kumod compares the
+file size and Last Modify time.
 
 When downloading, if any of MD5 (if available), file size or Last Modify time differ
-from Google Drive's metadata, kumodd will download and update the file and YAML
+from Google Drive's metadata, kumodd will re-download the file and update tye YAML
 metadata. Next, it will re-read the file to recompute the md5Match, sizeMatch and
 modTimeMatch, to ensure that values on disk are valid.
 
@@ -191,7 +155,6 @@ The MD5 of the redacted metadata is saved as yamlMetadataMD5:
 grep yamlMetadataMD5 'download/metadata/john.doe@gmail.com/My Drive/report_1424.pdf.yml'
 yamlMetadataMD5: 216843a1258df13bdfe817e2e52d0c70
 ```
-## Summary Data and Metadata Validation
 The MD5 of the redacted metadata on disk can be verified independetly as follows:
 ``` shell
 sudo -Hi python -m pip install yq
@@ -199,10 +162,29 @@ yq -y '.|with_entries(select(.key|test("(Link|Match|status|Url|yaml)")|not))' <'
 216843a1258df13bdfe817e2e52d0c70  -
 ```
 
+## Verification Summary
+
 Accuracy the data and metadata on disk can be verified using the following CSV columns:
 ``` yaml
   csv_columns: status,md5Match,sizeMatch,modTimeMatch,adccTimeMatch,yamlMD5Match,fullpath
 ```
+After downloading, Kumodd rereads the data on disk, and reports whether downloaded files
+succesfully validate.
+``` shell
+kumod.py --download pdf
+Status File MD5  Size      Mod Time  Acc Time  Metadata  fullpath
+valid  match     match     match     match     match     ./My Drive/report_1424.pdf
+```
+
+When listing files, Kumodd rereads the data on disk, reretrieves metadata from Google
+Drive, and reports whether downloaded files succesfully verifies both file contents and
+metadata vs that in Google Drive at the time kumod runs.
+``` shell
+kumod.py --list pdf
+Status File MD5  Size      Mod Time  Acc Time  Metadata  fullpath
+valid  match     match     match     match     match     ./My Drive/report_1424.pdf
+```
+
 ## Metadata Output
 
 One can configure which columns are written to stdout and CSV files.  They are specified
