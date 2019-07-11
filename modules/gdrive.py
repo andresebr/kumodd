@@ -30,9 +30,6 @@
 
 # Kumodd does not batch requests to the Google Drive API. GD Batch limit is 1000.
 
-# We should use a python table formatting utility, rather than name_list_to_format_string.
-# Or allow field formats to be specified in csv_column.
-
 from absl import app, flags
 from apiclient import errors
 from collections import Iterable, OrderedDict
