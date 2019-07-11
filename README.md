@@ -131,10 +131,10 @@ Validation is performed when listing or downloading files.  Native Google Apps a
 certain PDF files do not provide a MD5 digest. To detect changes, kumodd compares the
 file size and Last Modify time.
 
-When downloading, if any of MD5 (if available), file size or Last Modify time differ
-from Google Drive's metadata, kumodd will re-download the file and update tye YAML
-metadata. Next, it will re-read the file to recompute the md5Match, sizeMatch and
-modTimeMatch, to ensure that values on disk are valid.
+When downloading, if any of MD5, file size or Last Modify time differ from Google
+Drive's metadata, kumodd will re-download the file and update tye YAML metadata. Next,
+it will re-read the file to recompute the md5Match, sizeMatch and modTimeMatch, to
+ensure that the data on disk are valid.
 
 ## Metadata Verification
 
@@ -169,22 +169,21 @@ If there are changes in the metadata, diff can be used to identify the altered
 properties. Kumodd also generates diffs when altered metadata is detected.
 
 ## Verification Summary
+    
+To review accuracy of the data and metadata on disk, use the option "-col verify" shown
+below.  When downloading, Kumodd rereads the data on disk after it is downloaded, and
+reports whether data on disk succesfully validate.
 
-Accuracy the data and metadata on disk can be verified using the following CSV columns:
-``` yaml
-  csv_columns: status,md5Match,sizeMatch,modTimeMatch,adccTimeMatch,yamlMD5Match,fullpath
-```
-After downloading, Kumodd rereads the data on disk, and reports whether downloaded files
-succesfully validate.
 ``` shell
 kumodd.py --download pdf -col verify
 Status File MD5  Size      Mod Time  Acc Time  Metadata  fullpath
 valid  match     match     match     match     match     ./My Drive/report_1424.pdf
 ```
 
-When listing files, Kumodd rereads the data on disk, reretrieves metadata from Google
-Drive, and reports whether downloaded files succesfully verifies both file contents and
-metadata vs that in Google Drive at the time kumodd runs.
+When listing files, Kumodd reretrieves metadata from Google Drive, reads the data on
+disk, and reports whether file contents and metadata on disk succesfully validate
+compared to data in Google Drive at the time of the run.
+
 ``` shell
 kumodd.py --list pdf -col verify
 Status File MD5  Size      Mod Time  Acc Time  Metadata  fullpath
@@ -195,20 +194,19 @@ valid  match     match     match     match     match     ./My Drive/report_1424.
 
 Command line arguments are used for configuration specific to a data set or case, while
 a YAML file is used for configuration items not specific to a data set or case.  This is
-intended to support reproducibility.  The configuration file contains:
+intended to support reproducibility. The configuration file contains:
 
 Name		| Description
 :-----		| :-----
 gdrive_auth	| filename of the google drive account authorization. Ignored if provided on command line.
 oauth_id	| filename of the Oauth client ID credentials
-csv_columns	| various configurations of CSV/Table columns
+csv_columns	| various profiles of CSV/Table columns
 csv_title	| list of column titles for each metadata name
 
-csv_columns specifies various profiles.  Each profile selects the metadata in each
-column, and the fixed width columns on standard output.  Metadata items are selected
-using [jsonpath syntax](https://github.com/h2non/jsonpath-ng). Here is the profile for
-the 'owners' profile containing three columns.  This profile may be selected using
-'kumodd.py -col owners'.
+'csv_columns' specifies various output profiles.  Each profile specifies a set of columns.
+
+Here is the 'owners' profile containing three columns.  This profile may be
+selected using 'kumodd.py -col owners'.
 
 ``` yaml
 gdrive:
@@ -219,7 +217,9 @@ gdrive:
     - [fullpath, 50]
 ```
 
-The metadata name is followed by the column width for fixed width on standard output.
+Each column selects a metadata name, followed by fixed width of the column for standard
+output.  Metadata names are selected using [jsonpath
+syntax](https://github.com/h2non/jsonpath-ng).
 
 "- ['owners[*].emailAddress', 20]" specifies a column containing a list of the document
 owner email addresses, with a fixed width of 20 characters on standard output.  CSV

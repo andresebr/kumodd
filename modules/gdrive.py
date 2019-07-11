@@ -1,6 +1,11 @@
 #!/usr/bin/env python3
 # -*- compile-command: "cd ..; ./kumodd.py -c config/test.yml -s gdrive -d pdf"; -*-
 
+# add filtering for:
+# date ranges
+# path regex 
+# root folder
+
 # windows last mod time is sometimes not preserved.
 
 # For native Google Apps files, kumodd should use the previously saved remote
