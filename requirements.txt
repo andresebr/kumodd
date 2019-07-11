@@ -3,6 +3,7 @@ google-api-python-client
 oauth2client
 socksipy-branch
 jsonpath-ng
+pyjq
 pyyaml
 pypiwin32; sys_platform == 'win32'
 yq

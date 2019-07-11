@@ -55,7 +55,7 @@ Google Drive time stamps have millisecond resolution. Typical Windows and Unix
 file systems have greater resolution. In practice this allows Kumodd to set file system
 time stamps to match exactly the time stamps in Google Drive.
 
-Kumod maps Google Drive time stamps to file system time stamps as follows:
+Kumodd maps Google Drive time stamps to file system time stamps as follows:
 
 Google Drive Time Stamp	| File System Time Stamp
 :----------------	| :----------------
@@ -77,7 +77,7 @@ So, although the Created Time is set on Windows, it is often incorrect.
 
 Caution is advised for any use of file system time stamps for analysis unless their
 accuracy is verified by the analyst. Both Kumodd and external tools can be used for
-verification of accuracy.  After downloading files using kumod -d, the timestamps can be
+verification of accuracy.  After downloading files using kumodd -d, the timestamps can be
 re-verified using kumodd -l.  For analysis, if file system time stamps are used, they
 should be be verified by comparing them to the time stamps preserved in the YAML
 metadata preserved exactly as retrieved from the Google Drive API.
@@ -128,7 +128,7 @@ md5sum 'download/john.doe@gmail.com/My Drive/My Drive/report_1424.yml'
 ```
 
 Validation is performed when listing or downloading files.  Native Google Apps and
-certain PDF files do not provide a MD5 digest. To detect changes, kumod compares the
+certain PDF files do not provide a MD5 digest. To detect changes, kumodd compares the
 file size and Last Modify time.
 
 When downloading, if any of MD5 (if available), file size or Last Modify time differ
@@ -144,8 +144,8 @@ changes every time the metadata is retrieved from Google Drive.  Other 'Link' va
 change after a few weeks.  Still others are computed by Kmodd and are excluded because
 they are a result of the comparison itself.
 
-Kumod saves the complete, undredacted metadata in a YAML file.  Before computing the
-bunk MD5 of the metadata, Kumod redacts all metadata names containing the words: Link,
+Kumodd saves the complete, undredacted metadata in a YAML file.  Before computing the
+bunk MD5 of the metadata, Kumodd redacts all metadata names containing the words: Link,
 Match, status, Url and yaml.  When these names are redacted, the metadata is
 reproducible (identical each time retrieved from Google Drive, and unique on disk) if
 the file has not changed.
@@ -155,7 +155,10 @@ The MD5 of the redacted metadata is saved as yamlMetadataMD5:
 grep yamlMetadataMD5 'download/metadata/john.doe@gmail.com/My Drive/report_1424.pdf.yml'
 yamlMetadataMD5: 216843a1258df13bdfe817e2e52d0c70
 ```
-Other tools can be used to cross-check MD5 validation of the metadata:
+
+[yq, a command line YAML query tool](https://yq.readthedocs.io/) can be used to
+cross-check validation of the MD5 of the metadata.
+
 ``` shell
 sudo -Hi python -m pip install yq
 yq -y '.|with_entries(select(.key|test("(Link|Match|status|Url|yaml)")|not))' <'download/metadata/john.doe@gmail.com/My Drive/report_1424.pdf.yml'|md5sum
@@ -174,25 +177,57 @@ Accuracy the data and metadata on disk can be verified using the following CSV c
 After downloading, Kumodd rereads the data on disk, and reports whether downloaded files
 succesfully validate.
 ``` shell
-kumod.py --download pdf
+kumodd.py --download pdf -col verify
 Status File MD5  Size      Mod Time  Acc Time  Metadata  fullpath
 valid  match     match     match     match     match     ./My Drive/report_1424.pdf
 ```
 
 When listing files, Kumodd rereads the data on disk, reretrieves metadata from Google
 Drive, and reports whether downloaded files succesfully verifies both file contents and
-metadata vs that in Google Drive at the time kumod runs.
+metadata vs that in Google Drive at the time kumodd runs.
 ``` shell
-kumod.py --list pdf
+kumodd.py --list pdf -col verify
 Status File MD5  Size      Mod Time  Acc Time  Metadata  fullpath
 valid  match     match     match     match     match     ./My Drive/report_1424.pdf
 ```
 
-## Metadata Output
+## Configuration
 
-One can configure which columns are written to stdout and CSV files.  They are specified
-by the tag 'csv_columns' in config/config.yml (*see* [Configuration](#configuration)).
-The default CSV columns are:
+Command line arguments are used for configuration specific to a data set or case, while
+a YAML file is used for configuration items not specific to a data set or case.  This is
+intended to support reproducibility.  The configuration file contains:
+
+Name		| Description
+:-----		| :-----
+gdrive_auth	| filename of the google drive account authorization. Ignored if provided on command line.
+oauth_id	| filename of the Oauth client ID credentials
+csv_columns	| various configurations of CSV/Table columns
+csv_title	| list of column titles for each metadata name
+
+csv_columns specifies various profiles.  Each profile selects the metadata in each
+column, and the fixed width columns on standard output.  Metadata items are selected
+using [jsonpath syntax](https://github.com/h2non/jsonpath-ng). Here is the profile for
+the 'owners' profile containing three columns.  This profile may be selected using
+'kumodd.py -col owners'.
+
+``` yaml
+gdrive:
+  csv_columns:
+    owners:
+    - [status, 7]
+    - ['owners[*].emailAddress', 20]
+    - [fullpath, 50]
+```
+
+The metadata name is followed by the column width for fixed width on standard output.
+
+"- ['owners[*].emailAddress', 20]" specifies a column containing a list of the document
+owner email addresses, with a fixed width of 20 characters on standard output.  CSV
+output has no width limit.
+
+
+[Example raw
+metadata](#example-raw-metadata) shows a variety of available metadata.  They include:
 
 CSV Columns		| Description 
 :------			| :-----------
@@ -213,8 +248,10 @@ id                      | Unique [Google Drive File ID](https://developers.googl
 shared                  | Is shared in Google Drive to other users (true/false)
 
 Metadata names are translated to CSV column titles using 'csv_title' in the
-configuration file (*see* [Configuration](#configuration)).  If a title is not defined
-there, the metadata name is used as the CSV column title.
+configuration file.  If a title is not defined there, the metadata name is used as the
+CSV column title.
+
+See the [Default YAML Configuration File](#default-yaml-configuration-file) for more details.
 
 ## Setup
 
@@ -282,23 +319,25 @@ Google API use, and finally, authorize access to the specified account.
     ./kumodd.py [flags]
 
     flags:
-      -p,--destination: Destination file path
+      -p,--destination: Destination folder location
         (default: './download')
       -d,--download: <all|doc|xls|ppt|text|pdf|office|image|audio|video|other>: Download files and create directories, optionally filtered by category
       -l,--list: <all|doc|xls|ppt|text|pdf|office|image|audio|video|other>: List files and directories, optionally filtered by category
       --log: <DEBUG|INFO|WARNING|ERROR|CRITICAL>: Set the level of logging detail.
         (default: 'ERROR')
-      -m,--metadata_destination: Destination file path for metadata information
+      -m,--metadata_destination: Destination folder for metadata information
         (default: './download/metadata')
       -csv,--usecsv: Download files from the service using a previously generated CSV file
         (a comma separated list)
       --[no]browser: open a web browser to authorize access to the google drive account
         (default: 'true')
+      -o,--col: column set defined under csv_columns in config.yml that specifies table and CSV format
+        (default: 'normal')
       -c,--config: config file
         (default: 'config/config.yml')
       --gdrive_auth: Google Drive account authorization file.  Configured in config/config.yml if not specified on command line.
       --[no]pdf: Convert all native Google Apps files to PDF.
-        (default: 'false')
+        (default: 'true')
       --[no]revisions: Download every revision of each file.
         (default: 'true')
     
@@ -330,20 +369,82 @@ proxy:
   pass: password (optional)
 ```
 
-## Configuration
+## Caveats
 
-Command line arguments are used for configuration specific to a data set or case, while
-a YAML file is used for configuration items not specific to a data set or case.  This is
-intended to support reproducibility.  Multiple configuration files can be used to
-generate multiple arrangements of CSV columns.
+Downloading native Google Apps docs, sheets and slides is much slower than non-native
+files, because format conversion to PDF of LibreOffice is required.
 
-If config/config.yml does not exist, kumodd will create it using:
+Using an HTTP proxy on Windows does not work due to unresolved issues with python 3's
+httplib2.
+
+[Google rate limits API calls](https://console.cloud.google.com/apis/api/drive.googleapis.com/quotas).
+At the time of writing, the default rate limits are:
+
+- 1,000,000,000 queries per day
+- 1,000 queries per 100 seconds per user
+- 10,000 queries per 100 seconds
+
+Kumodd uses the 
+[Google API Python Client](https://github.com/googleapis/google-api-python-client) which is officially
+supported by Google, and is feature complete and stable.  However, it is not actively
+developed.  It has has been replaced by the [Google Cloud client
+libraries](https://github.com/googleapis/google-cloud-python) which are in development,
+and recommended for new work.
+
+## Developer Notes
+
+To get debug logs to stdout, set 'log_to_stdout: True' in config.yml.
+
+## Default YAML Configuration File
+
+If config/config.yml does not exist, kumodd will create it, as shown below.
+
 ``` yaml
 gdrive:
+  csv_prefix: ./filelist-
   gdrive_auth: config/gdrive_config.json
   oauth_id: config/gdrive.dat
-  csv_prefix: ./filelist-
-  csv_columns: title,category,modTimeMatch,md5Match,revision,ownerNames,fileSize,modifiedByMeDate,createdDate,mimeType,path,id,lastModifyingUserName,md5Checksum,md5Local,modifiedByMeDate,lastViewedByMeDate,shared
+  csv_columns:
+    short:
+    - [status, 7]
+    - [version, 7]
+    - [fullpath, 66]
+    verify:
+    - [status, 7]
+    - [md5Match, 7]
+    - [sizeMatch, 7]
+    - [modTimeMatch, 7]
+    - [accTimeMatch, 7]
+    - [yamlMD5Match, 7]
+    - [fullpath, 60]
+    owners:
+    - [status, 7]
+    - ['owners[*].emailAddress', 20]
+    - [fullpath, 50]
+    normal:
+    - [title, 20]
+    - [category, 4]
+    - [status, 7]
+    - [md5Match, 7]
+    - [md5Match, 7]
+    - [sizeMatch, 7]
+    - [modTimeMatch, 7]
+    - [accTimeMatch, 7]
+    - [yamlMD5Match, 7]
+    - [fullpath, 60]
+    - [version, 6]
+    - [revision, 8]
+    - [ownerNames, 20]
+    - [fileSize, 7]
+    - [modifiedDate, 24]
+    - [createdDate, 24]
+    - [mimeType, 22]
+    - [id, 44]
+    - [lastModifyingUserName, 22]
+    - [md5Checksum, 32]
+    - [modifiedByMeDate, 24]
+    - [lastViewedByMeDate, 24]
+    - [shared, 6]
 
 csv_title:
   accTimeMatch: Acc Time
@@ -400,40 +501,6 @@ csv_title:
   writersCanShare: CanShare
 ```
 
-Name		| Description
-:-----		| :-----
-gdrive_auth	| filename of the google drive account authorization. Ignored if provided on command line.
-oauth_id	| filename of the Oauth client ID credentials
-csv_prefix	| the leading portion of the CSV file path.  Username and .csv are appended.
-csv_title	| list of column titles for each metadata name
-
-
-## Caveats
-
-Downloading native Google Apps docs, sheets and slides is much slower than non-native
-files, because format conversion to PDF of LibreOffice is required.
-
-Using an HTTP proxy on Windows does not work due to unresolved issues with python 3's
-httplib2.
-
-[Google rate limits API calls](https://console.cloud.google.com/apis/api/drive.googleapis.com/quotas).
-At the time of writing, the default rate limits are:
-
-- 1,000,000,000 queries per day
-- 1,000 queries per 100 seconds per user
-- 10,000 queries per 100 seconds
-
-Kumodd uses the 
-[Google API Python Client](https://github.com/googleapis/google-api-python-client) which is officially
-supported by Google, and is feature complete and stable.  However, it is not actively
-developed.  It has has been replaced by the [Google Cloud client
-libraries](https://github.com/googleapis/google-cloud-python) which are in development,
-and recommended for new work.
-
-## Developer Notes
-
-To get debug logs to stdout, set 'log_to_stdout: True' in config.yml.
-
 ## Example raw metadata
 
 Metadata provided by the Google Drive are described in the [Google Drive API
@@ -465,7 +532,7 @@ kind: drive#file
 label_key: '     '
 labels: {hidden: false, restricted: false, starred: false, trashed: false, viewed: false}
 lastModifyingUser:
-  displayName: John Doe
+  displayNamea: John Doe
   emailAddress: john.doe@gmail.com
   isAuthenticatedUser: true
   kind: drive#user

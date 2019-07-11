@@ -1,3 +1,22 @@
+2019-07-11  rich  <rich@r>
+
+        * modules/gdrive.py: 8f8180939c8bce06c054a5ddadc28925eb507aac
+        Add jsonpath expression syntax for seleting metadata.
+        
+        Specifying a CSV column, 'owners[*].emailAddress', produces a list of user
+        names: ['john.doe@gmail.com']
+        
+        Extend csv_column to allow named column sets.
+        Exten csv_column syntax to specify field width for standard output table.
+        This column set is selected by the option -col owners.
+        
+          csv_columns:
+            owners:
+            - [status, 7]
+            - ['owners[*].emailAddress', 20]
+            - [fullpath, 66]
+        
+        
 2019-07-10  rich  <rich@r>
 
         * README.md, gdrive.py: verified accuracy of preservation of last access and
