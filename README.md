@@ -91,9 +91,9 @@ metadata paths would be:
 - ./download/john.doe@gmail.com/My Drive/foo.doc
 - ./download/metadata/john.doe@gmail.com/My Drive/foo.doc.yml
 
-## File Validation
+## File Verification
 
-Kumodd validates files by comparing their MD5, size, Last Modified, and Last Acceessed
+Kumodd verifies files by comparing their MD5, size, Last Modified, and Last Acceessed
 time.  It reports whether they match in correspnding properties.  Kmodd stores these in
 the YAML metadata file correesponding to each file.
 
@@ -121,13 +121,13 @@ md5Match property.
 grep md5Local 'download/metadata/john.doe@gmail.com/My Drive/report_1424.pdf.yml'
 md5Match: match
 ```
-Other tools can be used to cross-check MD5 validation of file contents:
+Other tools can be used to cross-check MD5 verificaiton of file contents:
 ``` shell
 md5sum 'download/john.doe@gmail.com/My Drive/My Drive/report_1424.yml'
 5d5550259da199ca9d426ad90f87e60e  download/john.doe@gmail.com/My Drive/My Drive/report_1424.yml
 ```
 
-Validation is performed when listing or downloading files.  Native Google Apps and
+Verification is performed when listing or downloading files.  Native Google Apps and
 certain PDF files do not provide a MD5 digest. To detect changes, kumodd compares the
 file size and Last Modify time.
 
@@ -157,7 +157,7 @@ yamlMetadataMD5: 216843a1258df13bdfe817e2e52d0c70
 ```
 
 [yq, a command line YAML query tool](https://yq.readthedocs.io/) can be used to
-cross-check validation of the MD5 of the metadata.
+cross-check verification of the MD5 of the metadata.
 
 ``` shell
 sudo -Hi python -m pip install yq
