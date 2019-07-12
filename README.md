@@ -42,6 +42,11 @@ To download all of the files listed in a previously generated CSV file, use:
 
     kumodd.py -csv ./filelist-username.csv
 
+To verify the files' MD5, size, Last Modified, and Last Acceessed time, and MD5 of
+metadata, use:
+
+    kumodd.py -verify -col verify
+
 ## Duplicate File Names
 
 Google Drive folders can hold duplicate file names that are differentiated by their
@@ -138,11 +143,11 @@ ensure that the data on disk are valid.
 
 ## Metadata Verification
 
-Kumodd also verifies bulk metadata. However, certain metadata values change
-inconsistenly, and therefore must be excluded. For example, the value of 'thumbnailLink'
-changes every time the metadata is retrieved from Google Drive.  Other 'Link' values may
-change after a few weeks.  Still others are computed by Kmodd and are excluded because
-they are a result of the comparison itself.
+Kumodd also verifies bulk metadata. However, certain metadata are transient; they are
+valid for a limited time from when they are downloaded, after which a subsequent
+download retrieves differing values. For example, the value of 'thumbnailLink' changes
+every time the metadata is retrieved from Google Drive.  Other 'Link' values may change
+after a few weeks.
 
 Kumodd saves the complete, undredacted metadata in a YAML file.  Before computing the
 bunk MD5 of the metadata, Kumodd redacts all metadata names containing the words: Link,
@@ -168,26 +173,42 @@ yq -y '.|with_entries(select(.key|test("(Link|Match|status|Url|yaml)")|not))' <'
 If there are changes in the metadata, diff can be used to identify the altered
 properties. Kumodd also generates diffs when altered metadata is detected.
 
-## Verification Summary
+## How to Verify Data
     
-To review accuracy of the data and metadata on disk, use the option "-col verify" shown
-below.  When downloading, Kumodd rereads the data on disk after it is downloaded, and
-reports whether data on disk succesfully validate.
+There are two way Kumodd can verify data: with or without retrieving metadata from
+Google Drive.  When listing (-list or -l option), Kumodd retrieves metadata from Google
+Drive and verfies local data and metadata are consistent with Google Drive.  When
+verifying (-verify or -V option) Kumodd uses the  previously saved YAML metadata on disk
+to verfy local data and metadata are consistent.
 
-``` shell
-kumodd.py --download pdf -col verify
-Status File MD5  Size      Mod Time  Acc Time  Metadata  fullpath
-valid  match     match     match     match     match     ./My Drive/report_1424.pdf
-```
+Either way, Kumodd confirms whether the files' MD5, file size, and Last Modified and
+Last Acceessed are correct.  In addition, it confirms whether the MD5 of the metadata
+matches the recorded MD5.
 
-When listing files, Kumodd reretrieves metadata from Google Drive, reads the data on
-disk, and reports whether file contents and metadata on disk succesfully validate
-compared to data in Google Drive at the time of the run.
-
+To retrieve metadata from Google Drive and review accuracy of the data and metadata on
+disk, use the "-list" or "-l" option. 
 ``` shell
 kumodd.py --list pdf -col verify
 Status File MD5  Size      Mod Time  Acc Time  Metadata  fullpath
 valid  match     match     match     match     match     ./My Drive/report_1424.pdf
+```
+
+To review accuracy of the data and metadata using previously downloaded metadata, use
+the "-verify" or "-V" option. This does not read data from Google Drive, but rather
+re-reads the previously saved YAML metadata on disk, and confirms whether the files'
+MD5, size, Last Modified, and Last Acceessed time, and MD5 of the metadata are correct.
+This also confirms whether the MD5 of the metadata match the previously recorded MD5.
+
+``` shell
+kumodd.py -verify -col verify
+Status File MD5  Size      Mod Time  Acc Time  Metadata  fullpath
+valid  match     match     match     match     match     ./My Drive/report_1424.pdf
+```
+To get those values plus the MD5s, use:
+``` shell
+kumodd.py -verify -col md5s
+Status File MD5  Size      Mod Time  Acc Time  Metadata  MD5 of File                      MD5 of Metadata                  fullpath
+valid  match     match     match     match     match     5d5550259da199ca9d426ad90f87e60e 216843a1258df13bdfe817e2e52d0c70 ./My Drive/report_1424.pdf
 ```
 
 ## Configuration
@@ -340,6 +361,8 @@ Google API use, and finally, authorize access to the specified account.
         (default: 'true')
       --[no]revisions: Download every revision of each file.
         (default: 'true')
+      -V,--[no]verify: Verify local files and metadata. Do not connect to Google Drive.
+        (default: 'false')
     
     Try --helpfull to get a list of all flags.
     

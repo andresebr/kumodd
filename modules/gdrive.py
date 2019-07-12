@@ -17,18 +17,22 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
+# Developer notes:
+
 # add filtering for:
 # date ranges
 # path regex 
 # root folder
 
-# windows last mod time is sometimes not preserved.
+# needs testing: windows last mod time is sometimes not preserved.
 
 # For native Google Apps files, kumodd should use the previously saved remote
 # file metadata to detect whether the file has changed, using for instance, the
 # revision ID.
 
 # Kumodd does not batch requests to the Google Drive API. GD Batch limit is 1000.
+
+# global variables: items_listed items_listed items_updated username
 
 from absl import app, flags
 from apiclient import errors
@@ -100,6 +104,7 @@ flags.DEFINE_string('col', 'normal', 'column set defined under csv_columns in co
 flags.DEFINE_boolean('revisions', True, 'Download every revision of each file.')
 flags.DEFINE_boolean('pdf', True, 'Convert all native Google Apps files to PDF.')
 flags.DEFINE_string('gdrive_auth', None, 'Google Drive account authorization file.  Configured in config/config.yml if not specified on command line.')
+flags.DEFINE_boolean('verify', False, 'Verify local files and metadata. Do not connect to Google Drive.', short_name='V')
 
 gdrive_version = "1.0"
 
@@ -179,6 +184,9 @@ def remove_keys_that_contain( list_of_substrings, dict_in ):
             if substring in key:
                 dict_copy.pop(key, None)
     return dict_copy
+
+def redacted_dict( dict_in ):
+    return remove_keys_that_contain(['Link', 'Match', 'status', 'Url', 'yaml'], dict_in)
 
 def redacted_yaml( dict_in ):
     return yaml_string(remove_keys_that_contain(['Link', 'Match', 'status', 'Url', 'yaml'], dict_in))
@@ -284,13 +292,13 @@ class FileAttr(object):
     def local_file_is_valid( self, drive_file):
         if not self.exists:
             self.valid =  False
-        elif drive_file.get('md5Checksum') != self.md5Local:
+        elif drive_file.get('md5Checksum') and drive_file.get('md5Checksum') != self.md5Local:
             self.valid =  False
         elif self.remote_mod_time != self.local_mod_time:
             self.valid =  False
         elif abs( self.remote_acc_time - self.local_acc_time ) > .001:
             self.valid =  False
-        elif int(drive_file.get('fileSize')) != self.localSize:
+        elif drive_file.get('fileSize') and int(drive_file.get('fileSize')) != self.localSize:
             self.valid =  False
         else:
             self.valid =  True
@@ -671,6 +679,47 @@ def download_file( service, drive_file ):
                 logging.critical( resp )
                 return False
 
+def verify_local_metadata( folder='.', writer=None, metadata_names=None, output_format=None ):
+    dir = FLAGS.metadata_destination + '/' + username + '/' + folder
+    for dirent in os.scandir( dir ):
+        if dirent.is_dir():
+            verify_local_metadata( folder + '/' + dirent.name, writer, metadata_names, output_format )
+        elif dirent.is_file():
+            try:
+                drive_file = redacted_dict(yaml.safe_load(open(dir + '/' + dirent.name,'rb').read()))
+            except Exception as e:
+                msg = f"cannot read metadata {dir + '/' + dirent.name}, cautght: {e}"
+                print( msg )
+                logging.critical( msg, exc_info=True)
+
+            file_attr = FileAttr( drive_file )
+            file_attr.compare_metadata( drive_file )
+            file_attr.update_local_metadata_MD5()
+            file_attr.compare_metadata_MD5( drive_file )
+
+            if drive_file['status'] == 'INVALID':
+                print(22*'_', ' drive_file ', dirent.name)
+                dump(drive_file)
+                print(11*'_', ' file attr ', dirent.name)
+                dump(file_attr)
+
+            data = jsonpath_list( drive_file, metadata_names )
+        
+            if writer:
+                writer.writerow( data )
+            if output_format:
+                print( output_format.format( *[str(i) for i in data] ))
+            if drive_file.get('yamlMD5Match') == 'MISMATCH':
+                print(44*'_', drive_file['title'])
+                diff = difflib.ndiff(
+                    redacted_yaml(drive_file).splitlines(keepends=True),
+                    redacted_yaml(yaml.safe_load(open(file_attr.metadata_file,'rb').read())).splitlines(keepends=True))
+                print( ''.join( list( diff )), end="")
+                print(79*'_')
+
+
+def get_titles( config, metadata_names ):
+    return [ config.get('csv_title').get(name) or name for name in metadata_names ]
 
 def main(argv):
     # Let the flags module process the command-line arguments
@@ -757,7 +806,6 @@ csv_title:
   lastViewedByMeDate: My Last View
   local_path: Local Path
   md5Checksum: MD5
-  md5Local: Local MD5
   md5Match: MD5s
   mimeType: MIME Type
   modTimeMatch: Mod Time
@@ -891,7 +939,10 @@ Error: {e}\n""" )
                 ensure_dir(dirname(csv_prefix))
             with open(config.get('gdrive',{}).get('csv_prefix') + username + '.csv', 'w') as csv_handle:
                 writer = csv.writer(csv_handle, delimiter=',')
-                writer.writerow( [ config.get('csv_title').get(name) for name in metadata_names ] )
+
+
+
+                writer.writerow( get_titles( config, metadata_names ) )
                 try:
                     start_folder = service.files().get( fileId=FLAGS.drive_id ).execute()
                 except Exception as e:
@@ -910,16 +961,30 @@ Error: {e}\n""" )
                 logging.critical( f"Request Failed for: {FLAGS.drive_id}", exc_info=True)
             with open(config.get('gdrive',{}).get('csv_prefix') + username + '.csv', 'w') as csv_handle:
                 writer = csv.writer(csv_handle, delimiter=',')
-                writer.writerow( [ config.get('csv_title').get(name) for name in metadata_names ] )
+                writer.writerow( get_titles( config, metadata_names ) )
                 walk_folder_metadata( service, http, start_folder, writer, metadata_names, output_format)
             print(f'\n{items_downloaded} files downloaded and {items_updated} updated from {username}')
 
         elif FLAGS.usecsv:
             print('download listed files')
-            header = output_format.format( *[ config.get('csv_title').get(name) for name in metadata_names ])
+            header = output_format.format( *get_titles( config, metadata_names ))
             print( header )
             download_listed_files(service, http, config, metadata_names, output_format)
             print('\n' + str(items_downloaded) + ' files downloaded and ' + str(items_updated) + ' updated from ' + username + ' drive')
+
+        elif FLAGS.verify:
+            print('Verify local files')
+            print ( metadata_names )
+            print ( get_titles( config, metadata_names ))
+            print ( output_format )
+            header = output_format.format( *get_titles( config, metadata_names ))
+            print( header )
+            for dirent in os.scandir( FLAGS.metadata_destination ):
+                username = dirent.name
+                with open(config.get('gdrive',{}).get('csv_prefix') + username + '.csv', 'w') as csv_handle:
+                    writer = csv.writer(csv_handle, delimiter=',')
+                    writer.writerow( get_titles( config, metadata_names ) )
+                    verify_local_metadata( '.', writer, metadata_names, output_format )
 
         end_time = datetime.now()
         print(f'Duration: {end_time - start_time}')
