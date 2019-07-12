@@ -32,7 +32,7 @@
 
 # Kumodd does not batch requests to the Google Drive API. GD Batch limit is 1000.
 
-# global variables: items_listed items_listed items_updated username
+# global variables: items_downloaded, username
 
 from absl import app, flags
 from apiclient import errors
@@ -67,36 +67,7 @@ if platform.system() == 'Windows':
     import win32con
     import pywintypes
 
-def name_list_to_format_string( names ):
-    """generate a format string for a given list of metadata names"""
-    fields = []
-    for i, name in enumerate(names):
-        if name in ['path']:
-            fields.append(f'{{{i}:70.70}}')
-        elif name in ['filename', 'id', 'title', 'fullpath']:
-            fields.append(f'{{{i}:60.60}}')
-        # elif name in ['accTimeMatch']:
-        #     fields.append(f'{{{i}:24.24}}')
-        elif 'match' in name.lower():a
-            fields.append(f'{{{i}:9.9}}')
-        elif 'md5' in name.lower():
-            fields.append(f'{{{i}:32.32}}')
-        elif 'Date' in name or name in ['time']:
-            fields.append(f'{{{i}:24.24}}')
-        elif name in ['fileSize']:
-            fields.append(f'{{{i}:9.9}}')
-        elif name in ['category', 'shared', 'status']:
-            fields.append(f'{{{i}:6.6}}')
-        elif name in ['version']:
-            fields.append(f'{{{i}:4.4}}')
-        else:
-            fields.append(f'{{{i}:20.20}}')
-    # dump( list( zip( names, fields )))
-    return ' '.join( fields )
-
-items_listed = 0
 items_downloaded = 0
-items_updated = 0
 FLAGS = flags.FLAGS
 flags.DEFINE_boolean('browser', True, 'open a web browser to authorize access to the google drive account' )
 flags.DEFINE_string('config', 'config/config.yml', 'config file', short_name='c')
@@ -105,8 +76,6 @@ flags.DEFINE_boolean('revisions', True, 'Download every revision of each file.')
 flags.DEFINE_boolean('pdf', True, 'Convert all native Google Apps files to PDF.')
 flags.DEFINE_string('gdrive_auth', None, 'Google Drive account authorization file.  Configured in config/config.yml if not specified on command line.')
 flags.DEFINE_boolean('verify', False, 'Verify local files and metadata. Do not connect to Google Drive.', short_name='V')
-
-gdrive_version = "1.0"
 
 def dirname(s):
     index = s.rfind('/')
@@ -120,9 +89,6 @@ def basename(s):
 def ensure_dir(directory):
     if not os.path.exists(directory):
         os.makedirs(directory)
-
-def is_google_doc(drive_file):
-    return True if re.match( '^application/vnd\.google-apps\..+', drive_file['mimeType'] ) else False
 
 # Convert Y-m-d H:M:S.SSSZ to seconds since the epoch, as a float, with milli-secondsh resolution.
 # return zero if attr is missing.
@@ -352,7 +318,6 @@ def update_remote_metadata_MD5(drive_file):
     drive_file['yamlMetadataMD5'] = MD5_of_yaml_of(drive_file)
 
 def print_file_metadata(service, drive_file, path, writer, metadata_names, output_format=None):
-    global items_listed
     supplement_drive_file_metadata(service, drive_file, path)
     file_attr = FileAttr( drive_file )
     file_attr.compare_metadata( drive_file )
@@ -362,7 +327,6 @@ def print_file_metadata(service, drive_file, path, writer, metadata_names, outpu
     data = jsonpath_list( drive_file, metadata_names )
     if writer:
         writer.writerow( data )
-    items_listed += 1
     if output_format:
         print( output_format.format( *[str(i) for i in data] ))
 
@@ -376,14 +340,14 @@ def print_file_metadata(service, drive_file, path, writer, metadata_names, outpu
         print(79*'_')
     
 def download_file_and_metadata(service, drive_file, path, writer, metadata_names, output_format=None):
-    global items_updated
+    global items_downloaded
     supplement_drive_file_metadata(service, drive_file, path)
     file_attr = FileAttr( drive_file )
 
     # dump( file_attr )
     if not file_attr.valid:
         if download_file( service, drive_file ):
-            items_updated += 1
+            items_downloaded += 1
             file_attr.update_local( drive_file )
             file_attr.compare_metadata( drive_file )
             save_metadata(drive_file)
@@ -427,9 +391,6 @@ def get_user_info(service):
         print( f'Request for google about() failed: {e}' )
         return None
         
-def reset_file(filename):
-    open(filename, "w").close()
-
 def is_file(item):
     return item['mimeType'] != 'application/vnd.google-apps.folder'
     
@@ -567,6 +528,9 @@ def retrieve_revisions(service, file_id):
         return revisions.get('items', [])
     return None    
 
+
+def is_google_doc(drive_file):
+    return True if re.match( '^application/vnd\.google-apps\..+', drive_file['mimeType'] ) else False
 
 def get_url_and_ext(drive_file, revision):
     if is_google_doc(drive_file):
@@ -959,7 +923,7 @@ Error: {e}\n""" )
                     print( f"Request Failed for: {FLAGS.drive_id}")
                     logging.critical( f"Request Failed for: {FLAGS.drive_id}", exc_info=True)
                 walk_folder_metadata( service, http, start_folder, writer, metadata_names, output_format)
-            print(f'\n{items_downloaded} files downloaded and {items_updated} updated from {username}')
+            print(f'\n{items_downloaded} files downloaded from {username}')
 
         elif FLAGS.download:
             print('download files')
@@ -973,14 +937,14 @@ Error: {e}\n""" )
                 writer = csv.writer(csv_handle, delimiter=',')
                 writer.writerow( get_titles( config, metadata_names ) )
                 walk_folder_metadata( service, http, start_folder, writer, metadata_names, output_format)
-            print(f'\n{items_downloaded} files downloaded and {items_updated} updated from {username}')
+            print(f'\n{items_downloaded} files downloaded from {username}')
 
         elif FLAGS.usecsv:
             print('download listed files')
             header = output_format.format( *get_titles( config, metadata_names ))
             print( header )
             download_listed_files(service, http, config, metadata_names, output_format)
-            print('\n' + str(items_downloaded) + ' files downloaded and ' + str(items_updated) + ' updated from ' + username + ' drive')
+            print(f'\n{items_downloaded} files downloaded from {username}')
 
         elif FLAGS.verify:
             print('Verify local files')
