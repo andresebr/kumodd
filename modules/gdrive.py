@@ -750,6 +750,16 @@ gdrive:
     - [accTimeMatch, 7]
     - [yamlMD5Match, 7]
     - [fullpath, 60]
+    md5s:
+    - [status, 7]
+    - [md5Match, 7]
+    - [sizeMatch, 7]
+    - [modTimeMatch, 7]
+    - [accTimeMatch, 7]
+    - [yamlMD5Match, 7]
+    - [md5Checksum, 32]
+    - [yamlMetadataMD5, 32]
+    - [fullpath, 60]
     owners:
     - [status, 7]
     - ['owners[*].emailAddress', 20]
@@ -758,7 +768,6 @@ gdrive:
     - [title, 20]
     - [category, 4]
     - [status, 7]
-    - [md5Match, 7]
     - [md5Match, 7]
     - [sizeMatch, 7]
     - [modTimeMatch, 7]
@@ -805,8 +814,8 @@ csv_title:
   lastModifyingUserName: Last Mod By
   lastViewedByMeDate: My Last View
   local_path: Local Path
-  md5Checksum: MD5
-  md5Match: MD5s
+  md5Checksum: MD5 of File
+  md5Match: MD5
   mimeType: MIME Type
   modTimeMatch: Mod Time
   modifiedByMeDate: My Last Mod (UTC)
@@ -831,6 +840,7 @@ csv_title:
   version: Version
   webContentLink: Web Link
   writersCanShare: CanShare
+  yamlMetadataMD5: MD5 of Metadata
 '''),
                   io.open(FLAGS.config, 'w', encoding='utf8'), Dumper=yaml.Dumper,
                   default_flow_style=False, allow_unicode=True)

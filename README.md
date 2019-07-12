@@ -42,7 +42,7 @@ To download all of the files listed in a previously generated CSV file, use:
 
     kumodd.py -csv ./filelist-username.csv
 
-To verify the files' MD5, size, Last Modified, and Last Acceessed time, and MD5 of
+To verify the files' MD5, size, Last Modified, and Last Accessed time, and MD5 of
 metadata, use:
 
     kumodd.py -verify -col verify
@@ -98,9 +98,9 @@ metadata paths would be:
 
 ## File Verification
 
-Kumodd verifies files by comparing their MD5, size, Last Modified, and Last Acceessed
-time.  It reports whether they match in correspnding properties.  Kmodd stores these in
-the YAML metadata file correesponding to each file.
+Kumodd verifies files by comparing their MD5, size, Last Modified, and Last Accessed
+time.  It reports whether they match in corresponding properties.  Kumodd stores these in
+the YAML metadata file corresponding to each file.
 
 Metadata		| Description
 :----			| :----
@@ -112,6 +112,69 @@ modifiedByMeDate	| Last Modified time (UTC) of the data in Google Drive.
 modTimeMatch		| match if Last Modified time on disk = in Google Drive.
 lastViewedByMeDate	| Last Viewed By Account User (UTC) on disk = in Google Drive.
 accTimeMatch		| match if lastViewedByMeDate and FS Last Access Time are equal.
+
+Verification is performed when listing or downloading files.  Native Google Apps and
+certain PDF files do not provide a MD5 digest. To detect changes, kumodd compares the
+file size and Last Modify time.
+
+When downloading, if any of MD5, file size or Last Modify time differ from Google
+Drive's metadata, kumodd will re-download the file and update the YAML metadata. Next,
+it will re-read the file to recompute the md5Match, sizeMatch and modTimeMatch, to
+ensure that the data on disk are valid.
+
+## Metadata Verification
+
+Kumodd also verifies bulk metadata. However, certain metadata are transient; they are
+valid for a limited time from when they are downloaded, after which a subsequent
+download retrieves differing values. For example, the value of 'thumbnailLink' changes
+every time the metadata is retrieved from Google Drive.  Other 'Link' values may change
+after a few weeks.
+
+Kumodd saves the complete, unredacted metadata in a YAML file.  Before computing the
+bunk MD5 of the metadata, Kumodd redacts all metadata names containing the words: Link,
+Match, status, Url and yaml.  When these names are redacted, the metadata is
+reproducible (identical each time retrieved from Google Drive, and unique on disk) if
+the file has not changed.
+
+## How to Verify Data
+    
+There are two way Kumodd can verify data: with or without retrieving metadata from
+Google Drive.  When listing (-list or -l option), Kumodd retrieves metadata from Google
+Drive and verifies local data are consistent with Google Drive.  When verifying (-verify
+or -V option) Kumodd uses the previously saved YAML metadata on disk to verify whether
+data on disk are correct.
+
+Either way, Kumodd confirms whether the files' MD5, file size, and Last Modified and
+Last Accessed are correct.  In addition, it confirms whether the MD5 of the metadata
+matches the recorded MD5.
+
+To retrieve metadata from Google Drive and review accuracy of the data and metadata on
+disk, use the "-list" or "-l" option. 
+``` shell
+kumodd.py --list pdf -col verify
+Status File MD5  Size      Mod Time  Acc Time  Metadata  fullpath
+valid  match     match     match     match     match     ./My Drive/report_1424.pdf
+```
+
+To review accuracy of the data and metadata using previously downloaded metadata, use
+the "-verify" or "-V" option. This does not read data from Google Drive, but rather
+re-reads the previously saved YAML metadata on disk, and confirms whether the files'
+MD5, size, Last Modified, and Last Accessed time, and MD5 of the metadata are correct.
+This also confirms whether the MD5 of the metadata match the previously recorded MD5.
+
+``` shell
+kumodd.py -verify -col verify
+Status File MD5  Size      Mod Time  Acc Time  Metadata  fullpath
+valid  match     match     match     match     match     ./My Drive/report_1424.pdf
+```
+To get those values plus the MD5s, use:
+``` shell
+kumodd.py -verify -col md5s
+Status File MD5  Size      Mod Time  Acc Time  Metadata  MD5 of File                      MD5 of Metadata                  fullpath
+valid  match     match     match     match     match     5d5550259da199ca9d426ad90f87e60e 216843a1258df13bdfe817e2e52d0c70 ./My Drive/report_1424.pdf
+```
+
+## How to Verify Data Using Other Tools 
 
 For certain file types (excluding Google Apps files), Google Drive provides an MD5 of the
 data. 
@@ -126,34 +189,11 @@ md5Match property.
 grep md5Local 'download/metadata/john.doe@gmail.com/My Drive/report_1424.pdf.yml'
 md5Match: match
 ```
-Other tools can be used to cross-check MD5 verificaiton of file contents:
+Other tools can be used to cross-check MD5 verification of file contents:
 ``` shell
 md5sum 'download/john.doe@gmail.com/My Drive/My Drive/report_1424.yml'
 5d5550259da199ca9d426ad90f87e60e  download/john.doe@gmail.com/My Drive/My Drive/report_1424.yml
 ```
-
-Verification is performed when listing or downloading files.  Native Google Apps and
-certain PDF files do not provide a MD5 digest. To detect changes, kumodd compares the
-file size and Last Modify time.
-
-When downloading, if any of MD5, file size or Last Modify time differ from Google
-Drive's metadata, kumodd will re-download the file and update tye YAML metadata. Next,
-it will re-read the file to recompute the md5Match, sizeMatch and modTimeMatch, to
-ensure that the data on disk are valid.
-
-## Metadata Verification
-
-Kumodd also verifies bulk metadata. However, certain metadata are transient; they are
-valid for a limited time from when they are downloaded, after which a subsequent
-download retrieves differing values. For example, the value of 'thumbnailLink' changes
-every time the metadata is retrieved from Google Drive.  Other 'Link' values may change
-after a few weeks.
-
-Kumodd saves the complete, undredacted metadata in a YAML file.  Before computing the
-bunk MD5 of the metadata, Kumodd redacts all metadata names containing the words: Link,
-Match, status, Url and yaml.  When these names are redacted, the metadata is
-reproducible (identical each time retrieved from Google Drive, and unique on disk) if
-the file has not changed.
 
 The MD5 of the redacted metadata is saved as yamlMetadataMD5:
 ``` shell
@@ -172,44 +212,6 @@ yq -y '.|with_entries(select(.key|test("(Link|Match|status|Url|yaml)")|not))' <'
 
 If there are changes in the metadata, diff can be used to identify the altered
 properties. Kumodd also generates diffs when altered metadata is detected.
-
-## How to Verify Data
-    
-There are two way Kumodd can verify data: with or without retrieving metadata from
-Google Drive.  When listing (-list or -l option), Kumodd retrieves metadata from Google
-Drive and verfies local data and metadata are consistent with Google Drive.  When
-verifying (-verify or -V option) Kumodd uses the  previously saved YAML metadata on disk
-to verfy local data and metadata are consistent.
-
-Either way, Kumodd confirms whether the files' MD5, file size, and Last Modified and
-Last Acceessed are correct.  In addition, it confirms whether the MD5 of the metadata
-matches the recorded MD5.
-
-To retrieve metadata from Google Drive and review accuracy of the data and metadata on
-disk, use the "-list" or "-l" option. 
-``` shell
-kumodd.py --list pdf -col verify
-Status File MD5  Size      Mod Time  Acc Time  Metadata  fullpath
-valid  match     match     match     match     match     ./My Drive/report_1424.pdf
-```
-
-To review accuracy of the data and metadata using previously downloaded metadata, use
-the "-verify" or "-V" option. This does not read data from Google Drive, but rather
-re-reads the previously saved YAML metadata on disk, and confirms whether the files'
-MD5, size, Last Modified, and Last Acceessed time, and MD5 of the metadata are correct.
-This also confirms whether the MD5 of the metadata match the previously recorded MD5.
-
-``` shell
-kumodd.py -verify -col verify
-Status File MD5  Size      Mod Time  Acc Time  Metadata  fullpath
-valid  match     match     match     match     match     ./My Drive/report_1424.pdf
-```
-To get those values plus the MD5s, use:
-``` shell
-kumodd.py -verify -col md5s
-Status File MD5  Size      Mod Time  Acc Time  Metadata  MD5 of File                      MD5 of Metadata                  fullpath
-valid  match     match     match     match     match     5d5550259da199ca9d426ad90f87e60e 216843a1258df13bdfe817e2e52d0c70 ./My Drive/report_1424.pdf
-```
 
 ## Configuration
 
