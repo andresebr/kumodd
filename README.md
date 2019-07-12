@@ -613,3 +613,11 @@ version: '5'
 webContentLink: https://drive.google.com/a/murphey.org/uc?id=0s9b2T_442nb0MHBxdmZo3pwnaGRiY01LbmVhcEZEa1FvTWtJ&export=download
 writersCanShare: true
 ```
+
+## References
+
+Roussev, Vassil, and Shane McCulley. "Forensic analysis of cloud-native artifacts."
+Digital Investigation 16 (2016): S104-S113.
+
+Roussev V, Barreto A, Ahmed I. Forensic acquisition of cloud drives. In: Peterson G,
+Shenoi S, editors. Advances in Digital Forensics, vol. XII.  Springer; 2016.
