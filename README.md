@@ -96,11 +96,12 @@ metadata paths would be:
 - ./download/john.doe@gmail.com/My Drive/foo.doc
 - ./download/metadata/john.doe@gmail.com/My Drive/foo.doc.yml
 
-## File Verification
+## Data Verification
 
-Kumodd verifies files by comparing their MD5, size, Last Modified, and Last Accessed
-time.  It reports whether they match in corresponding properties.  Kumodd stores these in
-the YAML metadata file corresponding to each file.
+Kmodd verifies both the data and the metadata. Data is verified by comparing a file's
+MD5, size, Last Modified, and Last Accessed times.  Kumodd reports whether each of them
+matches, as shown in [How to Verify Data](#how-to-verify-data). It also compares the MD5
+of the metadata with the previously recorded value.
 
 Metadata		| Description
 :----			| :----
@@ -112,6 +113,8 @@ modifiedByMeDate	| Last Modified time (UTC) of the data in Google Drive.
 modTimeMatch		| match if Last Modified time on disk = in Google Drive.
 lastViewedByMeDate	| Last Viewed By Account User (UTC) on disk = in Google Drive.
 accTimeMatch		| match if lastViewedByMeDate and FS Last Access Time are equal.
+yamlMetadataMD5		| MD5 of the redacted metadata.
+yamlMD5Match		| match if metadata MD5 on disk = data from Google Drive.
 
 Verification is performed when listing or downloading files.  Native Google Apps and
 certain PDF files do not provide a MD5 digest. To detect changes, kumodd compares the
@@ -121,8 +124,6 @@ When downloading, if any of MD5, file size or Last Modify time differ from Googl
 Drive's metadata, kumodd will re-download the file and update the YAML metadata. Next,
 it will re-read the file to recompute the md5Match, sizeMatch and modTimeMatch, to
 ensure that the data on disk are valid.
-
-## Metadata Verification
 
 Kumodd also verifies bulk metadata. However, certain metadata are transient; they are
 valid for a limited time from when they are downloaded, after which a subsequent
@@ -138,6 +139,10 @@ the file has not changed.
 
 ## How to Verify Data
     
+This section and the following section, [How to Verify Data Using Other
+Tools](#how-to-verify-data-using-other-tools), are intended to provide the foundation
+for a standard operating procedure for using Kmodd.
+
 There are two way Kumodd can verify data: with or without retrieving metadata from
 Google Drive.  When listing (-list or -l option), Kumodd retrieves metadata from Google
 Drive and verifies local data are consistent with Google Drive.  When verifying (-verify
