@@ -1,3 +1,9 @@
+2019-07-12  rich  <rich@r>
+
+        * modules/gdrive.py: cc93babd2398e175fbdb681854e7fafa015f749b 
+        Added -V/-verify option to confirm whether data and metadata are correct using
+        previously saved metadata on disk.
+        
 2019-07-11  rich  <rich@r>
 
         * modules/gdrive.py: 8f8180939c8bce06c054a5ddadc28925eb507aac
