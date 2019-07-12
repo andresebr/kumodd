@@ -116,14 +116,12 @@ accTimeMatch		| match if lastViewedByMeDate and FS Last Access Time are equal.
 yamlMetadataMD5		| MD5 of the redacted metadata.
 yamlMD5Match		| match if metadata MD5 on disk = data from Google Drive.
 
-Verification is performed when listing or downloading files.  Native Google Apps and
-certain PDF files do not provide a MD5 digest. To detect changes, kumodd compares the
-file size and Last Modify time.
-
-When downloading, if any of MD5, file size or Last Modify time differ from Google
-Drive's metadata, kumodd will re-download the file and update the YAML metadata. Next,
-it will re-read the file to recompute the md5Match, sizeMatch and modTimeMatch, to
-ensure that the data on disk are valid.
+Verification is performed when listing or downloading files.  When downloading, if any
+of MD5, file size or Last Modify time differ from Google Drive's metadata, kumodd will
+re-download the file and update the YAML metadata. Next, it will re-read the file to
+recompute the md5Match, sizeMatch and modTimeMatch, to ensure that the data on disk are
+valid.  Native Google Apps and certain PDF files do not provide a MD5 digest, in which
+case, kumodd compares the file size and Last Modify time.
 
 Kumodd also verifies bulk metadata. However, certain metadata are transient; they are
 valid for a limited time from when they are downloaded, after which a subsequent
