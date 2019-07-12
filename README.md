@@ -123,10 +123,10 @@ recompute the md5Match, sizeMatch and modTimeMatch, to ensure that the data on d
 valid.  Native Google Apps and certain PDF files do not provide a MD5 digest, in which
 case, kumodd compares the file size and Last Modify time.
 
-Kumodd also verifies bulk metadata. However, certain metadata are transient; they are
-valid for a limited time from when they are downloaded, after which a subsequent
-download retrieves differing values. For example, the value of 'thumbnailLink' changes
-every time the metadata is retrieved from Google Drive.  Other 'Link' values may change
+Kumodd also verifies bulk metadata. However, certain metadata are ephemeral; they are
+valid for a limited time after they are downloaded, after which a subsequent download
+retrieves differing values. For example, the value of 'thumbnailLink' changes every time
+the metadata is retrieved from Google Drive.  Other 'Link' and URL values may change
 after a few weeks.
 
 Kumodd saves the complete, unredacted metadata in a YAML file.  Before computing the
@@ -170,7 +170,7 @@ kumodd.py -verify -col verify
 Status File MD5  Size      Mod Time  Acc Time  Metadata  fullpath
 valid  match     match     match     match     match     ./My Drive/report_1424.pdf
 ```
-To get those values plus the MD5s, use:
+To get the above columns plus the MD5s, use:
 ``` shell
 kumodd.py -verify -col md5s
 Status File MD5  Size      Mod Time  Acc Time  Metadata  MD5 of File                      MD5 of Metadata                  fullpath
@@ -204,8 +204,9 @@ grep yamlMetadataMD5 'download/metadata/john.doe@gmail.com/My Drive/report_1424.
 yamlMetadataMD5: 216843a1258df13bdfe817e2e52d0c70
 ```
 
-[yq, a command line YAML query tool](https://yq.readthedocs.io/) can be used to
-cross-check verification of the MD5 of the metadata.
+To verify the MD5 of the metadata, ephemeral values are removed first (*see* [Data
+Verification](#data-verification)).  To filter and digest, [yq, a command line YAML
+query tool](https://yq.readthedocs.io/), and md5sum may be used.
 
 ``` shell
 sudo -Hi python -m pip install yq
@@ -231,7 +232,7 @@ csv_title	| list of column titles for each metadata name
 
 'csv_columns' specifies various output profiles.  Each profile specifies a set of columns.
 
-Here is the 'owners' profile containing three columns.  This profile may be
+Here is the 'owners' profile containing three columns.  These columns may be
 selected using 'kumodd.py -col owners'.
 
 ``` yaml
@@ -243,13 +244,13 @@ gdrive:
     - [fullpath, 50]
 ```
 
-Each column selects a metadata name, followed by fixed width of the column for standard
+Each column selects a metadata name, followed by fixed width of the column on standard
 output.  Metadata names are selected using [jsonpath
 syntax](https://github.com/h2non/jsonpath-ng).
 
 "- ['owners[*].emailAddress', 20]" specifies a column containing a list of the document
-owner email addresses, with a fixed width of 20 characters on standard output.  CSV
-output has no width limit.
+owner email addresses, with a fixed width of 20 characters on standard output.  The
+width limit effects standard output, while CSV output has no width limit.
 
 
 [Example raw
@@ -445,6 +446,16 @@ gdrive:
     - [accTimeMatch, 7]
     - [yamlMD5Match, 7]
     - [fullpath, 60]
+    md5s:
+    - [status, 7]
+    - [md5Match, 7]
+    - [sizeMatch, 7]
+    - [modTimeMatch, 7]
+    - [accTimeMatch, 7]
+    - [yamlMD5Match, 7]
+    - [md5Checksum, 32]
+    - [yamlMetadataMD5, 32]
+    - [fullpath, 60]
     owners:
     - [status, 7]
     - ['owners[*].emailAddress', 20]
@@ -453,7 +464,6 @@ gdrive:
     - [title, 20]
     - [category, 4]
     - [status, 7]
-    - [md5Match, 7]
     - [md5Match, 7]
     - [sizeMatch, 7]
     - [modTimeMatch, 7]
@@ -500,8 +510,7 @@ csv_title:
   lastModifyingUserName: Last Mod By
   lastViewedByMeDate: My Last View
   local_path: Local Path
-  md5Checksum: MD5
-  md5Local: Local MD5
+  md5Checksum: MD5 of File
   md5Match: MD5s
   mimeType: MIME Type
   modTimeMatch: Mod Time
@@ -527,6 +536,7 @@ csv_title:
   version: Version
   webContentLink: Web Link
   writersCanShare: CanShare
+  yamlMetadataMD5: MD5 of Metadata
 ```
 
 ## Example raw metadata

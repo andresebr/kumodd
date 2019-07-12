@@ -77,7 +77,7 @@ def name_list_to_format_string( names ):
             fields.append(f'{{{i}:60.60}}')
         # elif name in ['accTimeMatch']:
         #     fields.append(f'{{{i}:24.24}}')
-        elif 'match' in name.lower():
+        elif 'match' in name.lower():a
             fields.append(f'{{{i}:9.9}}')
         elif 'md5' in name.lower():
             fields.append(f'{{{i}:32.32}}')
@@ -815,7 +815,7 @@ csv_title:
   lastViewedByMeDate: My Last View
   local_path: Local Path
   md5Checksum: MD5 of File
-  md5Match: MD5
+  md5Match: MD5s
   mimeType: MIME Type
   modTimeMatch: Mod Time
   modifiedByMeDate: My Last Mod (UTC)
