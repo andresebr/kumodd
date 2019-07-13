@@ -397,57 +397,6 @@ def is_file(item):
 def is_folder(item):
     return item['mimeType'] == 'application/vnd.google-apps.folder'
         
-
-def walk_folder_metadata( service, http, folder, writer=None, metadata_names=None, output_format=None, base_path='.', depth=0 ):
-    param = {'q': f"'{folder['id']}' in parents" }   # first page
-
-    while True: # repeat for each page
-        try:
-            file_list = service.files().list(**param).execute()
-        except Exception as e:
-            print( f'cautght: {e}' )
-            logging.critical( f"Couldn't get contents of folder {file_list['title']}", exc_info=True)
-
-        
-        folder_items = file_list['items']
-        path = base_path + '/' + folder['title'].replace( '/', '_' )
-    
-        if FLAGS.list:
-            for item in filter(is_file, folder_items):
-                if (
-                    ( FLAGS.list == 'all' )
-                    or
-                    (   ( FLAGS.list in ['doc','xls', 'ppt', 'text', 'pdf', 'image', 'audio', 'video', 'other']
-                         and FLAGS.list == file_type_from_mime(item['mimeType']) ))
-                    or 
-                    (  ( FLAGS.list == 'office'
-                        and file_type_from_mime(item['mimeType']) in ['doc', 'xls', 'ppt']))
-                        ):
-                    print_file_metadata(service, item, path, writer, metadata_names, output_format)
-
-        if FLAGS.download:    
-            ensure_dir(FLAGS.destination + '/' + username + '/' + path)
-            for item in filter(is_file, folder_items):
-                if (
-                    ( FLAGS.download == 'all' )
-                    or 
-                    ( ( FLAGS.download in ['doc','xls', 'ppt', 'text', 'pdf', 'image', 'audio', 'video', 'other'] )
-                     and FLAGS.download == file_type_from_mime(item['mimeType']) )
-                    or
-                    ( FLAGS.download == 'office'
-                     and file_type_from_mime(item['mimeType']) in ['doc', 'xls', 'ppt'])
-                     ):
-                    download_file_and_metadata(service, item, path, writer, metadata_names, output_format)
-
-        for item in filter(is_folder, folder_items):
-            walk_folder_metadata( service, http, item, writer, metadata_names, output_format, path, depth+1 )
-            
-        if file_list.get('nextPageToken'):
-            param['pageToken'] = file_list.get('nextPageToken')
-        else:
-            break
-
-
 def download_listed_files(service, http, config, metadata_names=None, output_format=None):
     """Print information about the specified revision.
 
