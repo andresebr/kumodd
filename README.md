@@ -80,12 +80,11 @@ However, the Linux kernel provides no method (e.g. system call or library) to re
 write the Created time, so Created time is not available to kumodd on Linux.
 So, although the Created Time is set on Windows, it is often incorrect.
 
-Caution is advised for any use of file system time stamps for analysis unless their
-accuracy is verified by the analyst. Both Kumodd and external tools can be used for
-verification of accuracy.  After downloading files using kumodd -d, the timestamps can be
-re-verified using kumodd -l.  For analysis, if file system time stamps are used, they
-should be be verified by comparing them to the time stamps preserved in the YAML
-metadata preserved exactly as retrieved from the Google Drive API.
+If file system time stamps are to be used in analysis, the -verify option can be used to
+verify they are consisent with the metadata.  External tools can be used as well for
+verification of accuracy.  Given a downloaded file set, kumodd -verify will verify the
+file system time stamps are equal to the time stamps that were retrieved from the Google
+Drive API.
 
 ## Metadata
 
@@ -116,17 +115,12 @@ accTimeMatch		| match if lastViewedByMeDate and FS Last Access Time are equal.
 yamlMetadataMD5		| MD5 of the redacted metadata.
 yamlMD5Match		| match if metadata MD5 on disk = data from Google Drive.
 
-Data is verified when listing or downloading files.  When downloading, if any of MD5,
-file size or Last Modify time differ from Google Drive's metadata, kumodd will
-re-download the file and update the YAML metadata. Next, it will re-read the file to
-recompute the md5Match, sizeMatch and modTimeMatch, to ensure that the data on disk are
-valid.  
-
-Google Docs, Sheets, Slides and other Google native files does not have an MD5s
-provided by the API.  For these file types, kumodd
-
-Native Google Apps and certain PDF files do not provide a MD5
-digest, in which case, kumodd compares the file size and Last Modify time.
+Data is verified when listing or downloading files.  When downloading, The API provides
+an MD5 of non-native files.  For native Google Docs, Sheets, Slides, the MD5 is computed
+in memory prior to writing the data to disk.  When downloading, if any of MD5, file size
+or Last Modify time differ from the metadata, kumodd will re-download the file and
+update the YAML metadata. Next, it will re-read the file to recompute the md5Match,
+sizeMatch and modTimeMatch, to ensure that the data on disk are valid.  
 
 Kumodd also verifies bulk metadata. However, certain metadata are ephemeral; they are
 valid for a limited time after they are downloaded, after which a subsequent download
@@ -184,8 +178,7 @@ valid  match     match     match     match     match     5d5550259da199ca9d426ad
 
 ## How to Verify Data Using Other Tools 
 
-For certain file types (excluding Google Apps files), Google Drive provides an MD5 of the
-data. 
+The MD5 of the file contents is recorded in the metadata. 
 ``` shell
 grep md5Checksum 'download/metadata/john.doe@gmail.com/My Drive/report_1424.pdf.yml'
 md5Checksum: 5d5550259da199ca9d426ad90f87e60e
@@ -194,7 +187,7 @@ When Kumodd saves a file, it rereads the file, and computes the MD5 digest of th
 contents.  It compares the values and reports either 'matched' or 'MISMATCHED' in the
 md5Match property.
 ``` shell
-grep md5Local 'download/metadata/john.doe@gmail.com/My Drive/report_1424.pdf.yml'
+grep md5Match 'download/metadata/john.doe@gmail.com/My Drive/report_1424.pdf.yml'
 md5Match: match
 ```
 Other tools can be used to cross-check MD5 verification of file contents:
@@ -257,9 +250,6 @@ csv_title:
   'owners[*].emailAddress':  Owners
   fullpath:  Full Path
 ```
-
-
-
 
 [Example raw metadata](#example-raw-metadata) shows a variety of available metadata.
 They include:
@@ -378,6 +368,7 @@ Google API use, and finally, authorize access to the specified account.
         (default: 'normal')
       -c,--config: config file
         (default: 'config/config.yml')
+      -f,--folder: source folder within Google Drive
       --gdrive_auth: Google Drive account authorization file.  Configured in config/config.yml if not specified on command line.
       --[no]pdf: Convert all native Google Apps files to PDF.
         (default: 'true')

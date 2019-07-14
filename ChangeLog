@@ -1,3 +1,9 @@
+2019-07-14  rich  <rich@r>
+
+        * modules/gdrive.py (main): cb8f7b3ab6eeaf909a2a5ef4b39b1c977df79bf4
+        Replace global vars with a ctx object.  Add -folder option to restrict downloads
+        to a specified path in Google Drive.
+
 2019-07-13  rich  <rich@r>
 
         * modules/gdrive.py: da735025d9aacae89e70067b4cc57edf99cdc351
