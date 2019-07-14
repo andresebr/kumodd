@@ -3,12 +3,12 @@
 Kumodd downloads files and their metadata from a specified Google
 Drive account in a forensically sound manner.
 
-- Files can be filtered by category, such as doc, image, or video.  
-- Extensive Google Drive metadata of each file is preserved as a corresponding [YAML file](#example-raw-metadata).  
-- Metadata columns of exported CSV may be selected in the [configuration file](#configuration).
+- Files can limited by folder and by category, such as doc, image, or video.  
+- [Extensive metadata of each file is preserved.](#example-raw-metadata).  
+- [CSV export with configuratble columnss](#configuration).
 - [Last Modified and Last Accessed times](#time-stamps) on disk are verified.
-- [MD5 and size of the file on disk is verified](#data-verification).
-- MD5 of bulk metadata on disk is verified.
+- [MD5 and size of each file on disk are verified](#data-verification).
+- MD5 of metadata of each file is verified.
 
 ## Usage examples
 
