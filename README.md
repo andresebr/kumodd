@@ -7,8 +7,7 @@ Drive account in a forensically sound manner.
 - Extensive Google Drive metadata of each file is preserved as a corresponding [YAML file](#example-raw-metadata).  
 - Metadata columns of exported CSV may be selected in the [configuration file](#configuration).
 - [Last Modified and Last Accessed times](#time-stamps) on disk are verified.
-- [MD5 of file on disk is verified](#data-verification).
-- [File size on disk is verified](#data-verification).
+- [MD5 and size of the file on disk is verified](#data-verification).
 - MD5 of bulk metadata on disk is verified.
 
 ## Usage examples
