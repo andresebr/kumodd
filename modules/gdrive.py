@@ -17,7 +17,9 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
-# Developer notes:
+# Developer notes, todo:
+
+# verify the MD5 of downloaded revisions.
 
 # add filtering for:
 # date ranges
@@ -31,8 +33,6 @@
 # revision ID.
 
 # Kumodd does not batch requests to the Google Drive API. GD Batch limit is 1000.
-
-# global variables: items_downloaded, username
 
 from absl import app, flags
 from apiclient import errors
@@ -67,7 +67,6 @@ if platform.system() == 'Windows':
     import win32con
     import pywintypes
 
-items_downloaded = 0
 FLAGS = flags.FLAGS
 flags.DEFINE_boolean('browser', True, 'open a web browser to authorize access to the google drive account' )
 flags.DEFINE_string('config', 'config/config.yml', 'config file', short_name='c')
@@ -76,6 +75,7 @@ flags.DEFINE_boolean('revisions', True, 'Download every revision of each file.')
 flags.DEFINE_boolean('pdf', True, 'Convert all native Google Apps files to PDF.')
 flags.DEFINE_string('gdrive_auth', None, 'Google Drive account authorization file.  Configured in config/config.yml if not specified on command line.')
 flags.DEFINE_boolean('verify', False, 'Verify local files and metadata. Do not connect to Google Drive.', short_name='V')
+flags.DEFINE_string('folder', None, 'source folder within Google Drive', short_name='f')
 
 def dirname(s):
     index = s.rfind('/')
@@ -189,7 +189,7 @@ def jsonpath_list( obj, object_path_list ):
 
 #----------------------------------------------------------------
 
-def supplement_drive_file_metadata(service, drive_file, path):
+def supplement_drive_file_metadata(ctx, drive_file, path):
     drive_file['path'] = path
 
     name = drive_file.get('originalFilename') or drive_file['title'].replace( '/', '_' )
@@ -213,24 +213,16 @@ def supplement_drive_file_metadata(service, drive_file, path):
 
     drive_file['fullpath'] = drive_file['path'] + '/' + file_name(drive_file)
 
-    revision_list = retrieve_revisions(service, drive_file['id'])
-    drive_file['revisions'] = revision_list
-    
     drive_file['category'] = file_type_from_mime(drive_file['mimeType'])
 
     drive_file['label_key'] = ''.join(sorted([(k[0] if v else ' ') for k, v in drive_file['labels'].items()])).upper()
 
-class FileAttr(object):
-    def __init__( self, drive_file ):
-        self.local_file = local_data_dir( drive_file ) + '/' + file_name(drive_file)
-        self.metadata_file = local_metadata_dir( drive_file ) + '/' + file_name(drive_file) + '.yml'
+class FileAttr( object ):
+    def __init__( self, drive_file, username ):
+        self.local_file = local_data_dir( drive_file, username ) + '/' + file_name(drive_file)
+        self.metadata_file = local_metadata_dir( drive_file, username ) + '/' + file_name(drive_file) + '.yml'
         self.yamlMetadataMD5 = None
-        self.update_remote( drive_file )
         self.update_local( drive_file )
-
-    def update_remote( self, drive_file ):
-        self.remote_mod_time =	sec_since_epoch( drive_file.get( 'modifiedByMeDate' ))
-        self.remote_acc_time =	sec_since_epoch( drive_file.get( 'lastViewedByMeDate' ))
 
     def update_local( self, drive_file ):
         self.exists = os.path.exists( self.local_file )
@@ -260,9 +252,9 @@ class FileAttr(object):
             self.valid =  False
         elif drive_file.get('md5Checksum') and drive_file.get('md5Checksum') != self.md5Local:
             self.valid =  False
-        elif self.remote_mod_time != self.local_mod_time:
+        elif drive_file.get( 'modifiedByMeDate' ) and sec_since_epoch( drive_file.get( 'modifiedByMeDate' )) != self.local_mod_time:
             self.valid =  False
-        elif abs( self.remote_acc_time - self.local_acc_time ) > .001:
+        elif drive_file.get( 'lastViewedByMeDate' ) and sec_since_epoch( drive_file.get( 'lastViewedByMeDate' )) != self.local_acc_time:
             self.valid =  False
         elif drive_file.get('fileSize') and int(drive_file.get('fileSize')) != self.localSize:
             self.valid =  False
@@ -270,25 +262,20 @@ class FileAttr(object):
             self.valid =  True
         return self.valid
 
-    def compare_metadata_MD5( self, drive_file):
-        update_remote_metadata_MD5( drive_file )
-        if self.metadata_file_exists:
-            if self.yamlMetadataMD5 and self.yamlMetadataMD5 == drive_file.get('yamlMetadataMD5'):
-                drive_file['yamlMD5Match'] = 'match'
-            else:
-                drive_file['yamlMD5Match'] = 'MISMATCH'
-
-    def compare_metadata( self, drive_file ):
+    def compare_and_annotate_drive_file( self, drive_file ):
         if self.exists:
-            if self.remote_mod_time == self.local_mod_time:
+            remote_mod_time = sec_since_epoch( drive_file.get( 'modifiedByMeDate' ))
+            remote_acc_time = sec_since_epoch( drive_file.get( 'lastViewedByMeDate' ))
+
+            if remote_mod_time == self.local_mod_time:
                 drive_file['modTimeMatch'] = 'match'
             else:
-                drive_file['modTimeMatch'] = str(abs(datetime.fromtimestamp(self.local_mod_time) - datetime.fromtimestamp(self.remote_mod_time))).replace(" days, ", " ").replace(" day, ", " ")
+                drive_file['modTimeMatch'] = str(abs(datetime.fromtimestamp(self.local_mod_time) - datetime.fromtimestamp(remote_mod_time))).replace(" days, ", " ").replace(" day, ", " ")
     
-            if abs( self.remote_acc_time - self.local_acc_time ) < .001:
+            if abs( remote_acc_time - self.local_acc_time ) < .001:
                 drive_file['accTimeMatch'] = 'match'
             else:
-                drive_file['accTimeMatch'] = str(abs(datetime.fromtimestamp(self.local_acc_time) - datetime.fromtimestamp(self.remote_acc_time))).replace(" days, ", " ").replace(" day, ", " ")
+                drive_file['accTimeMatch'] = str(abs(datetime.fromtimestamp(self.local_acc_time) - datetime.fromtimestamp(remote_acc_time))).replace(" days, ", " ").replace(" day, ", " ")
     
             if drive_file.get('md5Checksum'):
                 if drive_file.get('md5Checksum') == self.md5Local:
@@ -314,15 +301,33 @@ class FileAttr(object):
         else:
             drive_file['status'] = 'missing'
 
-def update_remote_metadata_MD5(drive_file):
+    def compare_and_annotate_drive_file_MD5( self, drive_file):
+        update_yamlMetadataMD5( drive_file )
+        self.update_local_metadata_MD5()
+        if self.metadata_file_exists:
+            if self.yamlMetadataMD5 and self.yamlMetadataMD5 == drive_file.get('yamlMetadataMD5'):
+                drive_file['yamlMD5Match'] = 'match'
+            else:
+                drive_file['yamlMD5Match'] = 'MISMATCH'
+
+# record MD5 of drive_file object
+def update_yamlMetadataMD5(drive_file):
     drive_file['yamlMetadataMD5'] = MD5_of_yaml_of(drive_file)
 
-def print_file_metadata(service, drive_file, path, writer, metadata_names, output_format=None):
-    supplement_drive_file_metadata(service, drive_file, path)
-    file_attr = FileAttr( drive_file )
-    file_attr.compare_metadata( drive_file )
-    file_attr.update_local_metadata_MD5()
-    file_attr.compare_metadata_MD5(drive_file)
+def print_obj_diffs( drive_file, filename ):
+        print(22*'_', filename )
+        diff = difflib.ndiff(
+            redacted_yaml(drive_file).splitlines(keepends=True),
+            redacted_yaml(yaml.safe_load(open(filename,'rb').read())).splitlines(keepends=True))
+        print( ''.join( list( diff )), end="")
+        print(79*'_')
+
+def print_file_metadata(ctx, drive_file, path, writer, metadata_names, output_format=None):
+    supplement_drive_file_metadata(ctx, drive_file, path)
+    drive_file['revisions'] = retrieve_revisions(ctx, drive_file['id'])
+    file_attr = FileAttr( drive_file, ctx.user )
+    file_attr.compare_and_annotate_drive_file( drive_file )
+    file_attr.compare_and_annotate_drive_file_MD5( drive_file )
 
     data = jsonpath_list( drive_file, metadata_names )
     if writer:
@@ -330,34 +335,24 @@ def print_file_metadata(service, drive_file, path, writer, metadata_names, outpu
     if output_format:
         print( output_format.format( *[str(i) for i in data] ))
 
-    if ( drive_file.get('yamlMD5Match') == 'MISMATCH' and
-        file_attr.metadata_file_exists ):
-        print(22*'_', file_attr.metadata_file)
-        diff = difflib.ndiff(
-            redacted_yaml(drive_file).splitlines(keepends=True),
-            redacted_yaml(yaml.safe_load(open(file_attr.metadata_file,'rb').read())).splitlines(keepends=True))
-        print( ''.join( list( diff )), end="")
-        print(79*'_')
+    if ( drive_file.get('yamlMD5Match') == 'MISMATCH' and file_attr.metadata_file_exists ):
+        print_obj_diffs( drive_file, file_attr.metadata_file )
     
-def download_file_and_metadata(service, drive_file, path, writer, metadata_names, output_format=None):
-    global items_downloaded
-    supplement_drive_file_metadata(service, drive_file, path)
-    file_attr = FileAttr( drive_file )
+def download_file_and_metadata(ctx, drive_file, path, writer, metadata_names, output_format=None):
+    supplement_drive_file_metadata(ctx, drive_file, path)
+    drive_file['revisions'] = retrieve_revisions(ctx, drive_file['id'])
+    file_attr = FileAttr( drive_file, ctx.user )
 
-    # dump( file_attr )
     if not file_attr.valid:
-        if download_file( service, drive_file ):
-            items_downloaded += 1
-            file_attr.update_local( drive_file )
-            file_attr.compare_metadata( drive_file )
-            save_metadata(drive_file)
-            file_attr.update_local_metadata_MD5()
-            file_attr.compare_metadata_MD5( drive_file )
-        else:
-            logging.critical( f"failed to download: {local_data_dir( drive_file ) + '/' + file_name(drive_file)}: {e}")
-    file_attr.compare_metadata( drive_file )
-    file_attr.update_local_metadata_MD5()
-    file_attr.compare_metadata_MD5( drive_file )
+        if not download_file( ctx, drive_file ):
+            logging.critical( f"failed to download: {local_data_dir( drive_file, ctx.user ) + '/' + file_name(drive_file)}")
+        file_attr.update_local( drive_file )
+        file_attr.compare_and_annotate_drive_file( drive_file )
+        update_yamlMetadataMD5( drive_file )
+        save_metadata( drive_file, ctx.user )
+
+    file_attr.compare_and_annotate_drive_file( drive_file )
+    file_attr.compare_and_annotate_drive_file_MD5( drive_file )
 
     data = jsonpath_list( drive_file, metadata_names )
 
@@ -366,46 +361,28 @@ def download_file_and_metadata(service, drive_file, path, writer, metadata_names
     if output_format:
         print( output_format.format( *[str(i) for i in data] ))
     if drive_file.get('yamlMD5Match') == 'MISMATCH':
-        print(44*'_', drive_file['title'])
-        diff = difflib.ndiff(
-            redacted_yaml(drive_file).splitlines(keepends=True),
-            redacted_yaml(yaml.safe_load(open(file_attr.metadata_file,'rb').read())).splitlines(keepends=True))
-        print( ''.join( list( diff )), end="")
-        print(79*'_')
+        print_obj_diffs( drive_file, file_attr.metadata_file )
 
-def save_metadata(drive_file):
-    metadata_path = local_metadata_dir( drive_file ) + '/' + file_name(drive_file) + '.yml'
+def save_metadata( drive_file, username ):
+    metadata_path = local_metadata_dir( drive_file, username ) + '/' + file_name(drive_file) + '.yml'
     ensure_dir(dirname(metadata_path))
     yaml.dump(drive_file, open(metadata_path, 'w+'), Dumper=yaml.Dumper)
 
-def get_user_info(service):
-    """Print information about the user along with the Drive API settings.
-
-  Args:
-    service: Drive API service instance.
-  """
-    try:
-        about = service.about().get().execute()
-        return about
-    except errors.HttpError as error:
-        print( f'Request for google about() failed: {e}' )
-        return None
-        
 def is_file(item):
     return item['mimeType'] != 'application/vnd.google-apps.folder'
     
 def is_folder(item):
     return item['mimeType'] == 'application/vnd.google-apps.folder'
         
-def download_listed_files(service, http, config, metadata_names=None, output_format=None):
+def download_listed_files(ctx, http, config, metadata_names=None, output_format=None):
     """Print information about the specified revision.
 
     Args:
-        service: Drive API service instance.
+        ctx: class Ctx
         file_id: ID of the file to print revision for.
         revision_id: ID of the revision to print.
     """
-    local_base_path = FLAGS.destination + '/' + username
+    local_base_path = FLAGS.destination + '/' + ctx.user
     with open(FLAGS.usecsv[0], 'rt') as csv_handle:
         reader = csv.reader(csv_handle)
         header = next(reader, None)
@@ -414,62 +391,23 @@ def download_listed_files(service, http, config, metadata_names=None, output_for
         for row in reader:
             path = dirname(row[index_of_path])
             try:
-                drive_file = service.files().get(fileId=row[index_of_id]).execute()
+                drive_file = ctx.service.files().get(fileId=row[index_of_id]).execute()
             except Exception as e:
                 print( f'cautght: {e}' )
                 logging.critical( f"Request Failed for: {row}", exc_info=True)
-            download_file_and_metadata(service, drive_file, path, None, metadata_names, output_format)
+            download_file_and_metadata( ctx, drive_file, path, None, metadata_names, output_format)
 
-def download_revision(service, drive_file, revision):
-    """Print information about the specified revision.
-
-    Args:
-        service: Drive API service instance.
-        file_id: ID of the file to print revision for.
-        revision_id: ID of the revision to print.
-    """
-    file_id = drive_file['id']
-    
-    try:
-        revision = service.revisions().get(fileId=file_id, revisionId=revision['id']).execute()
-    except Exception as e:
-        print( f'cautght: {e}' )
-        logging.critical( f"Request Failed for: {revision}", exc_info=True)
-    download_url, extension = get_url_and_ext(drive_file, revision)
-    file_location = local_data_dir( drive_file ) + '/' + file_name(drive_file, revision)
-
-    if download_url:
-        try:
-            resp, content = service._http.request(download_url)
-        except Exception as e:
-            print( f'cautght: {e}' )
-            logging.critical( f"Request Failed for: {download_url}", exc_info=True)
-        if resp.status == 200:
-            try:
-                with open( file_location, 'wb+' ) as handle:
-                    handle.write( content )
-            except Exception as e:
-                print( f'cautght: {e}' )
-                logging.critical( f"{file_location} Could not open file %s for writing. Please check permissions.", exc_info=True)
-                return False
-            return True
-        else:
-            logging.critical( resp )
-            return False
-    else:
-        return False
-    
-def retrieve_revisions(service, file_id):
+def retrieve_revisions( ctx, file_id ):
     """Retrieve a list of revisions.
 
     Args:
-    service: Drive API service instance.
+    ctx: Ctx context obj
     file_id: ID of the file to retrieve revisions for.
     Returns:
     List of revisions.
     """
     try:
-        revisions = service.revisions().list(fileId=file_id).execute()
+        revisions = ctx.service.revisions().list(fileId=file_id).execute()
     except Exception as e:
         print( f'cautght: {e}' )
         logging.critical( f"Request Failed for: {file_id}", exc_info=True)
@@ -481,7 +419,9 @@ def retrieve_revisions(service, file_id):
 def is_google_doc(drive_file):
     return True if re.match( '^application/vnd\.google-apps\..+', drive_file['mimeType'] ) else False
 
-def get_url_and_ext(drive_file, revision):
+def get_url_and_ext(drive_file, revision=None):
+    if not revision:
+        revision = drive_file
     if is_google_doc(drive_file):
         if FLAGS.pdf:
             download_url = revision['exportLinks']['application/pdf']
@@ -508,7 +448,7 @@ def get_url_and_ext(drive_file, revision):
         extension = ''
     return [download_url, extension]
 
-def local_data_dir( drive_file ):
+def local_data_dir( drive_file, username ):
     return '/'.join([ FLAGS.destination, username, drive_file['path'] ])
 
 def file_name( drive_file, revision=None ):
@@ -523,36 +463,37 @@ def file_name( drive_file, revision=None ):
         name += '.' + drive_file['fileExtension']
     return name
 
-def local_metadata_dir( drive_file ):
+def local_metadata_dir( drive_file, username ):
     return '/'.join([ FLAGS.metadata_destination, username, drive_file['path'] ])
 
 
-def download_file( service, drive_file ):
+def download_file( ctx, drive_file, revision=None ):
     """Download a file's content.
 
     Args:
-      service: Drive API service instance.
+      ctx: Ctx context obj
       drive_file: Drive File instance.
-    
+      revision: if not None, Drive Files Revision metadata, including links, ID, Modify date.
+
     Returns:
       True if successful, else False.
     """
     
-    download_url, extension = get_url_and_ext(drive_file, drive_file)
-    file_path = local_data_dir( drive_file ) + '/' + file_name(drive_file)
+    download_url, extension = get_url_and_ext( drive_file, revision )
+    file_path = local_data_dir( drive_file, ctx.user ) + '/' + file_name(drive_file, revision)
 
     if not download_url:
         return False
     else:
-        if FLAGS.revisions:
+        if FLAGS.revisions and not revision:
             revision_list = drive_file.get('revisions')
             if revision_list:
-                for revision in revision_list[1:len(revision_list)]:
-                    download_revision(service, drive_file, revision)
-        
+                for rev in revision_list:   # was [1:len(revision_list)]
+                    download_file( ctx, drive_file, rev )
+
         while True:
             try:
-                resp, content = service._http.request(download_url)
+                resp, content = ctx.service._http.request(download_url)
             except Exception as e:
                 logging.critical( f"Exception {e} while reading {file_path}. Retrying...", exc_info=True)
                 continue
@@ -564,9 +505,20 @@ def download_file( service, drive_file ):
                     logging.critical( f"Cannot open {file_path} for writing: {e}", exc_info=True)
                     return False
 
+                ctx.downloaded += 1
+                if revision: 
+                    revision['md5Checksum'] = md5( content ).hexdigest()
+                    revision['fileSize'] = len( content )
+                elif drive_file.get('md5Checksum') is None:
+                    drive_file['md5Checksum'] = md5( content ).hexdigest()
+                    drive_file['fileSize'] = len( content )
+
                 try:
                     # time stamps set on exported files
-                    modify_time = sec_since_epoch( drive_file.get( 'modifiedByMeDate' ))
+                    if revision:
+                        modify_time = sec_since_epoch( revision.get( 'modifiedDate' ))
+                    else:
+                        modify_time = sec_since_epoch( drive_file.get( 'modifiedByMeDate' ))
                     access_time = sec_since_epoch( drive_file.get( 'lastViewedByMeDate' ))
                     create_time = sec_since_epoch( drive_file.get( 'createdDate' ))
 
@@ -586,38 +538,40 @@ def download_file( service, drive_file ):
                     logging.critical( f"While setting file times, got exception: {e}", exc_info=True)
                 finally:
                     handle.close()
-
-                return True
+                    return True
             else:
                 logging.critical( resp )
                 return False
 
-def walk_gdrive( service, folder, handle_item, path='.' ):
+
+def walk_gdrive( ctx, folder, handle_item, path=None ):
+    if path is None:
+        path = '.' 
     param = {'q': f"'{folder['id']}' in parents" }   # first page
     while True: # repeat for each page
         try:
-            file_list = service.files().list(**param).execute()
+            file_list = ctx.service.files().list(**param).execute()
         except Exception as e:
             logging.critical( f"Couldn't get contents of folder {file_list['title']}", exc_info=True)
         filename = folder['title'].replace( '/', '_' )
         for item in file_list['items']:
             if is_folder( item ):
-                walk_gdrive( service, item, handle_item, path + '/' + filename )
+                walk_gdrive( ctx, item, handle_item, path + '/' + filename )
             elif is_file( item ):
-                handle_item( service, item, path )
+                handle_item( ctx, item, path )
         if file_list.get('nextPageToken'):
             param['pageToken'] = file_list.get('nextPageToken')
         else:
             break
 
-def walk_local_metadata( service, handle_item, path ):
+def walk_local_metadata( ctx, handle_item, path ):
     for dirent in os.scandir( path ):
         if dirent.is_dir():
-            walk_local_metadata( service, handle_item, path + '/' + dirent.name )
+            walk_local_metadata( ctx, handle_item, path + '/' + dirent.name )
         elif dirent.is_file():
             try:
                 drive_file = redacted_dict(yaml.safe_load(open(path + '/' + dirent.name,'rb').read()))
-                handle_item( service, drive_file, path )
+                handle_item( ctx, drive_file, path )
             except Exception as e:
                 msg = f"cannot read metadata {path + '/' + dirent.name}, cautght: {e}"
                 print( msg )
@@ -625,6 +579,28 @@ def walk_local_metadata( service, handle_item, path ):
             
 def get_titles( config, metadata_names ):
     return [ config.get('csv_title').get(name) or name for name in metadata_names ]
+
+def get_gdrive_folder( ctx, path=None, file_id='root' ):
+    if path:
+        for folder_name in path.split('/'):
+            file_list = ctx.service.files().list( **{'q': f"'{file_id}' in parents and title='{folder_name}'"} ).execute()
+            drive_file = file_list['items'][0]
+        return drive_file
+    else:
+        return ctx.service.files().get( fileId=file_id ).execute()
+        
+
+
+class Ctx( object ):
+    def __init__( self, service ):
+        self.service = service
+        try:
+            about = self.service.about().get().execute()
+            self.user = about['user']['emailAddress']
+        except errors.HttpError as error:
+            print( f'Request for google about() failed: {e}' )
+            self.user = '(nouser)'
+        self.downloaded = 0
 
 def main(argv):
     # Let the flags module process the command-line arguments
@@ -718,6 +694,7 @@ csv_title:
   labels: Labels
   lastModifyingUserName: Last Mod By
   lastViewedByMeDate: My Last View
+  'lastModifyingUser.emailAddress': Last Mod Email
   local_path: Local Path
   md5Checksum: MD5 of File
   md5Match: MD5s
@@ -834,16 +811,8 @@ Error: {e}\n""" )
         credentials = run_flow(FLOW, storage, oflags, http)
     http = credentials.authorize(http)
 
-    service = build("drive", "v2", http=http)
-    user_info = get_user_info(service)
-    
-    global username
-    
-    if user_info != None:
-        username = user_info['user']['emailAddress']
-    else:
-        username = '???'
-    ensure_dir(FLAGS.destination + '/' + username)
+    ctx = Ctx( build("drive", "v2", http=http))
+    ensure_dir(FLAGS.destination + '/' + ctx.user)
 
     try:
         start_time = datetime.now()
@@ -852,60 +821,46 @@ Error: {e}\n""" )
             csv_prefix = config.get('gdrive',{}).get('csv_prefix')
             if csv_prefix.find('/'):
                 ensure_dir(dirname(csv_prefix))
-            with open(config.get('gdrive',{}).get('csv_prefix') + username + '.csv', 'w') as csv_handle:
+            with open(config.get('gdrive',{}).get('csv_prefix') + ctx.user + '.csv', 'w') as csv_handle:
                 writer = csv.writer(csv_handle, delimiter=',')
                 writer.writerow( get_titles( config, metadata_names ) )
-                try:
-                    start_folder = service.files().get( fileId=FLAGS.drive_id ).execute()
-                except Exception as e:
-                    print( f"Request Failed for: {FLAGS.drive_id}")
-                    logging.critical( f"Request Failed for: {FLAGS.drive_id}", exc_info=True)
 
-                def handle_item( service, item, path ):
-                    if (
-                        ( FLAGS.list == 'all' )
-                        or
-                        (   ( FLAGS.list in ['doc','xls', 'ppt', 'text', 'pdf', 'image', 'audio', 'video', 'other']
-                             and FLAGS.list == file_type_from_mime(item['mimeType']) ))
-                        or 
-                        (  ( FLAGS.list == 'office'
-                            and file_type_from_mime(item['mimeType']) in ['doc', 'xls', 'ppt']))
-                            ):
-                        print_file_metadata(service, item, path, writer, metadata_names, output_format)
-                walk_gdrive( service, start_folder, handle_item)
-            print(f'\n{items_downloaded} files downloaded from {username}')
+                path=FLAGS.folder
+                gdrive_folder = get_gdrive_folder( ctx, path )
+                def handle_item( ctx, item, path ):
+                    if ( ( FLAGS.list == 'all' )
+                        or (( FLAGS.list in ['doc','xls', 'ppt', 'text', 'pdf', 'image', 'audio', 'video', 'other'] )
+                            and FLAGS.list == file_type_from_mime(item['mimeType']) )
+                        or (( FLAGS.list == 'office' )
+                            and file_type_from_mime(item['mimeType']) in ['doc', 'xls', 'ppt']) ):
+                        print_file_metadata( ctx, item, path, writer, metadata_names, output_format)
+                walk_gdrive( ctx, gdrive_folder, handle_item)
 
         elif FLAGS.download:
             print( output_format.format( *[ config.get('csv_title').get(name) or name for name in metadata_names ]))
-            try:
-                start_folder = service.files().get( fileId=FLAGS.drive_id ).execute()
-            except Exception as e:
-                print( f"Request Failed for: {FLAGS.drive_id}")
-                logging.critical( f"Request Failed for: {FLAGS.drive_id}", exc_info=True)
-            with open(config.get('gdrive',{}).get('csv_prefix') + username + '.csv', 'w') as csv_handle:
+            path=FLAGS.folder
+            gdrive_folder = get_gdrive_folder( ctx, path )
+            with open(config.get('gdrive',{}).get('csv_prefix') + ctx.user + '.csv', 'w') as csv_handle:
                 writer = csv.writer(csv_handle, delimiter=',')
                 writer.writerow( get_titles( config, metadata_names ) )
 
-                def handle_item( service, item, path ):
-                    ensure_dir(FLAGS.destination + '/' + username + '/' + path)
-                    if (
-                        ( FLAGS.download == 'all' )
-                        or 
-                        ( ( FLAGS.download in ['doc','xls', 'ppt', 'text', 'pdf', 'image', 'audio', 'video', 'other'] )
-                         and FLAGS.download == file_type_from_mime(item['mimeType']) )
-                        or
-                        ( FLAGS.download == 'office'
-                         and file_type_from_mime(item['mimeType']) in ['doc', 'xls', 'ppt'])
-                         ):
-                        download_file_and_metadata(service, item, path, writer, metadata_names, output_format)
-                walk_gdrive( service, start_folder, handle_item )
-            print(f'\n{items_downloaded} files downloaded from {username}')
+                def handle_item( ctx, item, path ):
+                    ensure_dir(FLAGS.destination + '/' + ctx.user + '/' + path)
+                    if ( ( FLAGS.download == 'all' )
+                        or ( ( FLAGS.download in ['doc','xls', 'ppt', 'text', 'pdf', 'image', 'audio', 'video', 'other'] )
+                            and FLAGS.download == file_type_from_mime(item['mimeType']) )
+                        or ( FLAGS.download == 'office'
+                            and file_type_from_mime(item['mimeType']) in ['doc', 'xls', 'ppt']) ):
+                        download_file_and_metadata( ctx, item, path, writer, metadata_names, output_format)
+
+                walk_gdrive( ctx, gdrive_folder, handle_item )
+            print(f"\n{ctx.downloaded} files downloaded from {ctx.user}")
 
         elif FLAGS.usecsv:
             header = output_format.format( *get_titles( config, metadata_names ))
             print( header )
-            download_listed_files(service, config, metadata_names, output_format)
-            print(f'\n{items_downloaded} files downloaded from {username}')
+            download_listed_files( ctx, config, metadata_names, output_format)
+            print(f"\n{ctx.downloaded} files downloaded from {ctx.user}")
 
         elif FLAGS.verify:
             header = output_format.format( *get_titles( config, metadata_names ))
@@ -916,11 +871,11 @@ Error: {e}\n""" )
                     writer = csv.writer(csv_handle, delimiter=',')
                     writer.writerow( get_titles( config, metadata_names ) )
 
-                    def handle_item( service, drive_file, path ):
-                        file_attr = FileAttr( drive_file )
-                        file_attr.compare_metadata( drive_file )
+                    def handle_item( ctx, drive_file, path ):
+                        file_attr = FileAttr( drive_file, ctx.user )
+                        file_attr.compare_and_annotate_drive_file( drive_file )
                         file_attr.update_local_metadata_MD5()
-                        file_attr.compare_metadata_MD5( drive_file )
+                        file_attr.compare_and_annotate_drive_file_MD5( drive_file )
                         if drive_file['status'] == 'INVALID':
                             print(22*'_', ' drive_file ', dirent.name)
                             dump(drive_file)
@@ -932,18 +887,12 @@ Error: {e}\n""" )
                         if output_format:
                             print( output_format.format( *[str(i) for i in data] ))
                         if drive_file.get('yamlMD5Match') == 'MISMATCH':
-                            print(44*'_', drive_file['title'])
-                            diff = difflib.ndiff(
-                                redacted_yaml(drive_file).splitlines(keepends=True),
-                                redacted_yaml(yaml.safe_load(open(file_attr.metadata_file,'rb').read())).splitlines(keepends=True))
-                            print( ''.join( list( diff )), end="")
-                            print(79*'_')
+                            print_obj_diffs( drive_file, file_attr.metadata_file )
 
                     for dirent in os.scandir( FLAGS.metadata_destination ):
                         if dirent.is_dir():
                             username = dirent.name
-                            walk_local_metadata( service, handle_item, FLAGS.metadata_destination + '/' + username )
-
+                            walk_local_metadata( ctx, handle_item, FLAGS.metadata_destination + '/' + username )
 
         end_time = datetime.now()
         print(f'Duration: {end_time - start_time}')

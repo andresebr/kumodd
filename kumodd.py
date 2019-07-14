@@ -55,7 +55,6 @@ def main(argv):
             
     if FLAGS.service == 'gdrive':
         flags.DEFINE_string('logfile', 'gdrive.log', 'Location of file to write the log' )
-        flags.DEFINE_string('drive_id', 'root', 'ID of the folder whose contents are to be fetched' )
         gdrive.main(argv)
     elif FLAGS.service == 'dropbox':
         print( 'Coming soon...' )

@@ -4,11 +4,11 @@ Kumodd downloads files and their metadata from a specified Google
 Drive account in a forensically sound manner.
 
 - Files can be filtered by category, such as doc, image, or video.  
-- Extensive Google Drive metadata of each file is preserved as a corresponding YAML file.  
-- Metadata columns of exported CSV may be selected in the configuration file.  
-- Last Modified and Last Accessed times on disk are verified.  
-- MD5 of file on disk is verified.
-- File size on disk is verified.
+- Extensive Google Drive metadata of each file is preserved as a corresponding [YAML file](#example-raw-metadata).  
+- Metadata columns of exported CSV may be selected in the [configuration file](#configuration).
+- [Last Modified and Last Accessed times](#time-stamps) on disk are verified.
+- [MD5 of file on disk is verified](#data-verification).
+- [File size on disk is verified](#data-verification).
 - MD5 of bulk metadata on disk is verified.
 
 ## Usage examples
@@ -89,19 +89,19 @@ metadata preserved exactly as retrieved from the Google Drive API.
 
 ## Metadata
 
-Google Drive API Metadata of each file is preserved in YAML format (*see* [Example raw
-metadata](#example-raw-metadata)).  While files are stored in ./download, their
-corresponding metadata are saved in ./download/metadata.  For foo.doc, the file and its
+Metadata of each file is preserved in YAML format (*see* [Example raw
+metadata](#example-raw-metadata)).  By default, files are stored in a path in
+./download, and their metadata in ./download/metadata.  For foo.doc, the file and its
 metadata paths would be:
 - ./download/john.doe@gmail.com/My Drive/foo.doc
 - ./download/metadata/john.doe@gmail.com/My Drive/foo.doc.yml
 
 ## Data Verification
 
-Kmodd verifies both the data and the metadata. Data is verified by comparing a file's
-MD5, size, Last Modified, and Last Accessed times.  Kumodd reports whether each of them
-matches, as shown in [How to Verify Data](#how-to-verify-data). It also compares the MD5
-of the metadata with the previously recorded value.
+Kmodd verifies both data and metadata. Data is verified by comparing a file's MD5, size,
+and Last Modified time.  Kumodd can report whether each matches Google Drive's metadata,
+as shown in [How to Verify Data](#how-to-verify-data). Kumodd also compares the MD5 of
+the metadata with the value computed when the data was read from Google Drive.
 
 Metadata		| Description
 :----			| :----
@@ -116,12 +116,17 @@ accTimeMatch		| match if lastViewedByMeDate and FS Last Access Time are equal.
 yamlMetadataMD5		| MD5 of the redacted metadata.
 yamlMD5Match		| match if metadata MD5 on disk = data from Google Drive.
 
-Verification is performed when listing or downloading files.  When downloading, if any
-of MD5, file size or Last Modify time differ from Google Drive's metadata, kumodd will
+Data is verified when listing or downloading files.  When downloading, if any of MD5,
+file size or Last Modify time differ from Google Drive's metadata, kumodd will
 re-download the file and update the YAML metadata. Next, it will re-read the file to
 recompute the md5Match, sizeMatch and modTimeMatch, to ensure that the data on disk are
-valid.  Native Google Apps and certain PDF files do not provide a MD5 digest, in which
-case, kumodd compares the file size and Last Modify time.
+valid.  
+
+Google Docs, Sheets, Slides and other Google native files does not have an MD5s
+provided by the API.  For these file types, kumodd
+
+Native Google Apps and certain PDF files do not provide a MD5
+digest, in which case, kumodd compares the file size and Last Modify time.
 
 Kumodd also verifies bulk metadata. However, certain metadata are ephemeral; they are
 valid for a limited time after they are downloaded, after which a subsequent download
@@ -223,16 +228,8 @@ Command line arguments are used for configuration specific to a data set or case
 a YAML file is used for configuration items not specific to a data set or case.  This is
 intended to support reproducibility. The configuration file contains:
 
-Name		| Description
-:-----		| :-----
-gdrive_auth	| filename of the google drive account authorization. Ignored if provided on command line.
-oauth_id	| filename of the Oauth client ID credentials
-csv_columns	| various profiles of CSV/Table columns
-csv_title	| list of column titles for each metadata name
-
-'csv_columns' specifies various output profiles.  Each profile specifies a set of columns.
-
-Here is the 'owners' profile containing three columns.  These columns may be
+'csv_columns' specifies various output profiles.  Each profile specifies a set of
+columns.  Here is the 'owners' profile containing three columns.  These columns may be
 selected using 'kumodd.py -col owners'.
 
 ``` yaml
@@ -252,9 +249,20 @@ syntax](https://github.com/h2non/jsonpath-ng).
 owner email addresses, with a fixed width of 20 characters on standard output.  The
 width limit effects standard output, while CSV output has no width limit.
 
+Column titles are configured as shown below
 
-[Example raw
-metadata](#example-raw-metadata) shows a variety of available metadata.  They include:
+``` yaml
+csv_title:
+  status:  Status
+  'owners[*].emailAddress':  Owners
+  fullpath:  Full Path
+```
+
+
+
+
+[Example raw metadata](#example-raw-metadata) shows a variety of available metadata.
+They include:
 
 CSV Columns		| Description 
 :------			| :-----------
@@ -274,9 +282,17 @@ path                    | File path in Google Drive
 id                      | Unique [Google Drive File ID](https://developers.google.com/drive/api/v3/about-files)
 shared                  | Is shared in Google Drive to other users (true/false)
 
+
+
+
 Metadata names are translated to CSV column titles using 'csv_title' in the
 configuration file.  If a title is not defined there, the metadata name is used as the
 CSV column title.
+
+Name		| Description
+:-----		| :-----
+gdrive_auth	| filename of the google drive account authorization. Ignored if provided on command line.
+oauth_id	| filename of the Oauth client ID credentials
 
 See the [Default YAML Configuration File](#default-yaml-configuration-file) for more details.
 
@@ -519,6 +535,7 @@ csv_title:
   originalFilename: Original File Name
   ownerNames: Owner
   owners: Owners
+  'owners[*].emailAddress':  Owners
   parents: Parents
   path: Path
   quotaBytesUsed: Quota Used
