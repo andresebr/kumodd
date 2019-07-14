@@ -77,7 +77,6 @@ created time stamp, including Ext4, UFS2, Hammer, LFS, and ZFS (*see* [Wikipedia
 Comparison of File Systems](https://en.wikipedia.org/wiki/Comparison_of_file_systems)).
 However, the Linux kernel provides no method (e.g. system call or library) to read or
 write the Created time, so Created time is not available to kumodd on Linux.
-So, although the Created Time is set on Windows, it is often incorrect.
 
 If file system time stamps are to be used in analysis, the -verify option can be used to
 verify they are consisent with the metadata.  External tools can be used as well for
@@ -404,7 +403,7 @@ proxy:
   pass: password (optional)
 ```
 
-## Caveats
+## Limitations
 
 Downloading native Google Apps docs, sheets and slides is much slower than non-native
 files, because format conversion to PDF of LibreOffice is required.
@@ -412,8 +411,17 @@ files, because format conversion to PDF of LibreOffice is required.
 Using an HTTP proxy on Windows does not work due to unresolved issues with python 3's
 httplib2.
 
-[Google rate limits API calls](https://console.cloud.google.com/apis/api/drive.googleapis.com/quotas).
-At the time of writing, the default rate limits are:
+Although the Created Time is set on Windows, the system often fails to set it, and
+verifcation fails.
+
+Kumodd does not verify the MD5 and time stamps of revisions.  The metadata is preserved,
+and the time stamps of the files are set, but the interface as it stands does not
+provision for selecting the revisions in CSV output.
+
+[Google rate limits API
+calls](https://console.cloud.google.com/apis/api/drive.googleapis.com/quotas).  At the
+time of writing, the default rate limits shown below.  Kumodd is unlikely to exceed
+these limits when downloading.
 
 - 1,000,000,000 queries per day
 - 1,000 queries per 100 seconds per user
