@@ -5,7 +5,7 @@ Drive account in a forensically sound manner.
 
 - Files can limited by folder and by category, such as doc, image, or video.  
 - [Extensive metadata of each file is preserved](#example-raw-metadata).  
-- [CSV export with configuratble columns](#configuration).
+- [CSV export with configurable columns](#configuration).
 - [Last Modified and Last Accessed times on disk are verified](#time-stamps).
 - [MD5 and size of each file on disk are verified](#data-verification).
 - MD5 of metadata of each file is verified.
