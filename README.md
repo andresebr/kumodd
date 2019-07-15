@@ -142,7 +142,7 @@ There are two way Kumodd can verify data: with or without retrieving metadata fr
 Google Drive.  When listing (-list or -l option), Kumodd retrieves metadata from Google
 Drive and verifies local data are consistent with Google Drive.  When verifying (-verify
 or -V option) Kumodd uses the previously saved YAML metadata on disk to verify whether
-data on disk are correct.
+data on disk are correct. -V also verifies the MD5 of all of the revisions.
 
 Either way, Kumodd confirms whether the files' MD5, file size, and Last Modified and
 Last Accessed are correct.  In addition, it confirms whether the MD5 of the metadata
@@ -411,10 +411,6 @@ httplib2.
 Although the Created Time is set on Windows, the system often fails to set it, and
 verifcation fails.
 
-Kumodd does not verify the MD5 and time stamps of revisions.  The metadata is preserved,
-and the time stamps of the files are set, but the interface as it stands does not
-provision for selecting the revisions in CSV output.
-
 [Google rate limits API
 calls](https://console.cloud.google.com/apis/api/drive.googleapis.com/quotas).  At the
 time of writing, the default rate limits shown below.  Kumodd is unlikely to exceed
@@ -628,8 +624,8 @@ writersCanShare: true
 
 ## References
 
-Roussev, Vassil, and Shane McCulley. "Forensic analysis of cloud-native artifacts."
-Digital Investigation 16 (2016): S104-S113.
+[Roussev, Vassil, and Shane McCulley. "Forensic analysis of cloud-native artifacts."
+Digital Investigation 16 (2016): S104-S113](https://www.sciencedirect.com/science/article/pii/S174228761630007X).
 
-Roussev V, Barreto A, Ahmed I. Forensic acquisition of cloud drives. In: Peterson G,
-Shenoi S, editors. Advances in Digital Forensics, vol. XII.  Springer; 2016.
+[Roussev V, Barreto A, Ahmed I. Forensic acquisition of cloud drives. In: Peterson G,
+Shenoi S, editors. Advances in Digital Forensics, vol. XII.  Springer; 2016.](https://www.researchgate.net/publication/301873216_Forensic_Acquisition_of_Cloud_Drives)

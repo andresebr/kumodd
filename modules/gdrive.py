@@ -159,9 +159,12 @@ def redacted_dict( dict_in ):
 def redacted_yaml( dict_in ):
     return yaml_string(remove_keys_that_contain(['Link', 'Match', 'status', 'Url', 'yaml'], dict_in))
 
+def md5hex( content ):
+    return md5( content ).hexdigest()
+
 # get the MD5 digest of the yaml of the metadata dict, excluding the *yaml*, *Url*, and *status* keys
 def MD5_of_yaml_of(dict_in):
-    return md5(redacted_yaml( dict_in ).encode('utf8')).hexdigest()
+    return md5hex(redacted_yaml( dict_in ).encode('utf8'))
 #----------------------------------------------------------------
 # return a list of values
 # return a value at object path, eg. 
@@ -232,7 +235,7 @@ class FileAttr( object ):
             self.local_mod_time = os.path.getmtime( self.local_file )
             self.local_acc_time = os.path.getatime( self.local_file )
             self.localSize	= os.path.getsize(self.local_file)
-            self.md5Local	= md5(open(self.local_file,'rb').read()).hexdigest()
+            self.md5Local	= md5hex(open(self.local_file,'rb').read())
         else:
             self.yamlMetadataMD5 = None
             self.local_mod_time	= None
@@ -312,6 +315,14 @@ class FileAttr( object ):
             else:
                 drive_file['yamlMD5Match'] = 'MISMATCH'
 
+def verify_revisions( ctx, drive_file):
+    if drive_file.get('revisions'):
+        for rev in drive_file.get('revisions'):
+            file_path = local_data_dir( drive_file, ctx.user ) + '/' + file_name(drive_file, rev )
+            md5ofRev = md5hex(open(file_path,'rb').read())
+            if md5ofRev != rev['md5Checksum']:
+                print(f"invalid revision: {file_path} {md5ofRev} should be {rev['md5Checksum']}")
+                    
 # record MD5 of drive_file object
 def update_yamlMetadataMD5(drive_file):
     drive_file['yamlMetadataMD5'] = MD5_of_yaml_of(drive_file)
@@ -450,6 +461,7 @@ def get_url_and_ext(drive_file, revision=None):
         extension = ''
     return [download_url, extension]
 
+# determine the mime type used to download files.
 def get_mime_type(drive_file, revision=None):
     if not revision:
         revision = drive_file
@@ -541,10 +553,10 @@ def download_file( ctx, drive_file, revision=None ):
 
                 ctx.downloaded += 1
                 if revision: 
-                    revision['md5Checksum'] = md5( content ).hexdigest()
+                    revision['md5Checksum'] = md5hex( content )
                     revision['fileSize'] = len( content )
                 elif drive_file.get('md5Checksum') is None:
-                    drive_file['md5Checksum'] = md5( content ).hexdigest()
+                    drive_file['md5Checksum'] = md5hex( content )
                     drive_file['fileSize'] = len( content )
 
                 try:
@@ -910,6 +922,7 @@ Error: {e}\n""" )
                         file_attr.compare_and_annotate_drive_file( drive_file )
                         file_attr.update_local_metadata_MD5()
                         file_attr.compare_and_annotate_drive_file_MD5( drive_file )
+                        verify_revisions( ctx, drive_file)
                         if drive_file['status'] == 'INVALID':
                             print(22*'_', ' drive_file ', dirent.name)
                             dump(drive_file)
