@@ -218,8 +218,10 @@ Command line arguments are used for configuration specific to a data set or case
 a YAML file is used for configuration items not specific to a data set or case.  This is
 intended to support reproducibility. The configuration file contains:
 
-Specify sets of CSV columns in the 'csv_columns' tag.  'owners' is a named set of
-columns.  These columns may be selected using 'kumodd.py -col owners'.
+Specify named sets of CSV columns under the 'csv_columns' tag.  'owners' is a named set of
+columns.  These columns may be selected using 'kumodd.py -col owners'.  See the [Default
+YAML Configuration File](#default-yaml-configuration-file) for a complete list of named
+column sets.
 
 ``` yaml
 gdrive:
