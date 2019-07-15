@@ -230,13 +230,13 @@ gdrive:
     - [fullpath, 50]
 ```
 
-Each column selects a metadata name, followed by fixed width of the column on standard
-output.  Metadata names are selected using [jsonpath
+Each column selects a metadata name, followed by fixed column width for standard output
+(CSV export has no limit).  Metadata names are selected using [jsonpath
 syntax](https://github.com/h2non/jsonpath-ng).
 
 "- ['owners[*].emailAddress', 20]" specifies a column containing a list of the document
 owner email addresses, with a fixed width of 20 characters on standard output.  The
-width limit effects standard output, while the exported CSV file has no width limit.
+width limit effects standard output only.
 
 Column titles are configured as shown below.  Names containing spaces or delimiters must
 be quoted.
