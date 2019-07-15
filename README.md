@@ -402,8 +402,8 @@ proxy:
 
 ## Limitations
 
-Downloading native Google Apps docs, sheets and slides is much slower than non-native
-files, because format conversion to PDF of LibreOffice is required.
+Conversion of native Google Apps Docs, Sheets And slides makes their download much
+slower than non-native files.
 
 Using an HTTP proxy on Windows does not work due to unresolved issues with python 3's
 httplib2.
