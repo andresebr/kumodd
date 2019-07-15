@@ -342,7 +342,7 @@ Google API use, and finally, authorize access to the specified account.
     Once authorized, the login page will not be shown again unless the token
     expires or config/gdrive.dat is deleted.
 
-## Usage
+## Command Line Options
 
     ./kumodd.py [flags]
 
