@@ -4,7 +4,7 @@ Kumodd downloads files and their metadata from a specified Google
 Drive account in a forensically sound manner.
 
 - Limit downloaded files by folder and by category, such as doc, image, video, pdf.  
-- Export native Google Apps docuemnts as PDF or LibreOffice.
+- Export Google Docs, Sheets, Slides as PDF or LibreOffice.
 - [Export CSV with configurable columns](#configuration).
 - [Verify MD5, size, and Last Modified and Accessed times of files on disk](#data-verification).
 - [Verify MD5 of extensive metadata of each file](#example-raw-metadata).
