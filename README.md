@@ -112,18 +112,19 @@ accTimeMatch		| match if lastViewedByMeDate and FS Last Access Time are equal.
 yamlMetadataMD5		| MD5 of the redacted metadata.
 yamlMD5Match		| match if metadata MD5 on disk = data from Google Drive.
 
-Data is verified when listing or downloading files.  When downloading, The API provides
-an MD5 of non-native files.  For native Google Docs, Sheets, Slides, the MD5 is computed
-in memory prior to writing the data to disk.  When downloading, if any of MD5, file size
-or Last Modify time differ from the metadata, kumodd will re-download the file and
-update the YAML metadata. Next, it will re-read the file to recompute the md5Match,
-sizeMatch and modTimeMatch, to ensure that the data on disk are valid.  
+Data is verified when listing or downloading files.  During downloading, Google Drive
+provides an MD5 only for non-native files.  For native Google Docs, Sheets, and Slides,
+the MD5 is computed in memory prior to writing the data to disk.  During downloading, if
+a file exists, but any of the MD5, size or Last Modify time differ from the previously
+saved metadata, kumodd will re-download the file and save the updated YAML
+metadata. Next, it will re-read the saved file and metadata to ensure the 
+MD5, size and time stamp on disk are valid.  
 
-Kumodd also verifies bulk metadata. However, certain metadata are ephemeral; they are
-valid for a limited time after they are downloaded, after which a subsequent download
-retrieves differing values. For example, the value of 'thumbnailLink' changes every time
-the metadata is retrieved from Google Drive.  Other 'Link' and URL values may change
-after a few weeks.
+Kumodd also verifies bulk metadata. However, certain metadata are dynamic while others
+are static.  Dynamic items are valid for a limited time after they are downloaded, after
+which a subsequent download retrieves differing values. For example, the value of
+'thumbnailLink' changes every time the metadata is retrieved from Google Drive.  Other
+'Link' and URL values may change after a few weeks.
 
 Kumodd saves the complete, unredacted metadata in a YAML file.  Before computing the
 bunk MD5 of the metadata, Kumodd redacts all metadata names containing the words: Link,
@@ -199,7 +200,7 @@ grep yamlMetadataMD5 'download/metadata/john.doe@gmail.com/My Drive/report_1424.
 yamlMetadataMD5: 216843a1258df13bdfe817e2e52d0c70
 ```
 
-To verify the MD5 of the metadata, ephemeral values are removed first (*see* [Data
+To verify the MD5 of the metadata, dynamic values are removed first (*see* [Data
 Verification](#data-verification)).  To filter and digest, [yq, a command line YAML
 query tool](https://yq.readthedocs.io/), and md5sum may be used.
 
