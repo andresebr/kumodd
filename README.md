@@ -115,10 +115,10 @@ yamlMD5Match		| match if metadata MD5 on disk = data from Google Drive.
 Data is verified when listing or downloading files.  During downloading, Google Drive
 provides an MD5 only for non-native files.  For native Google Docs, Sheets, and Slides,
 the MD5 is computed in memory prior to writing the data to disk.  During downloading, if
-a file exists, but any of the MD5, size or Last Modify time differ from the previously
-saved metadata, kumodd will re-download the file and save the updated YAML
-metadata. Next, it will re-read the saved file and metadata to ensure the 
-MD5, size and time stamp on disk are valid.  
+a file exists, but any of the MD5, size or Last Modify time differ between Google
+Drive's reported values and the values on disk, then kumodd will re-download the file
+and save the updated YAML metadata. Next, it will re-read the saved file and metadata to
+ensure the MD5, size and time stamp on disk are valid.  
 
 Kumodd also verifies bulk metadata. However, certain metadata are dynamic while others
 are static.  Dynamic items are valid for a limited time after they are downloaded, after
@@ -159,8 +159,8 @@ valid  match     match     match     match     match     ./My Drive/report_1424.
 To review accuracy of the data and metadata using previously downloaded metadata, use
 the "-verify" or "-V" option. This does not read data from Google Drive, but rather
 re-reads the previously saved YAML metadata on disk, and confirms whether the files'
-MD5, size, Last Modified, and Last Accessed time, and MD5 of the metadata are correct.
-This also confirms whether the MD5 of the metadata match the previously recorded MD5.
+MD5, size, Last Modified, and Last Accessed time are correct.  This also confirms
+whether the MD5 of the metadata match the previously recorded MD5.
 
 ``` shell
 kumodd.py -verify -col verify
@@ -205,13 +205,12 @@ Verification](#data-verification)).  To filter and digest, [yq, a command line Y
 query tool](https://yq.readthedocs.io/), and md5sum may be used.
 
 ``` shell
-sudo -Hi python -m pip install yq
 yq -y '.|with_entries(select(.key|test("(Link|Match|status|Url|yaml)")|not))' <'download/metadata/john.doe@gmail.com/My Drive/report_1424.pdf.yml'|md5sum
 216843a1258df13bdfe817e2e52d0c70  -
 ```
 
-If there are changes in the metadata, diff can be used to identify the altered
-properties. Kumodd also generates diffs when altered metadata is detected.
+During listing, if there are changes in the metadata, Kumodd will output diffs that
+idetnify the values that changed between previously saved and Google Drive metadata.
 
 ## Configuration
 
@@ -219,9 +218,8 @@ Command line arguments are used for configuration specific to a data set or case
 a YAML file is used for configuration items not specific to a data set or case.  This is
 intended to support reproducibility. The configuration file contains:
 
-'csv_columns' specifies various output profiles.  Each profile specifies a set of
-columns.  Here is the 'owners' profile containing three columns.  These columns may be
-selected using 'kumodd.py -col owners'.
+Specify sets of CSV columns in the 'csv_columns' tag.  'owners' is a named set of
+columns.  These columns may be selected using 'kumodd.py -col owners'.
 
 ``` yaml
 gdrive:
@@ -238,9 +236,11 @@ syntax](https://github.com/h2non/jsonpath-ng).
 
 "- ['owners[*].emailAddress', 20]" specifies a column containing a list of the document
 owner email addresses, with a fixed width of 20 characters on standard output.  The
-width limit effects standard output, while CSV output has no width limit.
+width limit effects standard output, while the exported CSV file has no width limit.
 
-Column titles are configured as shown below
+Column titles are configured as shown below.  Names containing spaces or delimiters must
+be quoted.
+
 
 ``` yaml
 csv_title:
@@ -271,16 +271,12 @@ id                      | Unique [Google Drive File ID](https://developers.googl
 shared                  | Is shared in Google Drive to other users (true/false)
 
 
-
-
-Metadata names are translated to CSV column titles using 'csv_title' in the
-configuration file.  If a title is not defined there, the metadata name is used as the
-CSV column title.
+The configuration file also specifies the location of credentials for Google Drive and Ouath API access.
 
 Name		| Description
 :-----		| :-----
-gdrive_auth	| filename of the google drive account authorization. Ignored if provided on command line.
-oauth_id	| filename of the Oauth client ID credentials
+gdrive_auth	| file path of Google Drive account authorization. Ignored if provided on command line.
+oauth_id	| file path of Google Oauth Client ID credentials. (App's permission to use API).
 
 See the [Default YAML Configuration File](#default-yaml-configuration-file) for more details.
 
