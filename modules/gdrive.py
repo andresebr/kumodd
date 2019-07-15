@@ -387,7 +387,7 @@ def is_file(item):
 def is_folder(item):
     return item['mimeType'] == 'application/vnd.google-apps.folder'
         
-def download_listed_files(ctx, http, config, metadata_names=None, output_format=None):
+def download_listed_files(ctx, config, metadata_names=None, output_format=None):
     """Print information about the specified revision.
 
     Args:
@@ -524,20 +524,6 @@ def download_file( ctx, drive_file, revision=None ):
                     download_file( ctx, drive_file, rev )
 
         while True:
-
-            if False:
-                # chuck the downloads to avoide out of memory.
-                file_id = revision.get('id') or drive_file.get('id')
-                request = ctx.service.files().export_media(fileId=file_id, mimeType=get_mime_type(drive_file, revision))
-                with open( file_path, 'wb+' ) as handle, io.BytesIO() as iob, MD5() as md5:
-                    downloader = MediaIoBaseDownload(iob, request)
-                    done = False
-                    while done is False:
-                        status, done = downloader.next_chunk()
-                        content = iob.read()
-                        md5.update( content )
-                        handle.write( content )
-
             try:
                 resp, content = ctx.service._http.request(download_url)
             except Exception as e:
@@ -821,7 +807,7 @@ https://code.google.com/apis/console
         except Exception as e:
             print(f"\nCannot connect to proxy at: {proxy_uri}.  Please check your network.\n\n")
             return
-        http = httplib2.Http(
+        http2 = httplib2.Http(
             disable_ssl_certificate_validation=True,
             proxy_info = httplib2.ProxyInfo(
                 httplib2.socks.PROXY_TYPE_HTTP,
@@ -830,10 +816,10 @@ https://code.google.com/apis/console
                 proxy_user = proxy.get('user'),
                 proxy_pass = proxy.get('pass') ))
     else:
-        http = httplib2.Http()
+        http2 = httplib2.Http()
 
     try:
-        resp, content = http.request("http://google.com", "GET")
+        resp, content = http2.request("http://google.com", "GET")
     except Exception as e:
         print(f"""\nCannot connect to google.com.  Please check your network.
 
@@ -855,9 +841,9 @@ Error: {e}\n""" )
         oflags = argparser.parse_args([])
         oflags.noauth_local_webserver = not FLAGS.browser
         credentials = run_flow(FLOW, storage, oflags, http)
-    http = credentials.authorize(http)
+    http2 = credentials.authorize(http2)
 
-    ctx = Ctx( build("drive", "v2", http=http))
+    ctx = Ctx( build("drive", "v2", http=http2))
     ensure_dir(FLAGS.destination + '/' + ctx.user)
 
     try:

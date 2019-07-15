@@ -402,8 +402,11 @@ proxy:
 
 ## Limitations
 
-Conversion of native Google Apps Docs, Sheets And slides makes their download much
-slower than non-native files.
+Conversion of native Google Apps Docs, Sheets and slides to PDF or LibreOffice makes
+their download much slower.
+
+Kumodd downloads each whole file to memory, then computes the MD5, then saves the file to
+disk.  Large files may fail to download if memory is exhausted.
 
 Using an HTTP proxy on Windows does not work due to unresolved issues with python 3's
 httplib2.
