@@ -19,6 +19,8 @@
 
 # Developer notes, todo:
 
+# chuck the downloads to avoide out of memory.
+
 # verify the MD5 of downloaded revisions.
 
 # add filtering for:
@@ -448,6 +450,24 @@ def get_url_and_ext(drive_file, revision=None):
         extension = ''
     return [download_url, extension]
 
+def get_mime_type(drive_file, revision=None):
+    if not revision:
+        revision = drive_file
+    if is_google_doc(drive_file):
+        if FLAGS.pdf:
+            return 'application/pdf'
+        elif drive_file['mimeType'] == 'application/vnd.google-apps.document':
+            return 'application/vnd.oasis.opendocument.text'
+        elif drive_file['mimeType'] == 'application/vnd.google-apps.presentation':
+            return 'application/vnd.oasis.opendocument.presentation'
+        elif drive_file['mimeType'] == 'application/vnd.google-apps.spreadsheet':
+            return 'application/vnd.oasis.opendocument.spreadsheet'
+        elif drive_file['mimeType'] == 'application/vnd.google-apps.drawing':
+            return 'application/vnd.oasis.opendocument.graphics'
+        else:
+            return 'application/pdf'
+    return drive_file['mimeType']
+
 def local_data_dir( drive_file, username ):
     return '/'.join([ FLAGS.destination, username, drive_file['path'] ])
 
@@ -492,6 +512,20 @@ def download_file( ctx, drive_file, revision=None ):
                     download_file( ctx, drive_file, rev )
 
         while True:
+
+            if False:
+                # chuck the downloads to avoide out of memory.
+                file_id = revision.get('id') or drive_file.get('id')
+                request = ctx.service.files().export_media(fileId=file_id, mimeType=get_mime_type(drive_file, revision))
+                with open( file_path, 'wb+' ) as handle, io.BytesIO() as iob, MD5() as md5:
+                    downloader = MediaIoBaseDownload(iob, request)
+                    done = False
+                    while done is False:
+                        status, done = downloader.next_chunk()
+                        content = iob.read()
+                        md5.update( content )
+                        handle.write( content )
+
             try:
                 resp, content = ctx.service._http.request(download_url)
             except Exception as e:

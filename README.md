@@ -1,4 +1,4 @@
-# kumodd
+# Kumo (Cloud) Data Dumper
 
 Kumodd downloads files and their metadata from a specified Google
 Drive account in a forensically sound manner.
