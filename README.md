@@ -5,8 +5,8 @@ Drive account in a forensically sound manner.
 
 - Limit downloaded files by folder and by category, such as doc, image, video, pdf.  
 - Export Google Docs, Sheets, Slides as PDF or LibreOffice.
-- [Export CSV with configurable columns](#configuration).
-- [Verify MD5, size, and Last Modified and Accessed times of files on disk](#data-verification).
+- [Export CSV with configurable columns](#how-to-configure).
+- [Verify MD5, size, and Last Modified and Accessed times of files on disk](#data-verification-methods).
 - [Verify MD5 of extensive metadata of each file](#example-raw-metadata).
 
 ## Usage examples
@@ -92,7 +92,7 @@ metadata paths would be:
 - ./download/john.doe@gmail.com/My Drive/foo.doc
 - ./download/metadata/john.doe@gmail.com/My Drive/foo.doc.yml
 
-## Data Verification
+## Data Verification Methods
 
 Kmodd verifies both data and metadata. Data is verified by comparing a file's MD5, size,
 and Last Modified time.  Kumodd can report whether each matches Google Drive's metadata,
@@ -201,7 +201,7 @@ yamlMetadataMD5: 216843a1258df13bdfe817e2e52d0c70
 ```
 
 To verify the MD5 of the metadata, dynamic values are removed first (*see* [Data
-Verification](#data-verification)).  To filter and digest, [yq, a command line YAML
+Verification Methods](#data-verification-methods)).  To filter and digest, [yq, a command line YAML
 query tool](https://yq.readthedocs.io/), and md5sum may be used.
 
 ``` shell
@@ -212,7 +212,7 @@ yq -y '.|with_entries(select(.key|test("(Link|Match|status|Url|yaml)")|not))' <'
 During listing, if there are changes in the metadata, Kumodd will output diffs that
 idetnify the values that changed between previously saved and Google Drive metadata.
 
-## Configuration
+## How to Configure
 
 Command line arguments are used for configuration specific to a data set or case, while
 a YAML file is used for configuration items not specific to a data set or case.  This is
@@ -281,7 +281,7 @@ oauth_id	| file path of Google Oauth Client ID credentials. (App's permission to
 
 See the [Default YAML Configuration File](#default-yaml-configuration-file) for more details.
 
-## Setup
+## How to Setup
 
 To setup kumodd, install python and git, then install kumodd and requirements, obtain an Oauth ID required for
 Google API use, and finally, authorize access to the specified account.
