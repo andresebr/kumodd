@@ -218,7 +218,7 @@ Command line arguments are used for configuration specific to a data set or case
 a YAML file is used for configuration items not specific to a data set or case.  This is
 intended to support reproducibility. The configuration file contains:
 
-Specify named sets of CSV columns under the 'csv_columns' tag.  'owners' is a named set of
+Specify named sets of CSV columns under the 'csv_columns' key.  'owners' is a named set of
 columns.  These columns may be selected using 'kumodd.py -col owners'.  See the [Default
 YAML Configuration File](#default-yaml-configuration-file) for a complete list of named
 column sets.
@@ -232,17 +232,16 @@ gdrive:
     - [fullpath, 50]
 ```
 
-Each column selects a metadata name, followed by fixed column width for standard output
-(CSV export has no limit).  Metadata names are selected using [jsonpath
-syntax](https://github.com/h2non/jsonpath-ng).
+Select column values using [jsonpath syntax](https://github.com/h2non/jsonpath-ng),
+followed by fixed column width for standard output (CSV export has no limit).
 
-"- ['owners[*].emailAddress', 20]" specifies a column containing a list of the document
-owner email addresses, with a fixed width of 20 characters on standard output.  The
-width limit effects standard output only.
+Select individual values, lists or dictionaries. "- ['owners[*].emailAddress', 20]"
+specifies a column containing a list of the document owner email addresses, with a fixed
+width of 20 characters on standard output.
 
-Column titles are configured as shown below.  Names containing spaces or delimiters must
-be quoted.
-
+Select column titles under the cvs_title key.  Each item translates a [jsonpath metadata
+item](https://github.com/h2non/jsonpath-ng) to a column title.  Names containing spaces
+or delimiters must be quoted.
 
 ``` yaml
 csv_title:
