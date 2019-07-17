@@ -1,7 +1,7 @@
 # Kumo (Cloud) Data Dumper
 
 Kumodd downloads files and their metadata from a specified Google
-Drive account in a forensically sound manner.
+Drive account in a verifiably forensically sound manner.
 
 - [Limit downloaded files by folder and by category, such as doc, image, video, pdf](#command-line-options).
 - Export Google Docs, Sheets, Slides as PDF or LibreOffice.
@@ -78,7 +78,7 @@ However, the Linux kernel provides no method (e.g. system call or library) to re
 write the Created time, so Created time is not available to kumodd on Linux.
 
 If file system time stamps are to be used in analysis, the -verify option can be used to
-verify they are consisent with the metadata.  External tools can be used as well for
+verify they are consistent with the metadata.  External tools can be used as well for
 verification of accuracy.  Given a downloaded file set, kumodd -verify will verify the
 file system time stamps are equal to the time stamps that were retrieved from the Google
 Drive API.
@@ -94,15 +94,14 @@ metadata paths would be:
 
 ## Data Verification Methods
 
-Kmodd verifies both data and metadata. Data is verified by comparing a file's MD5, size,
+Kumodd verifies both data and metadata. Data on disk is verified by comparing a file's MD5, size,
 and Last Modified time.  Kumodd can report whether each matches Google Drive's metadata,
-as shown in [How to Verify Data](#how-to-verify-data). Kumodd also compares the MD5 of
-the metadata with the value computed when the data was read from Google Drive.
+as shown in [How to Verify Data](#how-to-verify-data). 
 
 Metadata		| Description
 :----			| :----
-md5Checksum		| MD5 of the data in Google Drive. Not preset for Google Apps files.
-md5Match		| match if MD5 on disk = in Google Drive. n/a if there is no md5Checksum. Else MISMATCH.
+md5Checksum		| MD5 of the data.
+md5Match		| match if MD5 on disk = from Google Drive.
 fileSize		| Size (bytes) of the data in Google Drive.
 sizeMatch		| match if local size = size in google drive, else MISMATCH.
 modifiedByMeDate	| Last Modified time (UTC) of the data in Google Drive.
@@ -112,13 +111,19 @@ accTimeMatch		| match if lastViewedByMeDate and FS Last Access Time are equal.
 yamlMetadataMD5		| MD5 of the redacted metadata.
 yamlMD5Match		| match if metadata MD5 on disk = data from Google Drive.
 
-Data is verified when listing or downloading files.  During downloading, Google Drive
-provides an MD5 only for non-native files.  For native Google Docs, Sheets, and Slides,
-the MD5 is computed in memory prior to writing the data to disk.  During downloading, if
-a file exists, but any of the MD5, size or Last Modify time differ between Google
-Drive's reported values and the values on disk, then kumodd will re-download the file
-and save the updated YAML metadata. Next, it will re-read the saved file and metadata to
-ensure the MD5, size and time stamp on disk are valid.  
+Google Drive has several native file formats, including Docs, Sheets, Slides, Forms, and
+Drawings. These native formats must be converted prior to upload or download, and their
+Google Drive metadata does not include an MD5.  For native files, Kumodd computes the MD5 in memory
+immediately after downloaded, prior to writing to disk, and Kumodd adds this MD5 to the metadata.
+As a result, metadata for all files have an MD5 computed prior to writing to disk.
+
+Data is re-read from disk and verified for all modes of operation: downloading files
+(-download), downloading metadata (-list), or verifying files using local metadata
+(-verify).  When downloading, if a file exists, but any of the MD5, size or Last Modify
+time differ between Google Drive's reported values and the values on disk, then kumodd
+will re-download the file and save the updated YAML metadata. For native files, only the
+size and last modify time are compared. Next, Kumodd will re-read the
+saved file and metadata to ensure the MD5, size and time stamp on disk are valid.  
 
 Kumodd also verifies bulk metadata. However, certain metadata are dynamic while others
 are static.  Dynamic items are valid for a limited time after they are downloaded, after
@@ -127,22 +132,22 @@ which a subsequent download retrieves differing values. For example, the value o
 'Link' and URL values may change after a few weeks.
 
 Kumodd saves the complete, unredacted metadata in a YAML file.  Before computing the
-bunk MD5 of the metadata, Kumodd redacts all metadata names containing the words: Link,
-Match, status, Url and yaml.  When these names are redacted, the metadata is
-reproducible (identical each time retrieved from Google Drive, and unique on disk) if
+bunk MD5 of the metadata, Kumodd redacts all dynamic metadata keys names containing the
+words: Link, Match, status, Url and yaml.  When these names are redacted, the metadata
+is reproducible (identical each time retrieved from Google Drive, and unique on disk) if
 the file has not changed.
 
 ## How to Verify Data
     
 This section and the following section, [How to Verify Data Using Other
-Tools](#how-to-verify-data-using-other-tools), are intended to provide the foundation
-for a standard operating procedure for using Kmodd.
+Tools](#how-to-verify-data-using-other-tools), are intended to provide a foundation
+for verifiable procedures that use Kumodd.
 
-There are two way Kumodd can verify data: with or without retrieving metadata from
+There are two ways Kumodd can verify data: with or without retrieving metadata from
 Google Drive.  When listing (-list or -l option), Kumodd retrieves metadata from Google
 Drive and verifies local data are consistent with Google Drive.  When verifying (-verify
 or -V option) Kumodd uses the previously saved YAML metadata on disk to verify whether
-data on disk are correct. -V also verifies the MD5 of all of the revisions.
+files and metadata on disk are correct, including all downloaded revisions.
 
 Either way, Kumodd confirms whether the files' MD5, file size, and Last Modified and
 Last Accessed are correct.  In addition, it confirms whether the MD5 of the metadata
@@ -210,7 +215,7 @@ yq -y '.|with_entries(select(.key|test("(Link|Match|status|Url|yaml)")|not))' <'
 ```
 
 During listing, if there are changes in the metadata, Kumodd will output diffs that
-idetnify the values that changed between previously saved and Google Drive metadata.
+identify the values that changed between previously saved and Google Drive metadata.
 
 ## How to Configure
 
@@ -239,7 +244,7 @@ Select individual values, lists or dictionaries. "- ['owners[*].emailAddress', 2
 specifies a column containing a list of the document owner email addresses, with a fixed
 width of 20 characters on standard output.
 
-Select column titles under the cvs_title key.  Each item translates a [jsonpath metadata
+Select column titles under the csv_title key.  Each item translates a [jsonpath metadata
 item](https://github.com/h2non/jsonpath-ng) to a column title.  Names containing spaces
 or delimiters must be quoted.
 
@@ -295,7 +300,7 @@ Google API use, and finally, authorize access to the specified account.
     git clone https://github.com/rich-murphey/kumodd.git
     cd kumodd
     python3 -m pip install --user -r requirements.txt
-    ./kmodd.py --helpfull
+    ./kumodd.py --helpfull
     ```
 
     On Windows, one option is to use the [Chocolatey package
@@ -306,7 +311,7 @@ Google API use, and finally, authorize access to the specified account.
     git clone https://github.com/rich-murphey/kumodd.git
     cd kumodd
     python -m pip install --user -r requirements.txt
-    ./kmodd.py --helpfull
+    ./kumodd.py --helpfull
     ```
 
 1. Obtain a Google Oauth client ID (required for Google Drive API):
@@ -412,7 +417,7 @@ Using an HTTP proxy on Windows does not work due to unresolved issues with pytho
 httplib2.
 
 Although the Created Time is set on Windows, the system often fails to set it, and
-verifcation fails.
+verification fails.
 
 [Google rate limits API
 calls](https://console.cloud.google.com/apis/api/drive.googleapis.com/quotas).  At the
