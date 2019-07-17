@@ -773,8 +773,6 @@ csv_title:
         httplib2.debuglevel = -1
     logging.getLogger().setLevel(FLAGS.log)
 
-    api_credentials_file = FLAGS.gdrive_auth or config.get('gdrive',{}).get('gdrive_auth')
-
     metadata_names = [match.value for match in parse( f'gdrive.csv_columns.{FLAGS.col}[*][0]' ).find( config )]
 
     output_format = ' '.join([f'{{{i}:{width}.{width}}}' for i, width in
@@ -784,6 +782,8 @@ csv_title:
     if FLAGS.verify:
         ctx = Ctx( None )
     else:
+        api_credentials_file = FLAGS.gdrive_auth or config.get('gdrive',{}).get('gdrive_auth')
+
         # Set up a Flow object that opens a web browser or prints a URL for
         # approval of access to the given google drive account.
         FLOW = flow_from_clientsecrets(api_credentials_file,
