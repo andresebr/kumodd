@@ -33,12 +33,12 @@ flags.DEFINE_enum('service', 'gdrive',
                   ['gdrive','dropbox','box','onedrive'], 'Service to use', short_name='s' )
 flags.DEFINE_enum('list', None,
                   ['all', 'doc', 'xls', 'ppt', 'text', 'pdf', 'office', 'image', 'audio', 'video', 'other'],
-                  'List files and directories, optionally filtered by category', short_name='l')
+                  'List files in google drive and verify files on disk match MD5', short_name='l')
 flags.DEFINE_enum('download', None,
                   ['all', 'doc', 'xls', 'ppt', 'text', 'pdf', 'office', 'image', 'audio', 'video', 'other'],
-                  'Download files and create directories, optionally filtered by category', short_name='d')
+                  'Download files, optionally filter, and verify MD5 on disk', short_name='d')
 flags.DEFINE_list('usecsv', None,
-                  'Download files from the service using a previously generated csv file', short_name='csv')
+                  'List files in cloud,  files, optionally filter, and verify MD5 of files on disk', short_name='csv')
 flags.DEFINE_string('destination', './download', 'Destination folder location', short_name='p')
 flags.DEFINE_string('metadata_destination', './download/metadata',
                     'Destination folder for metadata information', short_name='m')

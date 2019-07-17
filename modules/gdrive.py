@@ -76,7 +76,7 @@ flags.DEFINE_string('col', 'normal', 'column set defined under csv_columns in co
 flags.DEFINE_boolean('revisions', True, 'Download every revision of each file.')
 flags.DEFINE_boolean('pdf', True, 'Convert all native Google Apps files to PDF.')
 flags.DEFINE_string('gdrive_auth', None, 'Google Drive account authorization file.  Configured in config/config.yml if not specified on command line.')
-flags.DEFINE_boolean('verify', False, 'Verify local files and metadata. Do not connect to Google Drive.', short_name='V')
+flags.DEFINE_boolean('verify', False, 'Verify files and metadata on disk match original MD5. Use local metadata. Do not connect to Google Drive.', short_name='V')
 flags.DEFINE_string('folder', None, 'source folder within Google Drive', short_name='f')
 
 def dirname(s):
@@ -626,13 +626,14 @@ def get_gdrive_folder( ctx, path=None, file_id='root' ):
 class Ctx( object ):
     def __init__( self, service ):
         self.service = service
-        try:
-            about = self.service.about().get().execute()
-            self.user = about['user']['emailAddress']
-        except errors.HttpError as error:
-            print( f'Request for google about() failed: {e}' )
+        if self.service:
+            try:
+                about = self.service.about().get().execute()
+                self.user = about['user']['emailAddress']
+            except errors.HttpError as error:
+                print( f'Request for google about() failed: {e}' )
             self.user = '(nouser)'
-        self.downloaded = 0
+            self.downloaded = 0
 
 def main(argv):
     # Let the flags module process the command-line arguments
@@ -780,76 +781,79 @@ csv_title:
             enumerate([match.value for match in parse( f'gdrive.csv_columns.{FLAGS.col}[*][1]' ).find( config )])])
 
 
-    # Set up a Flow object that opens a web browser or prints a URL for
-    # approval of access to the given google drive account.
-    FLOW = flow_from_clientsecrets(api_credentials_file,
-                                   scope= 'https://www.googleapis.com/auth/drive',
-                                   message= f"""
-ERROR: missing OAuth 2.0 credentials.
-
-To use kumodd, you must download a Google a API credentials file and store it as:
-
-{os.path.join(os.path.dirname(__file__), api_credentials_file)}
-
-To obtain a credentials file, refer to the kumodd README, and visit the Google APIs Console at:
-https://code.google.com/apis/console
-
-""")
-    # Create an httplib2.Http object to handle our HTTP requests and authorize it
-    # with our good Credentials.
-
-    if isinstance(config.get('proxy'),dict):
-        proxy = config.get('proxy')
-        try:
-            proxy_uri = 'http://' + proxy.get('host')
-            if 'port' in proxy:
-                proxy_uri += ':' + proxy.get('port')
-            resp, content = http.request(proxy_uri, "GET")
-        except Exception as e:
-            print(f"\nCannot connect to proxy at: {proxy_uri}.  Please check your network.\n\n")
-            return
-        http2 = httplib2.Http(
-            disable_ssl_certificate_validation=True,
-            proxy_info = httplib2.ProxyInfo(
-                httplib2.socks.PROXY_TYPE_HTTP,
-                proxy_host = proxy.get('host'),
-                proxy_port = int(proxy.get('port')) if proxy.get('port') else None,
-                proxy_user = proxy.get('user'),
-                proxy_pass = proxy.get('pass') ))
+    if FLAGS.verify:
+        ctx = Ctx( None )
     else:
-        http2 = httplib2.Http()
-
-    try:
-        resp, content = http2.request("http://google.com", "GET")
-    except Exception as e:
-        print(f"""\nCannot connect to google.com.  Please check your network.
-
-Error: {e}\n""" )
-        return
-
-    # If the Google Drive credentials don't exist or are invalid run the client
-    # flow, and store the credentials.
-    oauth_id = config.get('gdrive',{}).get('oauth_id')
-    try:
-        storage = Storage(oauth_id)
-        credentials = storage.get()
-    except:
-        open(oauth_id, "a+").close()     # ensure oauth_id exists
-        storage = Storage(oauth_id)
-        credentials = None
-
-    if credentials is None or credentials.invalid:
-        oflags = argparser.parse_args([])
-        oflags.noauth_local_webserver = not FLAGS.browser
-        credentials = run_flow(FLOW, storage, oflags, http)
-    http2 = credentials.authorize(http2)
-
-    ctx = Ctx( build("drive", "v2", http=http2))
-    ensure_dir(FLAGS.destination + '/' + ctx.user)
-
+        # Set up a Flow object that opens a web browser or prints a URL for
+        # approval of access to the given google drive account.
+        FLOW = flow_from_clientsecrets(api_credentials_file,
+                                       scope= 'https://www.googleapis.com/auth/drive',
+                                       message= f"""
+    ERROR: missing OAuth 2.0 credentials.
+    
+    To use kumodd, you must download a Google a API credentials file and store it as:
+    
+    {os.path.join(os.path.dirname(__file__), api_credentials_file)}
+    
+    To obtain a credentials file, refer to the kumodd README, and visit the Google APIs Console at:
+    https://code.google.com/apis/console
+    
+    """)
+        # Create an httplib2.Http object to handle our HTTP requests and authorize it
+        # with our good Credentials.
+    
+        if isinstance(config.get('proxy'),dict):
+            proxy = config.get('proxy')
+            try:
+                proxy_uri = 'http://' + proxy.get('host')
+                if 'port' in proxy:
+                    proxy_uri += ':' + proxy.get('port')
+                resp, content = http.request(proxy_uri, "GET")
+            except Exception as e:
+                print(f"\nCannot connect to proxy at: {proxy_uri}.  Please check your network.\n\n")
+                return
+            http2 = httplib2.Http(
+                disable_ssl_certificate_validation=True,
+                proxy_info = httplib2.ProxyInfo(
+                    httplib2.socks.PROXY_TYPE_HTTP,
+                    proxy_host = proxy.get('host'),
+                    proxy_port = int(proxy.get('port')) if proxy.get('port') else None,
+                    proxy_user = proxy.get('user'),
+                    proxy_pass = proxy.get('pass') ))
+        else:
+            http2 = httplib2.Http()
+    
+        try:
+            resp, content = http2.request("http://google.com", "GET")
+        except Exception as e:
+            print(f"""\nCannot connect to google.com.  Please check your network.
+    
+    Error: {e}\n""" )
+            return
+    
+        # If the Google Drive credentials don't exist or are invalid run the client
+        # flow, and store the credentials.
+        oauth_id = config.get('gdrive',{}).get('oauth_id')
+        try:
+            storage = Storage(oauth_id)
+            credentials = storage.get()
+        except:
+            open(oauth_id, "a+").close()     # ensure oauth_id exists
+            storage = Storage(oauth_id)
+            credentials = None
+    
+        if credentials is None or credentials.invalid:
+            oflags = argparser.parse_args([])
+            oflags.noauth_local_webserver = not FLAGS.browser
+            credentials = run_flow(FLOW, storage, oflags, http)
+        http2 = credentials.authorize(http2)
+        service = build("drive", "v2", http=http2)
+        ctx = Ctx( service )
+    
     try:
         start_time = datetime.now()
         if FLAGS.list:
+            ensure_dir(FLAGS.destination + '/' + ctx.user)
             print( output_format.format( *[ config.get('csv_title',{}).get(name) or name for name in metadata_names ]))
             csv_prefix = config.get('gdrive',{}).get('csv_prefix')
             if csv_prefix.find('/'):
@@ -870,6 +874,7 @@ Error: {e}\n""" )
                 walk_gdrive( ctx, gdrive_folder, handle_item)
 
         elif FLAGS.download:
+            ensure_dir(FLAGS.destination + '/' + ctx.user)
             print( output_format.format( *[ config.get('csv_title').get(name) or name for name in metadata_names ]))
             path=FLAGS.folder
             gdrive_folder = get_gdrive_folder( ctx, path )
@@ -890,6 +895,7 @@ Error: {e}\n""" )
             print(f"\n{ctx.downloaded} files downloaded from {ctx.user}")
 
         elif FLAGS.usecsv:
+            ensure_dir(FLAGS.destination + '/' + ctx.user)
             header = output_format.format( *get_titles( config, metadata_names ))
             print( header )
             download_listed_files( ctx, config, metadata_names, output_format)
@@ -899,8 +905,8 @@ Error: {e}\n""" )
             header = output_format.format( *get_titles( config, metadata_names ))
             print( header )
             for dirent in os.scandir( FLAGS.metadata_destination ):
-                username = dirent.name
-                with open(config.get('gdrive',{}).get('csv_prefix') + username + '.csv', 'w') as csv_handle:
+                ctx.user = dirent.name
+                with open(config.get('gdrive',{}).get('csv_prefix') + ctx.user + '.csv', 'w') as csv_handle:
                     writer = csv.writer(csv_handle, delimiter=',')
                     writer.writerow( get_titles( config, metadata_names ) )
 
@@ -925,8 +931,8 @@ Error: {e}\n""" )
 
                     for dirent in os.scandir( FLAGS.metadata_destination ):
                         if dirent.is_dir():
-                            username = dirent.name
-                            walk_local_metadata( ctx, handle_item, FLAGS.metadata_destination + '/' + username )
+                            ctx.user = dirent.name
+                            walk_local_metadata( ctx, handle_item, FLAGS.metadata_destination + '/' + ctx.user )
 
         end_time = datetime.now()
         print(f'Duration: {end_time - start_time}')
