@@ -257,7 +257,7 @@ class FileAttr( object ):
             self.valid =  False
         elif drive_file.get('md5Checksum') and drive_file.get('md5Checksum') != self.md5Local:
             self.valid =  False
-        elif drive_file.get( 'modifiedByMeDate' ) and sec_since_epoch( drive_file.get( 'modifiedByMeDate' )) != self.local_mod_time:
+        elif drive_file.get( 'modifiedDate' ) and sec_since_epoch( drive_file.get( 'modifiedDate' )) != self.local_mod_time:
             self.valid =  False
         elif drive_file.get( 'lastViewedByMeDate' ) and sec_since_epoch( drive_file.get( 'lastViewedByMeDate' )) != self.local_acc_time:
             self.valid =  False
@@ -269,7 +269,7 @@ class FileAttr( object ):
 
     def compare_and_annotate_drive_file( self, drive_file ):
         if self.exists:
-            remote_mod_time = sec_since_epoch( drive_file.get( 'modifiedByMeDate' ))
+            remote_mod_time = sec_since_epoch( drive_file.get( 'modifiedDate' ))
             remote_acc_time = sec_since_epoch( drive_file.get( 'lastViewedByMeDate' ))
 
             if remote_mod_time == self.local_mod_time:
@@ -550,7 +550,7 @@ def download_file( ctx, drive_file, revision=None ):
                     if revision:
                         modify_time = sec_since_epoch( revision.get( 'modifiedDate' ))
                     else:
-                        modify_time = sec_since_epoch( drive_file.get( 'modifiedByMeDate' ))
+                        modify_time = sec_since_epoch( drive_file.get( 'modifiedDate' ))
                     access_time = sec_since_epoch( drive_file.get( 'lastViewedByMeDate' ))
                     create_time = sec_since_epoch( drive_file.get( 'createdDate' ))
 
@@ -737,6 +737,7 @@ csv_title:
   originalFilename: Original File Name
   ownerNames: Owner
   owners: Owners
+  'owners[*].emailAddress':  Owners
   parents: Parents
   path: Path
   quotaBytesUsed: Quota Used
