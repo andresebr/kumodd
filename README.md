@@ -112,19 +112,20 @@ yamlMetadataMD5		| MD5 of the redacted metadata.
 yamlMD5Match		| match if metadata MD5 on disk = data from Google Drive.
 
 Google Drive has several native file formats, including Docs, Sheets, Slides, Forms, and
-Drawings. These native formats must be converted prior to upload or download, and their
-Google Drive metadata does not include a size or MD5.  For native files, Kumodd computes
-the size and MD5 in memory immediately after downloaded, prior to writing to disk, and
-Kumodd adds them to the metadata.  As a result, metadata for all files have a size and
-MD5 computed prior to writing to disk.
+Drawings. These native formats are always converted by Google Drive during upload or
+download, and their available API metadata excludes the size and MD5.  For native files,
+Kumodd computes the size and MD5 in memory immediately after download, prior to writing
+the file to disk, and Kumodd adds them to the metadata.  As a result, metadata for all
+files have a size and MD5 computed prior to writing to disk.
 
-Data is re-read from disk and verified for all modes of operation: downloading files
-(-download), downloading metadata (-list), or verifying files using local metadata
-(-verify).  When downloading, if a file exists, but any of the MD5, size or Last Modified
-time differ between Google Drive's reported values and the values on disk, then kumodd
-will re-download the file and save the updated YAML metadata. Change detection for
-native files is limited to the Last Modified time because file size and MD5 are not
-available via the API.  Next, Kumodd will re-read the saved file and metadata to ensure
+For all file types, data is re-read from disk and verified; this is true for for all
+modes of operation: downloading files (-download), downloading metadata (-list), or
+verifying files using local metadata (-verify).  When downloading, if a file exists, but
+any of the MD5, size or Last Modified time differ between Google Drive's reported values
+and the values on disk, then kumodd will re-download the file and save the updated YAML
+metadata. Change detection for native files is limited to the Last Modified time because
+file size and MD5 are not available via the API.  Next, Kumodd will re-read the saved
+file and metadata to ensure
 the MD5, size and time stamp on disk are valid.  
 
 Kumodd also verifies bulk metadata. However, certain metadata are dynamic while others
@@ -411,7 +412,7 @@ proxy:
 
 Conversion of native Google Apps Docs, Sheets and slides to PDF or LibreOffice makes
 their download much slower.  Change detection for native files is limited to the
-lastViewedByMeDate because file size and MD5 are not available via the API.
+modifiedDate value because file size and MD5 are not available via the API.
 
 Kumodd downloads each whole file to memory, then computes the MD5, then saves the file to
 disk.  Large files may fail to download if memory is exhausted.
