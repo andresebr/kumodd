@@ -148,9 +148,12 @@ for verifiable procedures that use Kumodd.
 
 There are two ways Kumodd can verify data: with or without retrieving metadata from
 Google Drive.  When listing (-list or -l option), Kumodd retrieves metadata from Google
-Drive and verifies local data are consistent with Google Drive.  When verifying (-verify
-or -V option) Kumodd uses the previously saved YAML metadata on disk to verify whether
-files and metadata on disk are correct, including all downloaded revisions.
+Drive and verifies local data are consistent with Google Drive.  
+
+When verifying (-verify or -V option) Kumodd uses the previously saved YAML metadata on
+disk to verify whether files and metadata on disk are correct, including all downloaded
+revisions.  -verify does not require any credentials or network access and does not
+connect to the cloud.
 
 Either way, Kumodd confirms whether the files' MD5, file size, and Last Modified and
 Last Accessed are correct.  In addition, it confirms whether the MD5 of the metadata
