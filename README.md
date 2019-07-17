@@ -131,11 +131,11 @@ which a subsequent download retrieves differing values. For example, the value o
 'thumbnailLink' changes every time the metadata is retrieved from Google Drive.  Other
 'Link' and URL values may change after a few weeks.
 
-Kumodd saves the complete, unredacted metadata in a YAML file.  Before computing the
-bunk MD5 of the metadata, Kumodd redacts all dynamic metadata keys names containing the
-words: Link, Match, status, Url and yaml.  When these names are redacted, the metadata
-is reproducible (identical each time retrieved from Google Drive, and unique on disk) if
-the file has not changed.
+Kumodd saves the complete metadata in a YAML file.  Before computing the bunk MD5 of the
+metadata, Kumodd removes all dynamic metadata keys names containing the words: Link,
+Match, status, Url or yaml.  When these keys are removed, the metadata is reproducible
+(identical each time retrieved from Google Drive, and unique on disk) if the file has
+not changed.
 
 ## How to Verify Data
     
