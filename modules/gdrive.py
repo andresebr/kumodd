@@ -639,9 +639,9 @@ def main(argv):
         print( f'{e}\\nUsage: {argv[0]} ARGS\\n{FLAGS}' )
         sys.exit(1)
 
-    if FLAGS.config.find('/'):
-        ensure_dir(dirname(FLAGS.config))
     if not os.path.exists(FLAGS.config):
+        if FLAGS.config.find('/'):
+            ensure_dir(dirname(FLAGS.config[:FLAGS.config.rfind('/')]))
         yaml.dump(yaml.safe_load('''
 gdrive:
   csv_prefix: ./filelist-
