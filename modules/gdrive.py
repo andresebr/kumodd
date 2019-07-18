@@ -21,14 +21,11 @@
 
 # chuck the downloads to avoide out of memory.
 
-# verify the MD5 of downloaded revisions.
-
 # add filtering for:
 # date ranges
 # path regex 
-# root folder
 
-# needs testing: windows last mod time is sometimes not preserved.
+# needs testing: windows last mod time is written but sometimes not preserved.
 
 # For native Google Apps files, kumodd should use the previously saved remote
 # file metadata to detect whether the file has changed, using for instance, the
@@ -786,6 +783,8 @@ csv_title:
 
         # Set up a Flow object that opens a web browser or prints a URL for
         # approval of access to the given google drive account.
+        # See: https://developers.google.com/drive/api/v3/about-auth
+
         FLOW = flow_from_clientsecrets(api_credentials_file,
                                        scope= 'https://www.googleapis.com/auth/drive',
                                        message= f"""

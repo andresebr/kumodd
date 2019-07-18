@@ -1,7 +1,7 @@
 # Kumo (Cloud) Data Dumper
 
 Kumodd downloads files and their metadata from a specified Google
-Drive account in a verifiably forensically sound manner.
+Drive account in a verifiable forensically sound manner.
 
 - [Limit downloaded files by folder and by category, such as doc, image, video, pdf](#command-line-options).
 - Export Google Docs, Sheets, Slides as PDF or LibreOffice.
@@ -411,36 +411,41 @@ proxy:
   pass: password (optional)
 ```
 
-## Limitations
+## Limitations and Future Work
 
 Conversion of native Google Apps Docs, Sheets and slides to PDF or LibreOffice makes
 their download much slower.  Change detection for native files is limited to the
-modifiedDate value because file size and MD5 are not available via the API.
-
-Kumodd downloads each whole file to memory, then computes the MD5, then saves the file to
-disk.  Large files may fail to download if memory is exhausted.
+modifiedDate value because file size and MD5 are not available via the API.  For native
+Google Apps files, if the metadata is present, kumodd could use the previously saved
+metadata to detect whether the file has changed, using for instance, the revision ID.
 
 Using an HTTP proxy on Windows does not work due to unresolved issues with python 3's
-httplib2.
-
-Although the Created Time is set on Windows, the system often fails to set it, and
-verification fails.
+httplib2 on Windows. Although the Created Time is set on Windows, the value may fail to
+be preserved due to unresolved issues with the Windows API.
 
 [Google rate limits API
 calls](https://console.cloud.google.com/apis/api/drive.googleapis.com/quotas).  At the
-time of writing, the default rate limits shown below.  Kumodd is unlikely to exceed
-these limits when downloading.
+time of writing, the default rate limits shown below.  Kumodd does not batch requests to
+the Google Drive API, other than requesting metadata of all files in a
+directory. Requests for revisions of a file is an additional query.  The Google Drive
+batch limit is 1000.  Even so, Kumodd is unlikely to exceed these limits when
+downloading, due to the latency of the API.
 
 - 1,000,000,000 queries per day
 - 1,000 queries per 100 seconds per user
 - 10,000 queries per 100 seconds
 
-Kumodd uses the 
-[Google API Python Client](https://github.com/googleapis/google-api-python-client) which is officially
+Kumodd uses V2 of the [Google API Python
+Client](https://github.com/googleapis/google-api-python-client) which is officially
 supported by Google, and is feature complete and stable.  However, it is not actively
 developed.  It has has been replaced by the [Google Cloud client
-libraries](https://github.com/googleapis/google-cloud-python) which are in development,
-and recommended for new work.
+libraries](https://googleapis.github.io/google-cloud-python) which are in development,
+and recommended for new work. It removes support for Python 2 in 2020.
+
+Kumodd downloads each whole file to memory, then computes the MD5, then saves the file
+to disk.  Large files may fail to download if memory is exhausted. Having looked at
+this, it may be less effort in the long run to switch to the Google Cloud client
+libraries, and then expand usage of the API for chunked downloads and other features.
 
 ## Developer Notes
 
