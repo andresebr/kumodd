@@ -230,16 +230,16 @@ To test the validity of kumodd itself, one can use a sample set of files provide
 2009] (*See* [Digital Corpora site](https://digitalcorpora.org/corpora/files)).
 
     md5sum -b *
-    0711edc544c47da874b6e4a6758dc5e6 *838629.txt
+    a152337c66a35ac51dda8603011ffc7d *389815.html
     0fe512e8859726eebb2111b127a59719 *435465.pdf
-    207dcccbd17410f86d56ab3bc9c28281 *991080.xls
+    7221db70bf7868cd5c3ed5c33acda132 *520616.ppt
+    f679e5e66d3451fbb2d7a0ff56b28938 *594891.xml
+    e3f7976dff0637c80abaf5dc3a41c3d8 *607528.csv
+    c92ff79d722bc9a486c020467d7cb0f9 *766091.jpg
+    0711edc544c47da874b6e4a6758dc5e6 *838629.txt
     3fc66ab468cb567755edbe392e676844 *939202.doc
     6f1d791aeca25495a939b87fcb17f1bd *985500.gif
-    7221db70bf7868cd5c3ed5c33acda132 *520616.ppt
-    a152337c66a35ac51dda8603011ffc7d *389815.html
-    c92ff79d722bc9a486c020467d7cb0f9 *766091.jpg
-    e3f7976dff0637c80abaf5dc3a41c3d8 *607528.csv
-    f679e5e66d3451fbb2d7a0ff56b28938 *594891.xml
+    207dcccbd17410f86d56ab3bc9c28281 *991080.xls
 
 For this tetst, the option "Convert uploaded files to Google Docs editor format" should
 not be checked in Google Drive's Settings; otherwise, the files will be converted during
@@ -249,20 +249,20 @@ google drive. Finally, download the folder with kmodd, for example using:
 
     ./kumodd.py -f test -d all -col test
     MD5 of File                      Status  Name
-    0711edc544c47da874b6e4a6758dc5e6 valid   838629.txt
+    a152337c66a35ac51dda8603011ffc7d valid   389815.html
     0fe512e8859726eebb2111b127a59719 valid   435465.pdf
-    207dcccbd17410f86d56ab3bc9c28281 valid   991080.xls
+    7221db70bf7868cd5c3ed5c33acda132 valid   520616.ppt
+    f679e5e66d3451fbb2d7a0ff56b28938 valid   594891.xml
+    e3f7976dff0637c80abaf5dc3a41c3d8 valid   607528.csv
+    c92ff79d722bc9a486c020467d7cb0f9 valid   766091.jpg
+    0711edc544c47da874b6e4a6758dc5e6 valid   838629.txt
     3fc66ab468cb567755edbe392e676844 valid   939202.doc
     6f1d791aeca25495a939b87fcb17f1bd valid   985500.gif
-    7221db70bf7868cd5c3ed5c33acda132 valid   520616.ppt
-    a152337c66a35ac51dda8603011ffc7d valid   389815.html
-    c92ff79d722bc9a486c020467d7cb0f9 valid   766091.jpg
-    e3f7976dff0637c80abaf5dc3a41c3d8 valid   607528.csv
-    f679e5e66d3451fbb2d7a0ff56b28938 valid   594891.xml
+    207dcccbd17410f86d56ab3bc9c28281 valid   991080.xls
 
 The options are: -f test to select the test folder, -d all to download all file types,
 and -col test to select the MD5, status and file name columns.  If kumodd is functioning
-correctly, it should generate output identical values to the above.
+correctly, it should generate output identical to the above.
 
 ## How to Configure
 

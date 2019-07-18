@@ -582,7 +582,7 @@ def walk_gdrive( ctx, folder, handle_item, path=None ):
         except Exception as e:
             logging.critical( f"Couldn't get contents of folder {file_list['title']}", exc_info=True)
         filename = folder['title'].replace( '/', '_' )
-        for item in file_list['items']:
+        for item in sorted(file_list['items'], key=lambda i:i['title']):
             if is_folder( item ):
                 walk_gdrive( ctx, item, handle_item, path + '/' + filename )
             elif is_file( item ):
