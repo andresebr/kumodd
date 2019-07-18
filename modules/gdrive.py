@@ -53,7 +53,6 @@ import json
 import logging
 import os
 import platform
-import pyjq
 import re
 import socket
 import socks
@@ -629,7 +628,7 @@ class Ctx( object ):
                 self.user = about['user']['emailAddress']
             except errors.HttpError as error:
                 print( f'Request for google about() failed: {e}' )
-            self.user = '(nouser)'
+                self.user = '(nouser)'
             self.downloaded = 0
 
 def main(argv):

@@ -5,7 +5,6 @@ google-api-python-client
 httplib2
 jsonpath-ng
 oauth2client
-pyjq
 pypiwin32; sys_platform == 'win32'
 python-dateutil
 socksipy-branch
