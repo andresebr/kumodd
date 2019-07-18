@@ -424,16 +424,16 @@ httplib2 on Windows. Although the Created Time is set on Windows, the value may 
 be preserved due to unresolved issues with the Windows API.
 
 [Google rate limits API
-calls](https://console.cloud.google.com/apis/api/drive.googleapis.com/quotas).  At the
-time of writing, the default rate limits shown below.  Kumodd does not batch requests to
-the Google Drive API, other than requesting metadata of all files in a
-directory. Requests for revisions of a file is an additional query.  The Google Drive
-batch limit is 1000.  Even so, Kumodd is unlikely to exceed these limits when
-downloading, due to the latency of the API.
+calls](https://console.cloud.google.com/apis/api/drive.googleapis.com/quotas). Kumodd
+does not batch requests to the Google Drive API, other than requesting metadata of all
+files in a directory. Requests for revisions of a file is an additional query.  The
+Google Drive batch limit is 1000.  Even so, Kumodd is unlikely to exceed these limits
+when downloading, due to the latency of the API.
 
-- 1,000,000,000 queries per day
+Default Google API rate limits:
 - 1,000 queries per 100 seconds per user
 - 10,000 queries per 100 seconds
+- 1,000,000,000 queries per day
 
 Kumodd uses V2 of the [Google API Python
 Client](https://github.com/googleapis/google-api-python-client) which is officially
