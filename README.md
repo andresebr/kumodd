@@ -354,7 +354,7 @@ Google API use, and finally, authorize access to the specified account.
     manager](https://chocolatey.org/install).
 
     ``` shell
-    cinst -y python git diff visualstudio2017buildtools
+    cinst -y python git diff visualstudio2017buildtools visualstudio2017-workload-vctools
     git clone https://github.com/rich-murphey/kumodd.git
     cd kumodd
     python -m pip install --user -r requirements.txt
@@ -557,6 +557,10 @@ gdrive:
     - [modifiedByMeDate, 24]
     - [lastViewedByMeDate, 24]
     - [shared, 6]
+    test:
+    - [md5Checksum, 32]
+    - [status, 7]
+    - [title, 60]
 
 csv_title:
   accTimeMatch: Acc Time

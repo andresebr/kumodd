@@ -697,6 +697,10 @@ gdrive:
     - [modifiedByMeDate, 24]
     - [lastViewedByMeDate, 24]
     - [shared, 6]
+    test:
+    - [md5Checksum, 32]
+    - [status, 7]
+    - [title, 60]
 
 csv_title:
   accTimeMatch: Acc Time
