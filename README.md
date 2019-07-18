@@ -49,8 +49,8 @@ metadata, use:
 
 Google Drive folders can hold duplicate file names that are differentiated by their
 version number. Unix and Windows file systems require filenames within a folder are
-unique.  So, in order to save various version of a given file, kumodd appends
-'(version)' before the extension.  For example: ./My Drive/Untitled document(12).pdf
+unique.  So, for version number > 1, kumodd appends '(version)' before the extension.
+For example: ./My Drive/Untitled document(12).pdf
 
 ## Time Stamps
 
@@ -446,6 +446,12 @@ Kumodd downloads each whole file to memory, then computes the MD5, then saves th
 to disk.  Large files may fail to download if memory is exhausted. Having looked at
 this, it may be less effort in the long run to switch to the Google Cloud client
 libraries, and then expand usage of the API for chunked downloads and other features.
+
+Photos and videos modified using native Google photos app may fail to update the
+md5Checksum key, result in a invalid MD5.  This is intermittent, but should be limited
+to those having "spaces: [photos]" in the metadata.  It might be useful to have a
+command line option to ignore an invalid md5Checksum when a file has spaces: [photos],
+and replace it with a computed MD5.
 
 ## Developer Notes
 
