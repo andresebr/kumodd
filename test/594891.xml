@@ -1,0 +1,39 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<Spase xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.spase-group.org/data/schema" xsi:schemaLocation="http://www.spase-group.org/data/schema http://www.spase-group.org/data/schema/spase-1_3_0.xsd">
+  <Version>1.3.0</Version>
+  <Instrument>
+    <ResourceID>spase://SMWG/Instrument/Helios2/E1</ResourceID>
+    <ResourceHeader>
+      <ResourceName>Helios 2 E1 Plasma Experiment</ResourceName>
+      <AlternateName>Helios 2 E1</AlternateName>
+      <ReleaseDate>2008-06-18T19:19:59Z</ReleaseDate>
+      <Description>
+The E1 plasma experiment aboard the Helios solar probes consists of four independent instruments designed to investigate the solar wind plasma.
+By measuring the velocity distribution functions of the different kinds of particles, all important hydrodynamic parameters of the solar wind plasma can be derived.
+Three instruments (I1a, I1b, and I3) analyze the positive components (protons and heavier ions with energy-per-charge values from 0.155 to 15.32 kV) of the solar wind.
+Two of them allow for an angular resolution in both directions of incidence. The experiment employed a combination of a hemispherical, a quadrispherical, and a sinusoidally-shaped electrostatic analyzer.
+
+All detectors were mounted normal to the spin axis. 
+
+One instrument (I2) measures electrons in the energy range from 0.5 the 1660 eV with one-dimensional angular resolution
+using a hemispherical electrostatic analyzer.
+
+For more detailed information see p. 226 of Raumfahrtforschung, v. 19, n. 5, 1975.
+      </Description>
+      <Acknowledgement>User will acknowledge the Helios 2 Plasma Experiment PI F. H. R. Rosenbauer in any publication resulting from the use of these data.</Acknowledgement>
+      <Contact>
+        <!-- Dr. Rainer Schwenn -->
+        <PersonID>spase://SMWG/Person/Rainer.Schwenn</PersonID>
+        <Role>DataProducer</Role>
+      </Contact>
+      <Contact>
+        <!-- Dr. Helmut R. Rosenbauer -->
+        <PersonID>spase://SMWG/Person/Helmut.R.Rosenbauer</PersonID>
+        <Role>PrincipalInvestigator</Role>
+      </Contact>
+    </ResourceHeader>
+    <InstrumentType>ElectrostaticAnalyser</InstrumentType>
+    <InvestigationName>E1 Plasma Experiment</InvestigationName>
+    <ObservatoryID>spase://SMWG/Observatory/Helios2</ObservatoryID>
+  </Instrument>
+</Spase>
