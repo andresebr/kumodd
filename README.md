@@ -225,9 +225,10 @@ identify the values that changed between previously saved and Google Drive metad
 
 ## How to Test Kumodd Itself
 
-To test the validity of kumodd itself, one can use a sample set of files provided in the
-'test' directory.  These files are taken from the Govdocs1 forensic corpus [Garfinkel,
-2009] (*See* [Digital Corpora site](https://digitalcorpora.org/corpora/files)).
+To test the validity of kumodd itself, use the Following regression test. The test data
+are freely redistributable files are taken from the Govdocs1 forensic corpus [Garfinkel,
+2009]. [Digital Corpora](https://digitalcorpora.org/corpora/files)) publishes both the
+file and a catalog of MD5 values.  The selected files are shown below.
 
     md5sum -b *
     a152337c66a35ac51dda8603011ffc7d *389815.html
@@ -241,10 +242,12 @@ To test the validity of kumodd itself, one can use a sample set of files provide
     6f1d791aeca25495a939b87fcb17f1bd *985500.gif
     207dcccbd17410f86d56ab3bc9c28281 *991080.xls
 
-For this tetst, the option "Convert uploaded files to Google Docs editor format" should
-not be checked in Google Drive's Settings; otherwise, the files will be converted during
+Make sure the option "Convert uploaded files to Google Docs editor format" should not be
+checked in Google Drive's Settings; otherwise, the files will be converted during
 upload, the MD5 values will change, and the test will fail.  Drag the test folder into
-google drive. Finally, download the folder with kmodd, for example using:
+google drive. Then, download the folder with Kumodd, for example using the options: -f
+test to select the test folder, -d all to download all file types, and -col test to
+select the MD5, status and file name columns.
 
 
     ./kumodd.py -f test -d all -col test
@@ -260,9 +263,7 @@ google drive. Finally, download the folder with kmodd, for example using:
     6f1d791aeca25495a939b87fcb17f1bd valid   985500.gif
     207dcccbd17410f86d56ab3bc9c28281 valid   991080.xls
 
-The options are: -f test to select the test folder, -d all to download all file types,
-and -col test to select the MD5, status and file name columns.  If kumodd is functioning
-correctly, it should generate output identical to the above.
+If kumodd generates the above output exactly, it is functioning correctly.
 
 ## How to Configure
 
