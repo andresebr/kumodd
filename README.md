@@ -355,7 +355,7 @@ Google API use, and finally, authorize access to the specified account.
     manager](https://chocolatey.org/install).
 
     ``` shell
-    cinst -y python git
+    choco update -y python git
     git clone https://github.com/rich-murphey/kumodd.git
     cd kumodd
     python -m pip install --user -r requirements.txt
