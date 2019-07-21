@@ -341,6 +341,8 @@ Google API use, and finally, authorize access to the specified account.
 
 1. Install python 3 and git. Then download kumodd and install the dependencies.
 
+    For Windows, one can download kumod.exe from the [kumodd release page](https://github.com/rich-murphey/kumodd/releases/).
+
     On Debian or Ubuntu:
 
     ``` shell
@@ -351,23 +353,16 @@ Google API use, and finally, authorize access to the specified account.
     ./kumodd.py --helpfull
     ```
 
-    On Windows, one option is to use the [Chocolatey package
-    manager](https://chocolatey.org/install).
+To build kumodd.exe for windows, one options to install the [Chocolatey package
+manager](https://chocolatey.org/docs/installation), and then:
 
     ``` shell
     choco update -y python git
     git clone https://github.com/rich-murphey/kumodd.git
     cd kumodd
     python -m pip install --user -r requirements.txt
-    ./kumodd.py --helpfull
-    ```
-To build the windows .exe, use:
-
-   ``` shell
-    cinst -y upx
     pip install pyinstaller 
-    pyinstaller --onefile kumodd.py
-    ./kumodd.py --helpfull
+    pyinstaller -F kumodd.py
     ```
 
 1. Obtain a Google Oauth client ID (required for Google Drive API):
