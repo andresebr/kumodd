@@ -24,6 +24,8 @@ import modules.gdrive as gdrive
 import os
 import sys 
 
+kumodd_verison = "1.0.0"
+
 FLAGS = flags.FLAGS
 
 flags.DEFINE_enum('log', 'ERROR',
@@ -42,6 +44,7 @@ flags.DEFINE_list('usecsv', None,
 flags.DEFINE_string('destination', './download', 'Destination folder location', short_name='p')
 flags.DEFINE_string('metadata_destination', './download/metadata',
                     'Destination folder for metadata information', short_name='m')
+flags.DEFINE_boolean('version', False, 'Print version number and exit.')
 
 def main(argv):
     try:
@@ -50,6 +53,10 @@ def main(argv):
         print( f'{e}\\nUsage: {argv[0]} ARGS\\n{FLAGS}' )
         sys.exit(1)
         
+    if FLAGS.version:
+        print('version: ', kumodd_verison )
+        sys.exit(1)
+
     if not os.path.exists(FLAGS.destination):
         os.makedirs(FLAGS.destination)
             

@@ -361,6 +361,14 @@ Google API use, and finally, authorize access to the specified account.
     python -m pip install --user -r requirements.txt
     ./kumodd.py --helpfull
     ```
+To build the windows .exe, use:
+
+   ``` shell
+    cinst -y upx
+    pip install pyinstaller 
+    pyinstaller --onefile kumodd.py
+    ./kumodd.py --helpfull
+    ```
 
 1. Obtain a Google Oauth client ID (required for Google Drive API):
 
