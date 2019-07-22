@@ -24,7 +24,7 @@ import modules.gdrive as gdrive
 import os
 import sys 
 
-kumodd_verison = "1.0.0"
+kumodd_verison = "1.0.1"
 
 FLAGS = flags.FLAGS
 
