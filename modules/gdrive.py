@@ -74,6 +74,7 @@ flags.DEFINE_boolean('pdf', True, 'Convert all native Google Apps files to PDF.'
 flags.DEFINE_string('gdrive_auth', None, 'Google Drive account authorization file.  Configured in config/config.yml if not specified on command line.')
 flags.DEFINE_boolean('verify', False, 'Verify files and metadata on disk match original MD5. Use local metadata. Do not connect to Google Drive.', short_name='V')
 flags.DEFINE_string('folder', None, 'source folder within Google Drive', short_name='f')
+flags.DEFINE_string('query', None, 'metadata query (filter)', short_name='q')
 
 def dirname(s):
     index = s.rfind('/')
@@ -575,7 +576,10 @@ def download_file( ctx, drive_file, revision=None ):
 def walk_gdrive( ctx, folder, handle_item, path=None ):
     if path is None:
         path = '.' 
-    param = {'q': f"'{folder['id']}' in parents" }   # first page
+    query = f"'{folder['id']}' in parents"
+    if FLAGS.query:
+        query += f" and ( ( mimeType = 'application/vnd.google-apps.folder' ) or ( {FLAGS.query} ) )"
+    param = {'q': query }
     while True: # repeat for each page
         try:
             file_list = ctx.service.files().list(**param).execute()
