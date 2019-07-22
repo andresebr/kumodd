@@ -3,11 +3,11 @@
 Kumodd downloads files and their metadata from a specified Google
 Drive account in a verifiable forensically sound manner.
 
-- [Limit downloaded files by folder and by category, such as doc, image, video, pdf](https://github.com/rich-murphey/kumodd/wiki/Command-line-options).
-- Export Google Docs, Sheets, Slides as PDF or LibreOffice.
+- [Search query to limit files by full text or metaedata](https://github.com/rich-murphey/kumodd/wiki/Search-Query)
+- [Export Google Docs, Sheets, Slides as PDF or LibreOffice.](https://github.com/rich-murphey/kumodd/wiki/Command-line-options)
 - [Export CSV with configurable columns](https://github.com/rich-murphey/kumodd/wiki/How-to-configure).
-- [Verify MD5, size, and Last Modified and Accessed times of files on disk](https://github.com/rich-murphey/kumodd/wiki/Methods).
-- [Verify MD5 of extensive metadata of each file](https://github.com/rich-murphey/kumodd/wiki/Example-Metadata).
+- [Preserve extensive metadata of each file](https://github.com/rich-murphey/kumodd/wiki/Example-Metadata).
+- [Verify preservation of file contents and metadata](https://github.com/rich-murphey/kumodd/wiki/Methods).
 
 ## Table of Contents
 * [Wiki Home Page](https://github.com/rich-murphey/kumodd/wiki/Home)
