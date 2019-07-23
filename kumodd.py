@@ -54,25 +54,6 @@ def main(argv):
         print( f'{e}\\nUsage: {argv[0]} ARGS\\n{FLAGS}' )
         sys.exit(1)
         
-    if FLAGS.version:
-        print('version: ', kumodd_verison )
-        sys.exit(1)
-
-    if not os.path.exists(FLAGS.destination):
-        os.makedirs(FLAGS.destination)
-            
-    if FLAGS.service == 'gdrive':
-        flags.DEFINE_string('logfile', 'gdrive.log', 'Location of file to write the log' )
-        gdrive.main(argv)
-    elif FLAGS.service == 'dropbox':
-        print( 'Coming soon...' )
-    elif FLAGS.service == 'box':
-        print( 'Coming soon...' )
-    elif FLAGS.service == 'onedrive':
-        print( 'Coming soon...' )
-    else:
-        print( 'No service selected' )
-    
     if platform.system() == 'Windows':
         import wmi
         cwmi = wmi.WMI()
@@ -92,6 +73,25 @@ press any key to exit.
                     sys.stdin.read(1)
                     sys.exit(1)
 
+    if FLAGS.version:
+        print('version: ', kumodd_verison )
+        sys.exit(1)
+
+    if not os.path.exists(FLAGS.destination):
+        os.makedirs(FLAGS.destination)
+            
+    if FLAGS.service == 'gdrive':
+        flags.DEFINE_string('logfile', 'gdrive.log', 'Location of file to write the log' )
+        gdrive.main(argv)
+    elif FLAGS.service == 'dropbox':
+        print( 'Coming soon...' )
+    elif FLAGS.service == 'box':
+        print( 'Coming soon...' )
+    elif FLAGS.service == 'onedrive':
+        print( 'Coming soon...' )
+    else:
+        print( 'No service selected' )
+    
 if __name__ == '__main__':
     app.run(main)
 
