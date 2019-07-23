@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# -*- compile-command: "./kumodd.py -c config/test.cfg -s gdrive -l doc"; -*-
+# -*- compile-command: "./kumodd.py -c config/test.yml -s gdrive -l pdf"; -*-
 __author__ = 'andrsebr@gmail.com (Andres Barreto), rich.murphey@gmail.com'
 
 # Copyright (C) 2019  Andres Barreto and Rich Murphey
@@ -50,6 +50,7 @@ def main(argv):
     try:
         argv = FLAGS(argv)
     except flags.FlagsError as e:
+        print('Kumodd version: ', kumodd_verison, "\n" )
         print( f'{e}\\nUsage: {argv[0]} ARGS\\n{FLAGS}' )
         sys.exit(1)
         
@@ -72,5 +73,26 @@ def main(argv):
     else:
         print( 'No service selected' )
     
+    if platform.system() == 'Windows':
+        import wmi
+        cwmi = wmi.WMI()
+        pid = os.getpid()
+        for x in range(3):
+            for process in cwmi.Win32_Process(ProcessId=pid):
+                pid = process.ParentProcessId
+                if 'explorer' in process.name.lower():
+                    print(f'''
+Kumodd is a command line utility.
+Please execute it from a cmd shell or powershell.
+
+Usage: {argv[0]} ARGS\\n{FLAGS}
+
+press any key to exit.
+''')
+                    sys.stdin.read(1)
+                    sys.exit(1)
+
 if __name__ == '__main__':
     app.run(main)
+
+
