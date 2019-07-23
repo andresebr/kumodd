@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# -*- compile-command: "cd ..; ./kumodd.py -c config/test.yml -s gdrive -d pdf"; -*-
+# -*- compile-command: "cd ..; ./kumodd -c config/test.yml -s gdrive -d pdf"; -*-
 
 # Copyright (C) 2019  Andres Barreto and Rich Murphey
 
@@ -19,11 +19,9 @@
 
 # Developer notes, todo:
 
-# chuck the downloads to avoide out of memory.
+# NB: need acknowledgeAbuse=true  to download flagged malware
 
-# add filtering for:
-# date ranges
-# path regex 
+# chuck the downloads to avoide out of memory.
 
 # needs testing: windows last mod time is written but sometimes not preserved.
 
@@ -39,6 +37,7 @@ from collections import Iterable, OrderedDict
 from datetime import datetime
 from dateutil import parser
 from dumper import dump
+from apiclient.http import MediaIoBaseDownload
 from googleapiclient.discovery import build
 from hashlib import md5
 from jsonpath_ng import jsonpath, parse
@@ -142,7 +141,7 @@ def yaml_string( obj ):
     stringio.close()
     return s
 
-def remove_keys_that_contain( list_of_substrings, dict_in ):
+def remove_keys_that_contain( dict_in, list_of_substrings ):
     dict_copy = dict(dict_in)
     for substring in list_of_substrings:
         for key in dict_in:
@@ -150,11 +149,30 @@ def remove_keys_that_contain( list_of_substrings, dict_in ):
                 dict_copy.pop(key, None)
     return dict_copy
 
+def remove_keys( dict_in, list_of_keys ):
+    dict_copy = dict(dict_in)
+    for key in dict_in:
+        if isinstance(dict_in[key],dict):
+            dict_copy[key] = remove_keys( dict_in[key], list_of_keys )
+        elif isinstance(dict_in[key],list):
+            dict_copy[key] = []
+            for elem in dict_in[key]:
+                if isinstance(elem,dict):
+                    dict_copy[key].append( remove_keys( elem, list_of_keys ))
+                else:
+                    dict_copy[key].append( elem )
+        elif key in list_of_keys:
+            dict_copy.pop(key, None)
+    return dict_copy
+
 def redacted_dict( dict_in ):
-    return remove_keys_that_contain(['Link', 'Match', 'status', 'Url', 'yaml'], dict_in)
+    return remove_keys_that_contain( dict_in, ['Link', 'Match', 'status', 'Url', 'yaml'])
 
 def redacted_yaml( dict_in ):
-    return yaml_string(remove_keys_that_contain(['Link', 'Match', 'status', 'Url', 'yaml'], dict_in))
+    d = remove_keys_that_contain( dict_in, ['Link', 'Match', 'status', 'Url', 'yaml'] )
+    if dict_in['mimeType'].startswith('application/vnd.google'):
+        d = remove_keys( d, [ 'fileSize', 'md5Checksum' ] )
+    return yaml_string( d )
 
 def md5hex( content ):
     return md5( content ).hexdigest()
@@ -196,7 +214,7 @@ def supplement_drive_file_metadata(ctx, drive_file, path):
 
     name = drive_file.get('originalFilename') or drive_file['title'].replace( '/', '_' )
     if drive_file['mimeType'].startswith('application/vnd.google'):
-        download_url, extension = get_url_and_ext(drive_file, drive_file)
+        extension = get_ext(drive_file, drive_file)
         if not drive_file.get('fileExtension') and extension:
             drive_file['fileExtension'] = extension
         if not drive_file.get('originalFilename'):
@@ -264,7 +282,7 @@ class FileAttr( object ):
             self.valid =  True
         return self.valid
 
-    def compare_and_annotate_drive_file( self, drive_file ):
+    def compare_metadata_to_local_file( self, drive_file ):
         if self.exists:
             remote_mod_time = sec_since_epoch( drive_file.get( 'modifiedDate' ))
             remote_acc_time = sec_since_epoch( drive_file.get( 'lastViewedByMeDate' ))
@@ -303,8 +321,9 @@ class FileAttr( object ):
         else:
             drive_file['status'] = 'missing'
 
-    def compare_and_annotate_drive_file_MD5( self, drive_file):
+    def compare_YAML_metadata_MD5( self, drive_file):
         update_yamlMetadataMD5( drive_file )
+
         self.update_local_metadata_MD5()
         if self.metadata_file_exists:
             if self.yamlMetadataMD5 and self.yamlMetadataMD5 == drive_file.get('yamlMetadataMD5'):
@@ -336,9 +355,14 @@ def print_file_metadata(ctx, drive_file, path, writer, metadata_names, output_fo
     supplement_drive_file_metadata(ctx, drive_file, path)
     drive_file['revisions'] = retrieve_revisions(ctx, drive_file['id'])
     file_attr = FileAttr( drive_file, ctx.user )
-    file_attr.compare_and_annotate_drive_file( drive_file )
-    file_attr.compare_and_annotate_drive_file_MD5( drive_file )
+    file_attr.compare_metadata_to_local_file( drive_file )
+    file_attr.compare_YAML_metadata_MD5( drive_file )
 
+    if drive_file['mimeType'].startswith( 'application/vnd.google-apps' ):
+        # google drive API does not provide size or md5, so use local metadata for them.
+        drive_file['md5Checksum'] = file_attr.md5Local
+        drive_file['fileSize'] = file_attr.localSize
+        
     data = jsonpath_list( drive_file, metadata_names )
     if writer:
         writer.writerow( data )
@@ -357,12 +381,17 @@ def download_file_and_metadata(ctx, drive_file, path, writer, metadata_names, ou
         if not download_file( ctx, drive_file ):
             logging.critical( f"failed to download: {local_data_dir( drive_file, ctx.user ) + '/' + file_name(drive_file)}")
         file_attr.update_local( drive_file )
-        file_attr.compare_and_annotate_drive_file( drive_file )
+        file_attr.compare_metadata_to_local_file( drive_file )
         update_yamlMetadataMD5( drive_file )
         save_metadata( drive_file, ctx.user )
+    else:
+        if drive_file['mimeType'].startswith( 'application/vnd.google-apps' ):
+            # google drive API does not provide size or md5, so use local metadata for them.
+            drive_file['md5Checksum'] = file_attr.md5Local
+            drive_file['fileSize'] = file_attr.localSize
 
-    file_attr.compare_and_annotate_drive_file( drive_file )
-    file_attr.compare_and_annotate_drive_file_MD5( drive_file )
+    file_attr.compare_metadata_to_local_file( drive_file )
+    file_attr.compare_YAML_metadata_MD5( drive_file )
 
     data = jsonpath_list( drive_file, metadata_names )
 
@@ -426,43 +455,33 @@ def retrieve_revisions( ctx, file_id ):
     return None    
 
 
-def is_google_doc(drive_file):
-    return True if re.match( '^application/vnd\.google-apps\..+', drive_file['mimeType'] ) else False
+def is_native_google_apps(drive_file):
+    return drive_file['mimeType'].startswith( 'application/vnd.google-apps' )
 
-def get_url_and_ext(drive_file, revision=None):
+def get_ext(drive_file, revision=None):
     if not revision:
         revision = drive_file
-    if is_google_doc(drive_file):
+    if is_native_google_apps(drive_file):
         if FLAGS.pdf:
-            download_url = revision['exportLinks']['application/pdf']
             extension = 'pdf'
         elif drive_file['mimeType'] == 'application/vnd.google-apps.document':
-            download_url = revision['exportLinks']['application/vnd.oasis.opendocument.text']
             extension = 'odt'
         elif drive_file['mimeType'] == 'application/vnd.google-apps.presentation':
-            download_url = revision['exportLinks']['application/vnd.oasis.opendocument.presentation']
             extension = 'odp'
         elif drive_file['mimeType'] == 'application/vnd.google-apps.spreadsheet':
-            # was: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet
-            download_url = revision['exportLinks']['application/vnd.oasis.opendocument.spreadsheet']
             extension = 'ods'
         elif drive_file['mimeType'] == 'application/vnd.google-apps.drawing':
-            # was: image/jpeg
-            download_url = revision['exportLinks']['application/vnd.oasis.opendocument.graphics']
             extension = 'odg'
         else:
-            download_url = revision['exportLinks']['application/pdf']
             extension = '.pdf'
     else:
-        download_url = revision['downloadUrl']
         extension = ''
-    return [download_url, extension]
+    return extension
 
-# determine the mime type used to download files.
 def get_mime_type(drive_file, revision=None):
     if not revision:
         revision = drive_file
-    if is_google_doc(drive_file):
+    if is_native_google_apps(drive_file):
         if FLAGS.pdf:
             return 'application/pdf'
         elif drive_file['mimeType'] == 'application/vnd.google-apps.document':
@@ -495,6 +514,37 @@ def file_name( drive_file, revision=None ):
 def local_metadata_dir( drive_file, username ):
     return '/'.join([ FLAGS.metadata_destination, username, drive_file['path'] ])
 
+def download_url_and_do_md5(ctx, drive_file, path):
+    if drive_file['mimeType'].startswith( 'application/vnd.google-apps' ):
+        request = ctx.service.files().export_media(fileId=drive_file['id'],
+                                                   mimeType=get_mime_type(drive_file))
+    else:
+        request = ctx.service.files().get_media(fileId=drive_file['id'])
+    m = md5()
+    size = 0
+    with open(path, 'wb+') as f:
+        fh = io.BytesIO()
+        downloader = MediaIoBaseDownload(fh, request, chunksize=16*1024*1024)
+        done = False
+        remaining_bytes = -1
+        while done is False:
+            status, done = downloader.next_chunk( num_retries = 2 )
+            if remaining_bytes == -1:
+                remaining_bytes = status.total_size
+            chunk = fh.getvalue()
+            if remaining_bytes > len( chunk ):
+                size += len( chunk )
+                remaining_bytes -= len( chunk )
+                m.update( chunk )
+                f.write( chunk )
+                fh.seek(0)
+                continue
+            else:
+                size += remaining_bytes
+                m.update( chunk[:remaining_bytes] )
+                f.write( chunk[:remaining_bytes] )
+                break
+    return [ size, m.hexdigest() ]
 
 def download_file( ctx, drive_file, revision=None ):
     """Download a file's content.
@@ -508,70 +558,58 @@ def download_file( ctx, drive_file, revision=None ):
       True if successful, else False.
     """
     
-    download_url, extension = get_url_and_ext( drive_file, revision )
     file_path = local_data_dir( drive_file, ctx.user ) + '/' + file_name(drive_file, revision)
 
-    if not download_url:
-        return False
-    else:
-        if FLAGS.revisions and not revision:
-            revision_list = drive_file.get('revisions')
-            if revision_list:
-                for rev in revision_list:   # was [1:len(revision_list)]
-                    download_file( ctx, drive_file, rev )
+    if FLAGS.revisions and not revision:
+        revision_list = drive_file.get('revisions')
+        if revision_list:
+            for rev in revision_list:   # was [1:len(revision_list)]
+                download_file( ctx, drive_file, rev )
 
-        while True:
-            try:
-                resp, content = ctx.service._http.request(download_url)
-            except Exception as e:
-                logging.critical( f"Exception {e} while reading {file_path}. Retrying...", exc_info=True)
-                continue
-            if resp.status == 200:
-                try:
-                    with open( file_path, 'wb+' ) as handle:
-                        handle.write( content )
-                except e:
-                    logging.critical( f"Cannot open {file_path} for writing: {e}", exc_info=True)
-                    return False
-
-                ctx.downloaded += 1
-                if revision: 
-                    revision['md5Checksum'] = md5hex( content )
-                    revision['fileSize'] = len( content )
-                elif drive_file.get('md5Checksum') is None:
-                    drive_file['md5Checksum'] = md5hex( content )
-                    drive_file['fileSize'] = len( content )
-
-                try:
-                    # time stamps set on exported files
-                    if revision:
-                        modify_time = sec_since_epoch( revision.get( 'modifiedDate' ))
-                    else:
-                        modify_time = sec_since_epoch( drive_file.get( 'modifiedDate' ))
-                    access_time = sec_since_epoch( drive_file.get( 'lastViewedByMeDate' ))
-                    create_time = sec_since_epoch( drive_file.get( 'createdDate' ))
-
-                    if platform.system() == 'Windows':
-                        # API to set create timestamp is not cross-platform
-                        # Setting the modify and access time is unreliable via SetFileTIme, so we only set create.
-                        handle = win32file.CreateFile(
-                            file_path, win32con.GENERIC_WRITE,
-                            win32con.FILE_SHARE_READ | win32con.FILE_SHARE_WRITE | win32con.FILE_SHARE_DELETE,
-                            None, win32con.OPEN_EXISTING,
-                            win32con.FILE_ATTRIBUTE_NORMAL, None)
-                        win32file.SetFileTime(handle, pywintypes.Time(create_time), None, None, UTCTimes=True)
-                        handle.close()
-                    os.utime(file_path, (access_time, modify_time))
-
-                except Exception as e:
-                    logging.critical( f"While setting file times, got exception: {e}", exc_info=True)
-                finally:
-                    handle.close()
-                    return True
+    while True:
+        try:
+            size, md5_of_data = download_url_and_do_md5( ctx, drive_file, file_path )
+        except Exception as e:
+            logging.critical( f"Exception {e} while downloading {file_path}. Retrying...", exc_info=True)
+            print( f"Exception {e} while downloading {file_path}. Retrying...", exc_info=True)
+            continue
+        ctx.downloaded += 1
+        if revision: 
+            revision['fileSize'] = size
+            revision['md5Checksum'] = md5_of_data
+        else:
+            if drive_file.get('fileSize') is None:
+                drive_file['fileSize'] = size
+            if drive_file.get('md5Checksum') is None:
+                drive_file['md5Checksum'] = md5_of_data
+        try:
+            # time stamps set on exported files
+            if revision:
+                modify_time = sec_since_epoch( revision.get( 'modifiedDate' ))
             else:
-                logging.critical( resp )
-                return False
+                modify_time = sec_since_epoch( drive_file.get( 'modifiedDate' ))
+            access_time = sec_since_epoch( drive_file.get( 'lastViewedByMeDate' ))
+            create_time = sec_since_epoch( drive_file.get( 'createdDate' ))
+            os.utime(file_path, (access_time, modify_time))
+        except Exception as e:
+            logging.critical( f"While setting file times, got exception: {e}", exc_info=True)
 
+        if platform.system() == 'Windows':
+            try:
+                # Use Win 32 API to set timestamp. Note this is unreliable,
+                # so we only use thi s to set the create timne.
+                handle = win32file.CreateFile(
+                    file_path, win32con.GENERIC_WRITE,
+                    win32con.FILE_SHARE_READ | win32con.FILE_SHARE_WRITE | win32con.FILE_SHARE_DELETE,
+                    None, win32con.OPEN_EXISTING,
+                    win32con.FILE_ATTRIBUTE_NORMAL, None)
+                win32file.SetFileTime(handle, pywintypes.Time(create_time), None, None, UTCTimes=True)
+                handle.close()
+            except Exception as e:
+                logging.critical( f"While setting file times, got exception: {e}", exc_info=True)
+            finally:
+                handle.close()
+        return True
 
 def walk_gdrive( ctx, folder, handle_item, path=None ):
     if path is None:
@@ -872,9 +910,9 @@ csv_title:
             with open(config.get('gdrive',{}).get('csv_prefix') + ctx.user + '.csv', 'w') as csv_handle:
                 writer = csv.writer(csv_handle, delimiter=',')
                 writer.writerow( get_titles( config, metadata_names ) )
-
                 path=FLAGS.folder
                 gdrive_folder = get_gdrive_folder( ctx, path )
+
                 def handle_item( ctx, item, path ):
                     if ( ( FLAGS.list == 'all' )
                         or (( FLAGS.list in ['doc','xls', 'ppt', 'text', 'pdf', 'image', 'audio', 'video', 'other'] )
@@ -882,6 +920,7 @@ csv_title:
                         or (( FLAGS.list == 'office' )
                             and file_type_from_mime(item['mimeType']) in ['doc', 'xls', 'ppt']) ):
                         print_file_metadata( ctx, item, path, writer, metadata_names, output_format)
+
                 walk_gdrive( ctx, gdrive_folder, handle_item)
 
         elif FLAGS.download:
@@ -923,9 +962,8 @@ csv_title:
 
                     def handle_item( ctx, drive_file, path ):
                         file_attr = FileAttr( drive_file, ctx.user )
-                        file_attr.compare_and_annotate_drive_file( drive_file )
-                        file_attr.update_local_metadata_MD5()
-                        file_attr.compare_and_annotate_drive_file_MD5( drive_file )
+                        file_attr.compare_metadata_to_local_file( drive_file )
+                        file_attr.compare_YAML_metadata_MD5( drive_file )
                         verify_revisions( ctx, drive_file)
                         if drive_file['status'] == 'INVALID':
                             print(22*'_', ' drive_file ', dirent.name)
