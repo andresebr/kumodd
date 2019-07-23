@@ -22,6 +22,7 @@ from absl import app, flags
 import logging
 import modules.gdrive as gdrive
 import os
+import platform
 import sys 
 
 kumodd_verison = "1.0.1"
