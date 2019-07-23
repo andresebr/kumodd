@@ -25,7 +25,7 @@ import os
 import platform
 import sys 
 
-kumodd_verison = "1.0.1"
+kumodd_verison = "1.1.0"
 
 FLAGS = flags.FLAGS
 
