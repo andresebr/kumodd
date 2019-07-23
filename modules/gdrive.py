@@ -640,7 +640,8 @@ def main(argv):
     try:
         argv = FLAGS(argv)
     except flags.FlagsError as e:
-        print( f'{e}\\nUsage: {argv[0]} ARGS\\n{FLAGS}' )
+        print( f"Error: {e}" )
+        print( f"\nUsage: {argv[0]} ARGS\n\n{FLAGS}" )
         sys.exit(1)
 
     if not os.path.exists(FLAGS.config):
@@ -782,6 +783,10 @@ csv_title:
     output_format = ' '.join([f'{{{i}:{width}.{width}}}' for i, width in
             enumerate([match.value for match in parse( f'gdrive.csv_columns.{FLAGS.col}[*][1]' ).find( config )])])
 
+
+    if not (FLAGS.verify or FLAGS.usecsv or FLAGS.download or FLAGS.list):
+        print( f"\nUsage: {argv[0]} ARGS\n\n{FLAGS}" )
+        sys.exit(1)
 
     if FLAGS.verify:
         ctx = Ctx( None )

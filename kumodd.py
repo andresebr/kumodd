@@ -51,8 +51,8 @@ def main(argv):
     try:
         argv = FLAGS(argv)
     except flags.FlagsError as e:
-        print('Kumodd version: ', kumodd_verison, "\n" )
-        print( f'{e}\\nUsage: {argv[0]} ARGS\\n{FLAGS}' )
+        print( f"Error: {e}" )
+        print( f"\nUsage: {argv[0]} ARGS\n\n{FLAGS}" )
         sys.exit(1)
         
     if platform.system() == 'Windows':
@@ -63,14 +63,16 @@ def main(argv):
             for process in cwmi.Win32_Process(ProcessId=pid):
                 pid = process.ParentProcessId
                 if 'explorer' in process.name.lower():
-                    print(f'''
+                    print(f"""
 Kumodd is a command line utility.
 Please execute it from a cmd shell or powershell.
 
-Usage: {argv[0]} ARGS\\n{FLAGS}
+Usage: {argv[0]} [ARGS...]
+
+{FLAGS}
 
 press any key to exit.
-''')
+""")
                     sys.stdin.read(1)
                     sys.exit(1)
 
@@ -90,8 +92,6 @@ press any key to exit.
         print( 'Coming soon...' )
     elif FLAGS.service == 'onedrive':
         print( 'Coming soon...' )
-    else:
-        print( 'No service selected' )
     
 if __name__ == '__main__':
     app.run(main)
