@@ -12,9 +12,9 @@ Drive account in a verifiable forensically sound manner.
 ## Table of Contents
 * [Wiki Home Page](https://github.com/rich-murphey/kumodd/wiki/Home)
 * [Usage Examples](https://github.com/rich-murphey/kumodd/wiki/How-to-Use-Kumodd)
-* [Search Query](https://github.com/rich-murphey/kumodd/wiki/Search-Query)
 * [How to Install Kumodd](https://github.com/rich-murphey/kumodd/wiki/How-to-Install)
 * [How to Configure Kumodd](https://github.com/rich-murphey/kumodd/wiki/How-to-Configure)
+* [How to Search for Files](https://github.com/rich-murphey/kumodd/wiki/Search-Query)
 * [Google Drive Metadata](https://github.com/rich-murphey/kumodd/wiki/Metadata)
 * [Data Verification Methods](https://github.com/rich-murphey/kumodd/wiki/Methods)
 * [How to Verify Files](https://github.com/rich-murphey/kumodd/wiki/How-to-Verify-Data)
