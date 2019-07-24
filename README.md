@@ -3,7 +3,7 @@
 Kumodd downloads files and their metadata from a specified Google
 Drive account in a verifiable forensically sound manner.
 
-- [Search query to limit files by full text or metadata](https://github.com/rich-murphey/kumodd/wiki/Search-Query)
+- [Limit results by full text or metadata search terms](https://github.com/rich-murphey/kumodd/wiki/Search-Query)
 - [Export Google Docs, Sheets, Slides as PDF or LibreOffice.](https://github.com/rich-murphey/kumodd/wiki/Command-line-options)
 - [Export CSV with configurable columns](https://github.com/rich-murphey/kumodd/wiki/How-to-Configure).
 - [Preserve extensive metadata of each file](https://github.com/rich-murphey/kumodd/wiki/Example-Metadata).
