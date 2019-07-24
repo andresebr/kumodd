@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# -*- compile-command: "./kumodd.py -c config/test.yml -s gdrive -l pdf"; -*-
+# -*- compile-command: "./kumodd -c config/test.yml -s gdrive -l pdf"; -*-
 __author__ = 'andrsebr@gmail.com (Andres Barreto), rich.murphey@gmail.com'
 
 # Copyright (C) 2019  Andres Barreto and Rich Murphey
@@ -34,6 +34,12 @@ flags.DEFINE_enum('log', 'ERROR',
                   'Set the level of logging detail.')
 flags.DEFINE_enum('service', 'gdrive',
                   ['gdrive','dropbox','box','onedrive'], 'Service to use', short_name='s' )
+flags.DEFINE_string('destination', './download', 'Destination folder location', short_name='p')
+flags.DEFINE_string('metadata_destination', './download/metadata',
+                    'Destination folder for metadata information', short_name='m')
+flags.DEFINE_boolean('version', False, 'Print version number and exit.')
+
+# one of four actions must be selected: list, download, usecsv or verify.
 flags.DEFINE_enum('list', None,
                   ['all', 'doc', 'xls', 'ppt', 'text', 'pdf', 'office', 'image', 'audio', 'video', 'other'],
                   'List files in google drive and verify files on disk match MD5', short_name='l')
@@ -42,10 +48,7 @@ flags.DEFINE_enum('download', None,
                   'Download files, optionally filter, and verify MD5 on disk', short_name='d')
 flags.DEFINE_list('usecsv', None,
                   'List files in cloud,  files, optionally filter, and verify MD5 of files on disk', short_name='csv')
-flags.DEFINE_string('destination', './download', 'Destination folder location', short_name='p')
-flags.DEFINE_string('metadata_destination', './download/metadata',
-                    'Destination folder for metadata information', short_name='m')
-flags.DEFINE_boolean('version', False, 'Print version number and exit.')
+flags.DEFINE_boolean('verify', False, 'Verify files and metadata on disk match original MD5. Use local metadata. Do not connect to Google Drive.', short_name='V')
 
 def main(argv):
     try:
@@ -55,17 +58,9 @@ def main(argv):
         print( f"\nUsage: {argv[0]} ARGS\n\n{FLAGS}" )
         sys.exit(1)
         
-    if platform.system() == 'Windows':
-        import wmi
-        cwmi = wmi.WMI()
-        pid = os.getpid()
-        for x in range(3):
-            for process in cwmi.Win32_Process(ProcessId=pid):
-                pid = process.ParentProcessId
-                if 'explorer' in process.name.lower():
-                    print(f"""
-Kumodd is a command line utility.
-Please execute it from a cmd shell or powershell.
+    if not (FLAGS.verify or FLAGS.usecsv or FLAGS.download or FLAGS.list):
+        print(f"""
+Kumodd version is a command line utility.
 
 Usage: {argv[0]} [ARGS...]
 
@@ -73,11 +68,11 @@ Usage: {argv[0]} [ARGS...]
 
 press any key to exit.
 """)
-                    sys.stdin.read(1)
-                    sys.exit(1)
+        sys.stdin.read(1)
+        sys.exit(1)
 
     if FLAGS.version:
-        print('version: ', kumodd_verison )
+        print('Kumodd version: ', kumodd_verison )
         sys.exit(1)
 
     if not os.path.exists(FLAGS.destination):

@@ -71,7 +71,6 @@ flags.DEFINE_string('col', 'normal', 'column set defined under csv_columns in co
 flags.DEFINE_boolean('revisions', True, 'Download every revision of each file.')
 flags.DEFINE_boolean('pdf', True, 'Convert all native Google Apps files to PDF.')
 flags.DEFINE_string('gdrive_auth', None, 'Google Drive account authorization file.  Configured in config/config.yml if not specified on command line.')
-flags.DEFINE_boolean('verify', False, 'Verify files and metadata on disk match original MD5. Use local metadata. Do not connect to Google Drive.', short_name='V')
 flags.DEFINE_string('folder', None, 'source folder within Google Drive', short_name='f')
 flags.DEFINE_string('query', None, 'metadata query (filter)', short_name='q')
 
@@ -820,11 +819,6 @@ csv_title:
 
     output_format = ' '.join([f'{{{i}:{width}.{width}}}' for i, width in
             enumerate([match.value for match in parse( f'gdrive.csv_columns.{FLAGS.col}[*][1]' ).find( config )])])
-
-
-    if not (FLAGS.verify or FLAGS.usecsv or FLAGS.download or FLAGS.list):
-        print( f"\nUsage: {argv[0]} ARGS\n\n{FLAGS}" )
-        sys.exit(1)
 
     if FLAGS.verify:
         ctx = Ctx( None )
