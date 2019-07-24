@@ -9,7 +9,7 @@ Drive account in a verifiable forensically sound manner.
 - [Preserve extensive metadata of each file](https://github.com/rich-murphey/kumodd/wiki/Example-Metadata).
 - [Verify preservation of file contents and metadata](https://github.com/rich-murphey/kumodd/wiki/Methods).
 
-## Table of Contents
+## User Guide
 * [Wiki Home Page](https://github.com/rich-murphey/kumodd/wiki/Home)
 * [Usage Examples](https://github.com/rich-murphey/kumodd/wiki/How-to-Use-Kumodd)
 * [How to Install Kumodd](https://github.com/rich-murphey/kumodd/wiki/How-to-Install)
