@@ -19,6 +19,11 @@
 
 # Developer notes, todo:
 
+# need to store all generated values under a separate key, MD5 and size of
+# converted files. use:
+# getkumodd( d, key )
+# getdyn( d, key )
+
 # NB: need acknowledgeAbuse=true  to download flagged malware
 
 # chuck the downloads to avoide out of memory.
@@ -179,6 +184,16 @@ def md5hex( content ):
 # get the MD5 digest of the yaml of the metadata dict, excluding the *yaml*, *Url*, and *status* keys
 def MD5_of_yaml_of(dict_in):
     return md5hex(redacted_yaml( dict_in ).encode('utf8'))
+#----------------------------------------------------------------
+# methods to handle dynamically generated MD5, size of converted files, etc.
+
+# get key inside 'kumodd' key.
+def getkumodd( d, key ):
+    return d['kumodd'][key] if d.get('kumodd') else None
+
+def getdyn( d, key ):
+    return d.get(key, getkumodd( d, key ))
+
 #----------------------------------------------------------------
 # return a list of values
 # return a value at object path, eg. 
@@ -513,12 +528,12 @@ def file_name( drive_file, revision=None ):
 def local_metadata_dir( drive_file, username ):
     return '/'.join([ FLAGS.metadata_destination, username, drive_file['path'] ])
 
-def download_url_and_do_md5(ctx, drive_file, path):
+def download_url_and_do_md5(ctx, drive_file, path, acknowledgeAbuse=False):
     if drive_file['mimeType'].startswith( 'application/vnd.google-apps' ):
         request = ctx.service.files().export_media(fileId=drive_file['id'],
                                                    mimeType=get_mime_type(drive_file))
     else:
-        request = ctx.service.files().get_media(fileId=drive_file['id'])
+        request = ctx.service.files().get_media(fileId=drive_file['id'], acknowledgeAbuse=acknowledgeAbuse)
     m = md5()
     size = 0
     with open(path, 'wb+') as f:
@@ -568,6 +583,14 @@ def download_file( ctx, drive_file, revision=None ):
     while True:
         try:
             size, md5_of_data = download_url_and_do_md5( ctx, drive_file, file_path )
+        except errors.HttpError as e:
+            if e.resp.status == 403:
+                size, md5_of_data = download_url_and_do_md5( ctx, drive_file, file_path, acknowledgeAbuse=True )
+                pass
+            else:
+                logging.critical( f"Exception {e} while downloading {file_path}. Retrying...", exc_info=True)
+                print( f"Exception {e} while downloading {file_path}. Retrying...", exc_info=True)
+                continue
         except Exception as e:
             logging.critical( f"Exception {e} while downloading {file_path}. Retrying...", exc_info=True)
             print( f"Exception {e} while downloading {file_path}. Retrying...", exc_info=True)
