@@ -535,22 +535,19 @@ def download_file_and_do_md5(ctx, drive_file, path, acknowledgeAbuse=False):
         request = ctx.service.files().export_media(fileId=drive_file['id'],
                                                    mimeType=get_mime_type(drive_file))
     else:
-        request = ctx.service.files().get_media(fileId=drive_file['id'], acknowledgeAbuse=acknowledgeAbuse)
+        request = ctx.service.files().get_media(fileId=drive_file['id'],
+                                                acknowledgeAbuse=acknowledgeAbuse)
     m = md5()
-    size = 0
     with open(path, 'wb+') as f, io.BytesIO() as fh:
         downloader = MediaIoBaseDownload(fh, request, chunksize=16*1024*1024)
         done = False
-        remaining_bytes = None
         while done is False:
             status, done = downloader.next_chunk( num_retries = 2 )
             with fh.getbuffer() as buf:
-                buf_len = fh.tell()
-                m.update( buf[:buf_len] )
-                f.write( buf[:buf_len] )
-                size += buf_len
+                m.update( buf )
+                f.write( buf )
             fh.seek(0)
-    return [ size, m.hexdigest() ]
+        return [ f.tell(), m.hexdigest() ]
 
 def download_file( ctx, drive_file, revision=None ):
     """Download a file's content.
