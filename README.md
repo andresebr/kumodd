@@ -8,6 +8,7 @@ specified Google Drive account in a verifiable forensically sound manner.
 - [Export CSV with configurable columns](https://github.com/rich-murphey/kumodd/wiki/How-to-Configure).
 - [Preserve extensive metadata of each file](https://github.com/rich-murphey/kumodd/wiki/Example-Metadata).
 - [Verify preservation of file contents and metadata](https://github.com/rich-murphey/kumodd/wiki/Methods).
+- [Export Log2Timeline for Analysis](https://github.com/rich-murphey/kumodd/wiki/Log2Timeline-Export).
 
 ## User Guide
 * [Overview](https://github.com/rich-murphey/kumodd/wiki/Home)
@@ -17,6 +18,7 @@ specified Google Drive account in a verifiable forensically sound manner.
 * [Default Configuration](https://github.com/rich-murphey/kumodd/wiki/Default-configuration)  
 * [How to Search for Files](https://github.com/rich-murphey/kumodd/wiki/Search-Query)  
 * [How to Verify Files](https://github.com/rich-murphey/kumodd/wiki/How-to-Verify-Data)  
+* [Log2Timeline Export](https://github.com/rich-murphey/kumodd/wiki/Log2Timeline-Export)
 * [Command Line Options](https://github.com/rich-murphey/kumodd/wiki/Command-line-options)  
 * [How to Test Kumodd](https://github.com/rich-murphey/kumodd/wiki/How-to-Test-Kumodd)  
 * [How to Build](https://github.com/rich-murphey/kumodd/wiki/How-to-Build)  
