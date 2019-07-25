@@ -365,7 +365,7 @@ def date_time_zone( t ):
     time = t[t.rfind('T') + 1:t.rfind('Z')]
     return date, time
 
-def l2t_rec( ctx, writer, drive_file, timestamp, MACB, timestamp_type, short_desc, extra ):
+def l2t_rec( ctx, writer, drive_file, timestamp, MACB, timestamp_type, short_desc, user, extra ):
     if timestamp is None:
         return
     date, time = date_time_zone( timestamp )
@@ -374,10 +374,10 @@ def l2t_rec( ctx, writer, drive_file, timestamp, MACB, timestamp_type, short_des
                       time,	# time
                       'UTC',	# timezone
                       MACB,	# MACB
-                      'gdrive',	# source
+                      'Google Drive',	# source
                       'file',	# sourcetyp
-                      short_desc,	# type
-                      ctx.user,	# user
+                      timestamp_type,	# type
+                      user,	# user
                       'google',	# host
                       short_desc,	# short
                       short_desc,	# desc
@@ -389,16 +389,22 @@ def l2t_rec( ctx, writer, drive_file, timestamp, MACB, timestamp_type, short_des
                       extra	# extra
                       ])
 
+def get_first_owner( drive_file ):
+    list = drive_file.get('owners')
+    if list is None:
+        return None
+    return list[0].get('emailAddress')
+
 def output_lt2_csv(ctx, df, writer):
-    l2t_rec( ctx, writer, df, df.get('createdDate'),	'B', 'Created',		'Created', ctx.user )
-    l2t_rec( ctx, writer, df, df.get('lastViewedByMeDate'), 'A', 'Last Acceessed',	'Last Viewed by Me', ctx.user )
-    l2t_rec( ctx, writer, df, df.get('markedViewedByMeDate'), 'A', 'Last Acceessed', 'Last Acceessed', ctx.user )
-    l2t_rec( ctx, writer, df, df.get('modifiedByMeDate'),	'M', 'Last Modified',	'Last Modified by Me', ctx.user )
-    l2t_rec( ctx, writer, df, df.get('modifiedDate'),	'M', 'Last Modified',	'Last Modified', dget( df, ['lastModifyingUser', 'emailAddress' ]))
+    l2t_rec( ctx, writer, df, df.get('createdDate'),	'B', 'Created',		'Created', get_first_owner( df ), '' )
+    l2t_rec( ctx, writer, df, df.get('lastViewedByMeDate'), 'A', 'Last Acceessed',	'Last Viewed by Me', ctx.user, '' )
+    l2t_rec( ctx, writer, df, df.get('markedViewedByMeDate'), 'A', 'Last Acceessed', 'Last Acceessed', '', '' )
+    l2t_rec( ctx, writer, df, df.get('modifiedByMeDate'),	'M', 'Last Modified',	'Last Modified by Me', ctx.user, '' )
+    l2t_rec( ctx, writer, df, df.get('modifiedDate'),	'M', 'Last Modified',	'Last Modified', '', '' )
     revision_list = df.get('revisions')
     if revision_list:
         for rev in revision_list:
-            l2t_rec( ctx, writer, df, rev.get('modifiedDate'), 'M', 'Last Modified', 'Last Modified', dget(rev, ['lastModifyingUser', 'emailAddress' ]))
+            l2t_rec( ctx, writer, df, rev.get('modifiedDate'), 'M', 'Last Modified', 'Last Modified', dget(rev, ['lastModifyingUser', 'emailAddress' ]), rev.get('id'))
 
 def download_file_and_metadata(ctx, drive_file, path, writer, metadata_names, output_format=None):
     supplement_drive_file_metadata(ctx, drive_file, path)
