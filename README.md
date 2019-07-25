@@ -1,6 +1,6 @@
 # Kumo (Cloud) Data Dumper
 
-Kumodd is a command line utility that downloads files and their metadata from a
+Kumodd is a command line utility that downloads files and metadata from a
 specified Google Drive account in a verifiable forensically sound manner.
 
 - [Limit results by full text or metadata search terms](https://github.com/rich-murphey/kumodd/wiki/Search-Query)

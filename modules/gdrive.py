@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# -*- compile-command: "cd ..; ./kumodd -c config/test.yml -s gdrive -d pdf"; -*-
+# -*- compile-command: "cd ..; ./kumodd -c config/test.yml -d all"; -*-
 
 # Copyright (C) 2019  Andres Barreto and Rich Murphey
 
@@ -528,7 +528,9 @@ def file_name( drive_file, revision=None ):
 def local_metadata_dir( drive_file, username ):
     return '/'.join([ FLAGS.metadata_destination, username, drive_file['path'] ])
 
-def download_url_and_do_md5(ctx, drive_file, path, acknowledgeAbuse=False):
+from pprint import pprint
+
+def download_file_and_do_md5(ctx, drive_file, path, acknowledgeAbuse=False):
     if drive_file['mimeType'].startswith( 'application/vnd.google-apps' ):
         request = ctx.service.files().export_media(fileId=drive_file['id'],
                                                    mimeType=get_mime_type(drive_file))
@@ -536,28 +538,18 @@ def download_url_and_do_md5(ctx, drive_file, path, acknowledgeAbuse=False):
         request = ctx.service.files().get_media(fileId=drive_file['id'], acknowledgeAbuse=acknowledgeAbuse)
     m = md5()
     size = 0
-    with open(path, 'wb+') as f:
-        fh = io.BytesIO()
+    with open(path, 'wb+') as f, io.BytesIO() as fh:
         downloader = MediaIoBaseDownload(fh, request, chunksize=16*1024*1024)
         done = False
-        remaining_bytes = -1
+        remaining_bytes = None
         while done is False:
             status, done = downloader.next_chunk( num_retries = 2 )
-            if remaining_bytes == -1:
-                remaining_bytes = status.total_size
-            chunk = fh.getvalue()
-            if remaining_bytes > len( chunk ):
-                size += len( chunk )
-                remaining_bytes -= len( chunk )
-                m.update( chunk )
-                f.write( chunk )
-                fh.seek(0)
-                continue
-            else:
-                size += remaining_bytes
-                m.update( chunk[:remaining_bytes] )
-                f.write( chunk[:remaining_bytes] )
-                break
+            with fh.getbuffer() as buf:
+                buf_len = fh.tell()
+                m.update( buf[:buf_len] )
+                f.write( buf[:buf_len] )
+                size += buf_len
+            fh.seek(0)
     return [ size, m.hexdigest() ]
 
 def download_file( ctx, drive_file, revision=None ):
@@ -582,10 +574,10 @@ def download_file( ctx, drive_file, revision=None ):
 
     while True:
         try:
-            size, md5_of_data = download_url_and_do_md5( ctx, drive_file, file_path )
+            size, md5_of_data = download_file_and_do_md5( ctx, drive_file, file_path )
         except errors.HttpError as e:
             if e.resp.status == 403:
-                size, md5_of_data = download_url_and_do_md5( ctx, drive_file, file_path, acknowledgeAbuse=True )
+                size, md5_of_data = download_file_and_do_md5( ctx, drive_file, file_path, acknowledgeAbuse=True )
                 pass
             else:
                 logging.critical( f"Exception {e} while downloading {file_path}. Retrying...", exc_info=True)
