@@ -49,6 +49,7 @@ flags.DEFINE_enum('download', None,
 flags.DEFINE_list('usecsv', None,
                   'List files in cloud,  files, optionally filter, and verify MD5 of files on disk', short_name='csv')
 flags.DEFINE_boolean('verify', False, 'Verify files and metadata on disk match original MD5. Use local metadata. Do not connect to Google Drive.', short_name='V')
+flags.DEFINE_boolean('l2t', False, 'generate log2timeline CSV files from cached metadata.')
 
 def main(argv):
     try:
@@ -58,7 +59,7 @@ def main(argv):
         print( f"\nUsage: {argv[0]} ARGS\n\n{FLAGS}" )
         sys.exit(1)
         
-    if not (FLAGS.verify or FLAGS.usecsv or FLAGS.download or FLAGS.list):
+    if not (FLAGS.verify or FLAGS.usecsv or FLAGS.download or FLAGS.list or FLAGS.l2t):
         print(f"""
 Kumodd version is a command line utility.
 
@@ -90,5 +91,3 @@ press any key to exit.
     
 if __name__ == '__main__':
     app.run(main)
-
-
