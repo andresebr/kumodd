@@ -8,5 +8,4 @@ oauth2client
 pypiwin32; sys_platform == 'win32'
 python-dateutil
 socksipy-branch
-wmi; sys_platform == 'win32'
 yq
