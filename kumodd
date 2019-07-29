@@ -29,27 +29,25 @@ kumodd_verison = "1.2.0"
 
 FLAGS = flags.FLAGS
 
-flags.DEFINE_enum('log', 'ERROR',
-                  ['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL'],
-                  'Set the level of logging detail.')
-flags.DEFINE_enum('service', 'gdrive',
-                  ['gdrive','dropbox','box','onedrive'], 'Service to use', short_name='s' )
-flags.DEFINE_string('destination', './download', 'Destination folder location', short_name='p')
-flags.DEFINE_string('metadata_destination', './download/metadata',
-                    'Destination folder for metadata information', short_name='m')
-flags.DEFINE_boolean('version', False, 'Print version number and exit.')
-
-# one of four actions must be selected: list, download, usecsv or verify.
-flags.DEFINE_enum('list', None,
-                  ['all', 'doc', 'xls', 'ppt', 'text', 'pdf', 'office', 'image', 'audio', 'video', 'other'],
-                  'List files in google drive and verify files on disk match MD5', short_name='l')
+flags.DEFINE_list('usecsv', None,
+                  'Download files listed in a previously generated CSV file, and verify MD5 of files on disk', short_name='csv')
 flags.DEFINE_enum('download', None,
                   ['all', 'doc', 'xls', 'ppt', 'text', 'pdf', 'office', 'image', 'audio', 'video', 'other'],
                   'Download files, optionally filter, and verify MD5 on disk', short_name='d')
-flags.DEFINE_list('usecsv', None,
-                  'List files in cloud,  files, optionally filter, and verify MD5 of files on disk', short_name='csv')
-flags.DEFINE_boolean('verify', False, 'Verify files and metadata on disk match original MD5. Use local metadata. Do not connect to Google Drive.', short_name='V')
+flags.DEFINE_enum('list', None,
+                  ['all', 'doc', 'xls', 'ppt', 'text', 'pdf', 'office', 'image', 'audio', 'video', 'other'],
+                  'List files in google drive and verify files on disk match MD5', short_name='l')
+flags.DEFINE_enum('log', 'ERROR',
+                  ['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL'],
+                  'Set the level of logging detail.')
 flags.DEFINE_boolean('l2t', False, 'generate log2timeline CSV files from cached metadata.')
+flags.DEFINE_string('metadata_destination', './download/metadata',
+                    'Destination folder for metadata information', short_name='m')
+flags.DEFINE_string('destination', './download', 'Destination folder location', short_name='p')
+flags.DEFINE_enum('service', 'gdrive',
+                  ['gdrive','dropbox','box','onedrive'], 'Service to use', short_name='s' )
+flags.DEFINE_boolean('version', False, 'Print version number and exit.')
+flags.DEFINE_boolean('verify', False, 'Verify files and metadata on disk match original MD5. Use local metadata. Do not connect to Google Drive.', short_name='V')
 
 def main(argv):
     try:
