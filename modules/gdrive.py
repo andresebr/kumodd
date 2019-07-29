@@ -813,10 +813,9 @@ def main(argv):
             ensure_dir(dirname(FLAGS.config[:FLAGS.config.rfind('/')]))
         yaml.dump(yaml.safe_load('''
 gdrive:
-  csv_prefix: ./filelist-
   gdrive_auth: config/gdrive_config.json
   oauth_id: config/gdrive.dat
-  scope: https://www.googleapis.com/auth/drive
+  csv_prefix: ./filelist-
   csv_columns:
     short:
     - [status, 7]
@@ -845,7 +844,7 @@ gdrive:
     - ['owners[*].emailAddress', 20]
     - [fullpath, 50]
     normal:
-    - [title, 20]
+    - [name, 20]
     - [category, 4]
     - [status, 7]
     - [md5Match, 7]
@@ -857,7 +856,7 @@ gdrive:
     - [version, 6]
     - [revision, 8]
     - [ownerNames, 20]
-    - [size, 7]
+    - [size, 9]
     - [modifiedTime, 24]
     - [createdTime, 24]
     - [mimeType, 22]
@@ -865,15 +864,15 @@ gdrive:
     - [lastModifyingUserName, 22]
     - [md5Checksum, 32]
     - [modifiedByMeTime, 24]
-    - [viewedByMeTime, 24]
+    - [lastViewedByMeTime, 24]
     - [shared, 6]
     test:
     - [md5Checksum, 32]
     - [status, 7]
-    - [title, 60]
+    - [name, 60]
 
 csv_title:
-  accTimeMatch: Acc Time
+  accTimeMatch: AccTimeOK
   app: Application
   appDataContents: App Data
   capabilities: Capabilities
@@ -884,27 +883,25 @@ csv_title:
   downloadUrl: Download
   editable: Editable
   embedLink: Embed
-  etag: Etags
-  explicitlyTrashed: Trashed
+  explicitlyTrashed: Was Trashed
   exportLinks: Export
   fileExtension: EXT
-  size: Size(bytes)
   fullpath: Full Path
   headRevisionId: HeadRevisionId
   iconLink: Icon Link
   id: File Id
   kind: Kind
-  # labels: Labels
   lastModifyingUserName: Last Mod By
-  viewedByMeTime: My Last View
+  lastViewedByMeTime: My Last View
   'lastModifyingUser.emailAddress': Last Mod Email
   local_path: Local Path
   md5Checksum: MD5 of File
-  md5Match: MD5s
+  md5Match: MD5OK
   mimeType: MIME Type
-  modTimeMatch: Mod Time
+  modTimeMatch: ModTimeOK
   modifiedByMeTime: My Last Mod (UTC)
   modifiedTime: Last Modified (UTC)
+  name: Name
   originalFilename: Original File Name
   ownerNames: Owner
   owners: Owners
@@ -915,15 +912,15 @@ csv_title:
   revision: Revisions
   selfLink: Self Link
   shared: Shared
-  sizeMatch: Size
+  size: Size(bytes)
+  sizeMatch: SizeOK
   spaces: Spaces
   status: Status
-  thumbnailLink: Thumbnail
-  time: Time (UTC)
-  title: Name
+  trashed: In Trash
   user: User
   userPermission: User Permission
   version: Version
+  viewedByMeTime: My Last View
   webContentLink: Web Link
   writersCanShare: CanShare
   yamlMetadataMD5: MD5 of Metadata
