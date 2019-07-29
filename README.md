@@ -2,7 +2,7 @@
 
 Kumodd is a command line utility for forensic preservation of Google Drive cloud
 storage.  It downloads files and metadata from a specified account in a verifiable
-forensically sound manner. It requres authorized access and uses public APIs.  It
+forensically sound manner. It requres authorized read-only access and uses public APIs. It
 verifies the MD5 of each file and it's metadata. It integrates with timeline analysis
 tools.
 
