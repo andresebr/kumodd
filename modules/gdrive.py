@@ -416,7 +416,6 @@ def get_first_owner( drive_file ):
 def output_lt2_csv(ctx, df, writer):
     l2t_rec( ctx, writer, df, df.get('createdTime'),	'B', 'Created',		'Created', get_first_owner( df ), '' )
     l2t_rec( ctx, writer, df, df.get('viewedByMeTime'), 'A', 'Last Acceessed',	'Last Viewed by Me', ctx.user, '' )
-    l2t_rec( ctx, writer, df, df.get('markedViewedByMeDate'), 'A', 'Last Acceessed', 'Last Acceessed', '', '' )
     l2t_rec( ctx, writer, df, df.get('modifiedByMeTime'),	'M', 'Last Modified',	'Last Modified by Me', ctx.user, '' )
     l2t_rec( ctx, writer, df, df.get('modifiedTime'),	'M', 'Last Modified',	'Last Modified', '', '' )
     revision_list = df.get('revisions')
@@ -723,20 +722,6 @@ def walk_folders( ctx, folder, handle_item, path=None ):
         file_query = "( " + " ) and ( ".join(limiters) + " )"
         query += f" and (( mimeType = 'application/vnd.google-apps.folder' ) or {file_query} )"
         
-        # file_query = " and ".join(limiters)
-        # query += f" and ( mimeType = 'application/vnd.google-apps.folder' or {file_query} )"
-        # query = FLAGS.query
-
-        # OK:
-        # -l all -q "modifiedTime > '2012-01-01T00:00:00'"
-        # -l doc -q "modifiedTime > '2012-01-01T00:00:00'"
-        # -d pdf -q "modifiedTime > '2012-01-01T00:00:00'"
-# createdTime: '2019-06-12T03:36:01.940Z'
-# modifiedByMeTime: '2019-06-12T03:36:01.940Z'
-# modifiedTime: '2019-06-12T03:36:01.940Z'
-# viewedByMeTime: '2019-06-12T03:36:01.940Z'
-
-
     param = {
         'fields': '*',
         'q': query,
