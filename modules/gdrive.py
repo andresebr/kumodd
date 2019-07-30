@@ -439,7 +439,7 @@ def print_file_metadata(ctx, drive_file, path, writer, metadata_names, output_fo
     if writer:
         writer.writerow( data )
     if output_format:
-        print( output_format.format( *[str(i) for i in data] ))
+        print( output_format.format( *[str(i) for i in data] ).rstrip())
 
     if ( drive_file.get('yamlMD5Match') == 'MISMATCH' and file_attr.metadata_file_exists ):
         print_obj_diffs( drive_file, file_attr.metadata_file )
