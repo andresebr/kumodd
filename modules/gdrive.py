@@ -69,6 +69,7 @@ FLAGS = flags.FLAGS
 flags.DEFINE_boolean('browser', True, 'open a web browser to authorize access to the google drive account' )
 flags.DEFINE_string('config', 'config/config.yml', 'config file', short_name='c')
 flags.DEFINE_string('col', 'normal', 'column set defined under csv_columns in config.yml that specifies table and CSV format', short_name='o')
+flags.DEFINE_boolean('diffs', True, 'Show differences metadata.')
 flags.DEFINE_boolean('revisions', True, 'Download every revision of each file.')
 flags.DEFINE_boolean('pdf', True, 'Convert all native Google Apps files to PDF.')
 flags.DEFINE_string('gdrive_auth', None, 'Google Drive account authorization file.  Configured in config/config.yml if not specified on command line.')
@@ -184,6 +185,8 @@ def redacted_yaml( dict_in ):
     d = remove_keys_that_contain( dict_in, ['Link', 'Match', 'status', 'Url', 'yaml'] )
     if dict_in['mimeType'].startswith('application/vnd.google'):
         d = remove_keys( d, [ 'size', 'md5Checksum' ] )
+    if not FLAGS.revisions:
+        d = remove_keys( d, [ 'revisions' ] )
     return yaml_string( d )
 
 def md5hex( content ):
@@ -418,14 +421,16 @@ def output_lt2_csv(ctx, df, writer):
     l2t_rec( ctx, writer, df, df.get('viewedByMeTime'), 'A', 'Last Acceessed',	'Last Viewed by Me', ctx.user, '' )
     l2t_rec( ctx, writer, df, df.get('modifiedByMeTime'),	'M', 'Last Modified',	'Last Modified by Me', ctx.user, '' )
     l2t_rec( ctx, writer, df, df.get('modifiedTime'),	'M', 'Last Modified',	'Last Modified', '', '' )
-    revision_list = df.get('revisions')
-    if revision_list:
-        for rev in revision_list:
-            l2t_rec( ctx, writer, df, rev.get('modifiedTime'), 'M', 'Last Modified', 'Last Modified', dget(rev, 'lastModifyingUser.emailAddress'), rev.get('id'))
+    if FLAGS.revisions:
+        revision_list = df.get('revisions')
+        if revision_list:
+            for rev in revision_list:
+                l2t_rec( ctx, writer, df, rev.get('modifiedTime'), 'M', 'Last Modified', 'Last Modified', dget(rev, 'lastModifyingUser.emailAddress'), rev.get('id'))
 
 def print_file_metadata(ctx, drive_file, path, writer, metadata_names, output_format=None):
     supplement_drive_file_metadata(ctx, drive_file, path)
-    drive_file['revisions'] = retrieve_revisions(ctx, drive_file['id'])
+    if FLAGS.revisions:
+        drive_file['revisions'] = retrieve_revisions(ctx, drive_file['id'])
     file_attr = FileAttr( drive_file, ctx.user )
     file_attr.compare_metadata_to_local_file( drive_file )
     file_attr.compare_YAML_metadata_MD5( drive_file )
@@ -441,12 +446,14 @@ def print_file_metadata(ctx, drive_file, path, writer, metadata_names, output_fo
     if output_format:
         print( output_format.format( *[str(i) for i in data] ).rstrip())
 
-    if ( drive_file.get('yamlMD5Match') == 'MISMATCH' and file_attr.metadata_file_exists ):
+    if ( FLAGS.diffs and
+        ( drive_file.get('yamlMD5Match') == 'MISMATCH' and file_attr.metadata_file_exists )):
         print_obj_diffs( drive_file, file_attr.metadata_file )
     
 def download_file_and_metadata(ctx, drive_file, path, writer, metadata_names, output_format=None):
     supplement_drive_file_metadata(ctx, drive_file, path)
-    drive_file['revisions'] = retrieve_revisions(ctx, drive_file['id'])
+    if FLAGS.revisions:
+        drive_file['revisions'] = retrieve_revisions(ctx, drive_file['id'])
     file_attr = FileAttr( drive_file, ctx.user )
 
     if not file_attr.valid:
@@ -479,7 +486,8 @@ def download_file_and_metadata(ctx, drive_file, path, writer, metadata_names, ou
         writer.writerow( data )
     if output_format:
         print( output_format.format( *[str(i) for i in data] ))
-    if drive_file.get('yamlMD5Match') == 'MISMATCH':
+    if (FLAGS.diffs and
+        drive_file.get('yamlMD5Match') == 'MISMATCH' ):
         print_obj_diffs( drive_file, file_attr.metadata_file )
 
 def save_metadata( drive_file, username ):
@@ -1071,7 +1079,8 @@ csv_title:
                         file_attr = FileAttr( drive_file, ctx.user )
                         file_attr.compare_metadata_to_local_file( drive_file )
                         file_attr.compare_YAML_metadata_MD5( drive_file )
-                        verify_revisions( ctx, drive_file)
+                        if FLAGS.revisions:
+                            verify_revisions( ctx, drive_file)
                         if drive_file['status'] == 'INVALID':
                             print(22*'_', ' drive_file ', dirent.name)
                             dump(drive_file)
@@ -1082,7 +1091,8 @@ csv_title:
                             writer.writerow( data )
                         if output_format:
                             print( output_format.format( *[str(i) for i in data] ))
-                        if drive_file.get('yamlMD5Match') == 'MISMATCH':
+                        if (FLAGS.diffs and
+                            drive_file.get('yamlMD5Match') == 'MISMATCH' ):
                             print_obj_diffs( drive_file, file_attr.metadata_file )
 
                     walk_local_metadata( ctx, handle_item, FLAGS.metadata_destination + '/' + ctx.user )
