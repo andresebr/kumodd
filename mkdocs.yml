@@ -11,6 +11,11 @@ theme:
   hljs_languages:
     - yaml
     - python
+markdown_extensions:
+    - toc:
+        permalink:
+    - admonition
+    - def_list
 
 nav:
     - Home: Home.md
