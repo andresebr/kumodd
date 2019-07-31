@@ -23,8 +23,7 @@ Created (UTC)            Last Modified (UTC)      Remote Path                   
 - [Export Log2Timeline for Analysis](https://kumodd.readthedocs.io/en/latest/guide/Log2Timeline-Export).
 
 ## User Guide
-* [Overview](https://kumodd.readthedocs.io/en/latest/guide/Home)
-* [Usage Examples](https://kumodd.readthedocs.io/en/latest/guide/How-to-Use-Kumodd)
+* [How to Use Kumodd](https://kumodd.readthedocs.io/en/latest/guide/How-to-Use-Kumodd)
 * [How to Install](https://kumodd.readthedocs.io/en/latest/guide/How-to-Install)  
 * [How to Configure](https://kumodd.readthedocs.io/en/latest/guide/How-to-Configure)  
 * [Default Configuration](https://kumodd.readthedocs.io/en/latest/guide/Default-configuration)  
