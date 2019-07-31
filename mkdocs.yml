@@ -16,7 +16,6 @@ markdown_extensions:
     - toc:
         permalink: "#"
         baselevel: 2
-        separator: "_"
     - smarty
     - admonition
     - def_list

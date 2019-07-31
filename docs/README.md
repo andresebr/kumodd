@@ -18,12 +18,12 @@ Created (UTC)            Last Modified (UTC)      Remote Path                   
 - [Limit results by full text search terms or metadata](guide/Search-Query)
 - [Preserve extensive metadata of each file](guide/Example-Metadata).
 - [Verify preservation of file contents and metadata](guide/Methods).
-- [Export Google Docs, Sheets, Slides as PDF or LibreOffice.](guide/Command-line-options)
+- [Export Google Docs, Sheets, Slides as PDF or LibreOffice.](How-to-Use-Kumodd/#Export-Google-Apps-Files)
 - [Export CSV file list with configurable columns](guide/How-to-Configure).
 - [Export Log2Timeline for Analysis](guide/Log2Timeline-Export).
 
 ## User Guide
-* [Usage Examples](guide/How-to-Use-Kumodd)
+* [How to Use Kumodd](guide/How-to-Use-Kumodd)
 * [How to Install](guide/How-to-Install)  
 * [How to Configure](guide/How-to-Configure)  
 * [Default Configuration](guide/Default-configuration)  
