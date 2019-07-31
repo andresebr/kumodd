@@ -92,4 +92,4 @@ Results exclude certain native types such as google maps that are not exportable
 cannot be downloaded.
 
 Results will not include Google Photos or application data.  To obtain them, see [Scope
-in How to Search for Files](Search-Query#scope).
+in How to Search for Files](Search-Query/#scope).
