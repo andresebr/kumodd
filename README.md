@@ -15,10 +15,10 @@ Created (UTC)            Last Modified (UTC)      Remote Path                   
 2019-04-12T16:21:48.867Z 2019-04-12T16:21:55.245Z My Drive/Todo List            27         Johe Doe         Johe Doe         -                   
 ```
 ## Features
-- [Limit results by full text or metadata search terms](https://kumodd.readthedocs.io/en/latest/guide/Search-Query)
+- [Limit results by full text search terms or metadata](https://kumodd.readthedocs.io/en/latest/guide/Search-Query)
 - [Preserve extensive metadata of each file](https://kumodd.readthedocs.io/en/latest/guide/Example-Metadata).
 - [Verify preservation of file contents and metadata](https://kumodd.readthedocs.io/en/latest/guide/Methods).
-- [Export Google Docs, Sheets, Slides as PDF or LibreOffice.](https://kumodd.readthedocs.io/en/latest/guide/Command-line-options)
+- [Export Google Docs as PDF or LibreOffice.](https://kumodd.readthedocs.io/en/latest/guide/Command-line-options)
 - [Export CSV file list with configurable columns](https://kumodd.readthedocs.io/en/latest/guide/How-to-Configure).
 - [Export Log2Timeline for Analysis](https://kumodd.readthedocs.io/en/latest/guide/Log2Timeline-Export).
 
