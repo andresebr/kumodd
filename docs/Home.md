@@ -15,27 +15,27 @@ Created (UTC)            Last Modified (UTC)      Remote Path                   
 2019-04-12T16:21:48.867Z 2019-04-12T16:21:55.245Z My Drive/Todo List            27         Johe Doe         Johe Doe         -                   
 ```
 ## Features
-- [Limit results by full text or metadata search terms](https://github.com/rich-murphey/kumodd/wiki/Search-Query)
-- [Preserve extensive metadata of each file](https://github.com/rich-murphey/kumodd/wiki/Example-Metadata).
-- [Verify preservation of file contents and metadata](https://github.com/rich-murphey/kumodd/wiki/Methods).
-- [Export Google Docs, Sheets, Slides as PDF or LibreOffice.](https://github.com/rich-murphey/kumodd/wiki/Command-line-options)
-- [Export CSV file list with configurable columns](https://github.com/rich-murphey/kumodd/wiki/How-to-Configure).
-- [Export Log2Timeline for Analysis](https://github.com/rich-murphey/kumodd/wiki/Log2Timeline-Export).
+- [Limit results by full text or metadata search terms](Search-Query)
+- [Preserve extensive metadata of each file](Example-Metadata).
+- [Verify preservation of file contents and metadata](Methods).
+- [Export Google Docs, Sheets, Slides as PDF or LibreOffice.](Command-line-options)
+- [Export CSV file list with configurable columns](How-to-Configure).
+- [Export Log2Timeline for Analysis](Log2Timeline-Export).
 
 ## User Guide
-* [Overview](https://github.com/rich-murphey/kumodd/wiki/Home)
-* [Usage Examples](https://github.com/rich-murphey/kumodd/wiki/How-to-Use-Kumodd)
-* [How to Install](https://github.com/rich-murphey/kumodd/wiki/How-to-Install)  
-* [How to Configure](https://github.com/rich-murphey/kumodd/wiki/How-to-Configure)  
-* [Default Configuration](https://github.com/rich-murphey/kumodd/wiki/Default-configuration)  
-* [Google Drive Metadata](https://github.com/rich-murphey/kumodd/wiki/Metadata)  
-* [How to Search for Files](https://github.com/rich-murphey/kumodd/wiki/Search-Query)  
-* [Data Verification Methods](https://github.com/rich-murphey/kumodd/wiki/Methods)  
-* [How to Verify Files](https://github.com/rich-murphey/kumodd/wiki/How-to-Verify-Data)  
-* [Log2Timeline Export](https://github.com/rich-murphey/kumodd/wiki/Log2Timeline-Export)
-* [Command Line Options](https://github.com/rich-murphey/kumodd/wiki/Command-line-options)  
-* [How to Test Kumodd](https://github.com/rich-murphey/kumodd/wiki/How-to-Test-Kumodd)  
-* [How to Build](https://github.com/rich-murphey/kumodd/wiki/How-to-Build)  
-* [Example Metadata](https://github.com/rich-murphey/kumodd/wiki/Example-Metadata)  
-* [Limitations](https://github.com/rich-murphey/kumodd/wiki/Limitations)  
-* [References](https://github.com/rich-murphey/kumodd/wiki/References)  
+* [Overview](Home)
+* [Usage Examples](How-to-Use-Kumodd)
+* [How to Install](How-to-Install)  
+* [How to Configure](How-to-Configure)  
+* [Default Configuration](Default-configuration)  
+* [Google Drive Metadata](Metadata)  
+* [How to Search for Files](Search-Query)  
+* [Data Verification Methods](Methods)  
+* [How to Verify Files](How-to-Verify-Data)  
+* [Log2Timeline Export](Log2Timeline-Export)
+* [Command Line Options](Command-line-options)  
+* [How to Test Kumodd](How-to-Test-Kumodd)  
+* [How to Build](How-to-Build)  
+* [Example Metadata](Example-Metadata)  
+* [Limitations](Limitations)  
+* [References](References)  
