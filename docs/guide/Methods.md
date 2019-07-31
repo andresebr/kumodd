@@ -1,4 +1,4 @@
-## Data Verification Methods
+# Data Verification Methods
 
 Kumodd verifies both data and metadata. Files are verified by comparing the MD5, size,
 and Last Modified time.  Kumodd can report whether each matches the metadata, as shown

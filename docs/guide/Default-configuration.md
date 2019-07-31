@@ -1,3 +1,5 @@
+# Default Configuration
+
 If config/config.yml does not exist, kumodd will create it, as shown below. The default
 column set is 'normal'.
 

@@ -1,3 +1,5 @@
+# Verifying Data
+
 There are two ways Kumodd can verify data: with or without retrieving metadata from
 Google Drive.  When listing (-list or -l option), Kumodd retrieves metadata from Google
 Drive and verifies local data are consistent with Google Drive.  
@@ -11,6 +13,8 @@ Either way, Kumodd confirms whether the files' MD5, file size, and Last Modified
 Last Accessed are correct.  In addition, it confirms whether the MD5 of the metadata
 matches the recorded MD5.
 
+### Download Google Drive Metadata to Verify Local Data
+
 To retrieve metadata from Google Drive and review accuracy of the data and metadata on
 disk, use the "-list" or "-l" option. 
 ``` shell
@@ -18,6 +22,8 @@ kumodd --list pdf -col verify
 Status File MD5  Size      Mod Time  Acc Time  Metadata  fullpath
 valid  match     match     match     match     match     ./My Drive/report_1424.pdf
 ```
+
+### Verify Local Data Without Accessing Google Drive
 
 To review accuracy of the data and metadata using previously downloaded metadata, use
 the "-verify" or "-V" option. This does not read data from Google Drive, but rather
@@ -36,12 +42,11 @@ kumodd -verify -col md5s
 Status File MD5  Size      Mod Time  Acc Time  Metadata  MD5 of File                      MD5 of Metadata                  fullpath
 valid  match     match     match     match     match     5d5550259da199ca9d426ad90f87e60e 216843a1258df13bdfe817e2e52d0c70 ./My Drive/report_1424.pdf
 ```
-
 To verify only the most recent version and ignore previous revisions, use -norevisions.
 This can be significantly faster because with revisions there is one API call per file,
 whereas with -norevisions there is one API call per folder.
 
-## How to Verify Data Using Other Tools 
+## Verify Data Using Other Tools 
 
 The MD5 of the file contents is recorded in the metadata. 
 ``` shell

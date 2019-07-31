@@ -1,3 +1,5 @@
+# How to Search for Files
+
 Use search query to limit results by the file's metadata.
 
 ## Examples

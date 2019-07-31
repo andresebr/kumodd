@@ -23,7 +23,6 @@ Created (UTC)            Last Modified (UTC)      Remote Path                   
 - [Export Log2Timeline for Analysis](guide/Log2Timeline-Export).
 
 ## User Guide
-* [Overview](README)
 * [Usage Examples](guide/How-to-Use-Kumodd)
 * [How to Install](guide/How-to-Install)  
 * [How to Configure](guide/How-to-Configure)  

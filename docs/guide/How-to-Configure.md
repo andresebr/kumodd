@@ -1,3 +1,5 @@
+# How to Configure
+
 ## Selecting Columns for Output
 
 The command line option, -col normal, selects the column set named 'normal' shown

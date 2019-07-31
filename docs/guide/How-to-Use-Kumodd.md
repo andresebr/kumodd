@@ -1,9 +1,10 @@
-## How to Use Kumodd
+# How to Use Kumodd
 
 Kumodd is a command line utility. To run Kumodd, open a shell window (eg. CMD or
 powershell on Windows, or xterm on linux) and invoke it with command line options to
 specify what action to take.
 
+## List all documents
 
 To list all documents (google doc, .doc, .docx, .odt etc), use:
 ``` shell
@@ -14,6 +15,8 @@ Created (UTC)            Last Modified (UTC)      Remote Path                   
 2019-05-16T23:34:42.665Z 2019-05-17T22:18:07.705Z My Drive/Letter to John.docx  1          Johe Doe         Johe Doe         4cb0b987cb879d48f56e4fd2cfd57d83
 2019-04-12T16:21:48.867Z 2019-04-12T16:21:55.245Z My Drive/Todo List            27         Johe Doe         Johe Doe         -                   
 ```
+
+## Filter files by category
 
 The filter option limits output to a selected category of files.  A file's category is
 determined its mime type.
@@ -30,6 +33,8 @@ office	| Documents, spreadsheets and presentations
 image	| Image files
 audio	| Audio files
 video	| Video files
+
+## Download Files
 
 Download (-d) all documents to ./download (the default location):
 

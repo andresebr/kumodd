@@ -1,3 +1,5 @@
+# Google Drive Metadata
+
 Metadata of each file is preserved in YAML format (*see* [Example raw
 metadata](https://github.com/rich-murphey/kumodd/wiki/Example-Metadata)).  By default, files are stored in a path in
 ./download, and their metadata in ./download/metadata.  For foo.doc, the file and its

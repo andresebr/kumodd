@@ -1,6 +1,8 @@
+# Installing Kumodd
+
 Kumodd is a command line utility.
 
-## Installing Kmodd on Windows
+## How to Install Kmodd on Windows
 
 To install Kumodd on Windows, download kumodd.exe from the [kumodd release
 page](https://github.com/rich-murphey/kumodd/releases/).  Note that the 'Source code'
@@ -15,7 +17,7 @@ Then, open a cmd shell or powershell, and run it.
 
     kumodd --helpfull
 
-## Installing Kmodd on Unix
+## How to Install Kmodd on Unix
 
 To setup kumodd, install python 3 and git, then install kumodd and its requirements.
 

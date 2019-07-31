@@ -1,3 +1,5 @@
+# Log2Timeline
+
 [log2timeline](https://www.forensicswiki.org/wiki/Log2timeline) is a framework for
 artifact timeline creation and analysis. There are both commercial and open source
 forensics tools that support generating and analyzing log2timeline data. Analysis tools
