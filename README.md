@@ -18,7 +18,7 @@ Created (UTC)            Last Modified (UTC)      Remote Path                   
 - [Limit results by full text search terms or metadata](https://kumodd.readthedocs.io/en/latest/guide/Search-Query)
 - [Preserve extensive metadata of each file](https://kumodd.readthedocs.io/en/latest/guide/Example-Metadata).
 - [Verify preservation of file contents and metadata](https://kumodd.readthedocs.io/en/latest/guide/Methods).
-- [Export Google Docs as PDF or LibreOffice.](https://kumodd.readthedocs.io/en/latest/guide/Command-line-options)
+- [Export Google Docs as PDF or LibreOffice.](https://kumodd.readthedocs.io/en/latest/guide/How-to-Use-Kumodd/#export-google-apps-files)
 - [Export CSV file list with configurable columns](https://kumodd.readthedocs.io/en/latest/guide/How-to-Configure).
 - [Export Log2Timeline for Analysis](https://kumodd.readthedocs.io/en/latest/guide/Log2Timeline-Export).
 
