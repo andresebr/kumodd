@@ -14,13 +14,15 @@ theme:
         - python
 markdown_extensions:
     - toc:
-        permalink: True
+        permalink: "#"
+        baselevel: 2
+        separator: "_"
     - smarty
     - admonition
     - def_list
 
 nav:
-    - Home: Home.md
+    - Home: README.md
     - User Guide:
         - Usage Examples: guide/How-to-Use-Kumodd.md
         - How to Install: guide/How-to-Install.md

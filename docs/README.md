@@ -15,27 +15,27 @@ Created (UTC)            Last Modified (UTC)      Remote Path                   
 2019-04-12T16:21:48.867Z 2019-04-12T16:21:55.245Z My Drive/Todo List            27         Johe Doe         Johe Doe         -                   
 ```
 ## Features
-- [Limit results by full text or metadata search terms](Search-Query)
-- [Preserve extensive metadata of each file](Example-Metadata).
-- [Verify preservation of file contents and metadata](Methods).
-- [Export Google Docs, Sheets, Slides as PDF or LibreOffice.](Command-line-options)
-- [Export CSV file list with configurable columns](How-to-Configure).
-- [Export Log2Timeline for Analysis](Log2Timeline-Export).
+- [Limit results by full text or metadata search terms](guide/Search-Query)
+- [Preserve extensive metadata of each file](guide/Example-Metadata).
+- [Verify preservation of file contents and metadata](guide/Methods).
+- [Export Google Docs, Sheets, Slides as PDF or LibreOffice.](guide/Command-line-options)
+- [Export CSV file list with configurable columns](guide/How-to-Configure).
+- [Export Log2Timeline for Analysis](guide/Log2Timeline-Export).
 
 ## User Guide
-* [Overview](Home)
-* [Usage Examples](How-to-Use-Kumodd)
-* [How to Install](How-to-Install)  
-* [How to Configure](How-to-Configure)  
-* [Default Configuration](Default-configuration)  
-* [Google Drive Metadata](Metadata)  
-* [How to Search for Files](Search-Query)  
-* [Data Verification Methods](Methods)  
-* [How to Verify Files](How-to-Verify-Data)  
-* [Log2Timeline Export](Log2Timeline-Export)
-* [Command Line Options](Command-line-options)  
-* [How to Test Kumodd](How-to-Test-Kumodd)  
-* [How to Build](How-to-Build)  
-* [Example Metadata](Example-Metadata)  
-* [Limitations](Limitations)  
-* [References](References)  
+* [Overview](README)
+* [Usage Examples](guide/How-to-Use-Kumodd)
+* [How to Install](guide/How-to-Install)  
+* [How to Configure](guide/How-to-Configure)  
+* [Default Configuration](guide/Default-configuration)  
+* [Google Drive Metadata](guide/Metadata)  
+* [How to Search for Files](guide/Search-Query)  
+* [Data Verification Methods](guide/Methods)  
+* [How to Verify Files](guide/How-to-Verify-Data)  
+* [Log2Timeline Export](guide/Log2Timeline-Export)
+* [Command Line Options](guide/Command-line-options)  
+* [How to Test Kumodd](guide/How-to-Test-Kumodd)  
+* [Example Metadata](guide/Example-Metadata)  
+* [References](guide/References)  
+* [How to Build](devel/How-to-Build)  
+* [Limitations](devel/Limitations)  
