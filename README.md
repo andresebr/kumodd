@@ -15,27 +15,27 @@ Created (UTC)            Last Modified (UTC)      Remote Path                   
 2019-04-12T16:21:48.867Z 2019-04-12T16:21:55.245Z My Drive/Todo List            27         Johe Doe         Johe Doe         -                   
 ```
 ## Features
-- [Limit results by full text or metadata search terms](https://github.com/rich-murphey/kumodd/wiki/Search-Query)
-- [Preserve extensive metadata of each file](https://github.com/rich-murphey/kumodd/wiki/Example-Metadata).
-- [Verify preservation of file contents and metadata](https://github.com/rich-murphey/kumodd/wiki/Methods).
-- [Export Google Docs, Sheets, Slides as PDF or LibreOffice.](https://github.com/rich-murphey/kumodd/wiki/Command-line-options)
-- [Export CSV file list with configurable columns](https://github.com/rich-murphey/kumodd/wiki/How-to-Configure).
-- [Export Log2Timeline for Analysis](https://github.com/rich-murphey/kumodd/wiki/Log2Timeline-Export).
+- [Limit results by full text or metadata search terms](https://kumodd.readthedocs.io/en/latest/guide/Search-Query)
+- [Preserve extensive metadata of each file](https://kumodd.readthedocs.io/en/latest/guide/Example-Metadata).
+- [Verify preservation of file contents and metadata](https://kumodd.readthedocs.io/en/latest/guide/Methods).
+- [Export Google Docs, Sheets, Slides as PDF or LibreOffice.](https://kumodd.readthedocs.io/en/latest/guide/Command-line-options)
+- [Export CSV file list with configurable columns](https://kumodd.readthedocs.io/en/latest/guide/How-to-Configure).
+- [Export Log2Timeline for Analysis](https://kumodd.readthedocs.io/en/latest/guide/Log2Timeline-Export).
 
 ## User Guide
-* [Overview](https://github.com/rich-murphey/kumodd/wiki/Home)
-* [Usage Examples](https://github.com/rich-murphey/kumodd/wiki/How-to-Use-Kumodd)
-* [How to Install](https://github.com/rich-murphey/kumodd/wiki/How-to-Install)  
-* [How to Configure](https://github.com/rich-murphey/kumodd/wiki/How-to-Configure)  
-* [Default Configuration](https://github.com/rich-murphey/kumodd/wiki/Default-configuration)  
-* [Google Drive Metadata](https://github.com/rich-murphey/kumodd/wiki/Metadata)  
-* [How to Search for Files](https://github.com/rich-murphey/kumodd/wiki/Search-Query)  
-* [Data Verification Methods](https://github.com/rich-murphey/kumodd/wiki/Methods)  
-* [How to Verify Files](https://github.com/rich-murphey/kumodd/wiki/How-to-Verify-Data)  
-* [Log2Timeline Export](https://github.com/rich-murphey/kumodd/wiki/Log2Timeline-Export)
-* [Command Line Options](https://github.com/rich-murphey/kumodd/wiki/Command-line-options)  
-* [How to Test Kumodd](https://github.com/rich-murphey/kumodd/wiki/How-to-Test-Kumodd)  
-* [How to Build](https://github.com/rich-murphey/kumodd/wiki/How-to-Build)  
-* [Example Metadata](https://github.com/rich-murphey/kumodd/wiki/Example-Metadata)  
-* [Limitations](https://github.com/rich-murphey/kumodd/wiki/Limitations)  
-* [References](https://github.com/rich-murphey/kumodd/wiki/References)  
+* [Overview](https://kumodd.readthedocs.io/en/latest/guide/Home)
+* [Usage Examples](https://kumodd.readthedocs.io/en/latest/guide/How-to-Use-Kumodd)
+* [How to Install](https://kumodd.readthedocs.io/en/latest/guide/How-to-Install)  
+* [How to Configure](https://kumodd.readthedocs.io/en/latest/guide/How-to-Configure)  
+* [Default Configuration](https://kumodd.readthedocs.io/en/latest/guide/Default-configuration)  
+* [Google Drive Metadata](https://kumodd.readthedocs.io/en/latest/guide/Metadata)  
+* [How to Search for Files](https://kumodd.readthedocs.io/en/latest/guide/Search-Query)  
+* [Data Verification Methods](https://kumodd.readthedocs.io/en/latest/guide/Methods)  
+* [How to Verify Files](https://kumodd.readthedocs.io/en/latest/guide/How-to-Verify-Data)  
+* [Log2Timeline Export](https://kumodd.readthedocs.io/en/latest/guide/Log2Timeline-Export)
+* [Command Line Options](https://kumodd.readthedocs.io/en/latest/guide/Command-line-options)  
+* [How to Test Kumodd](https://kumodd.readthedocs.io/en/latest/guide/How-to-Test-Kumodd)  
+* [Example Metadata](https://kumodd.readthedocs.io/en/latest/guide/Example-Metadata)  
+* [How to Build](https://kumodd.readthedocs.io/en/latest/devel/How-to-Build)  
+* [Limitations](https://kumodd.readthedocs.io/en/latest/devel/Limitations)  
+* [References](https://kumodd.readthedocs.io/en/latest/guide/References)  

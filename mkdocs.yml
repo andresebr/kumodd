@@ -1,7 +1,7 @@
 site_name: Kumodd
 site_description: Kumodd - Google Drive Forensics
-site_author: Rich Murphey
-copyright: Copyright &copy; 2019 Caery Richard Murphey
+site_author: Carey Richard Murphey
+copyright: Copyright &copy; 2019 Carey Richard Murphey
 repo_url: https://github.com/rich-murphey/kumodd
 edit_uri: ""
 plugins:

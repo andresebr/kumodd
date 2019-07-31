@@ -17,8 +17,8 @@ revisions, and each revision has a modifiedDate timestamp.
 
 These Google Drive metadata are mapped regardless of the kind of timestamp.
 
-Google Drive Metadata	| l2t column
-:----------------	| :---
+Google Drive Metadata | l2t column
+:---------------- | :---
 source	 | Google Drive
 sourcetype | file
 filename | fullpath 
