@@ -2,6 +2,7 @@ site_name: Kumodd
 site_description: Kumodd - Google Drive Forensics
 site_author: Rich Murphey
 copyright: Copyright &copy; 2019 Caery Richard Murphey
+repo_url: https://github.com/
 edit_uri: ""
 plugins:
     - search
@@ -21,19 +22,19 @@ markdown_extensions:
 nav:
     - Home: Home.md
     - User Guide:
-        - Usage Examples: How-to-Use-Kumodd.md
-        - How to Install: How-to-Install.md
-        - How to Configure: How-to-Configure.md
-        - Default Configuration: Default-configuration.md
-        - Google Drive Metadata: Metadata.md
-        - How to Search for Files: Search-Query.md
-        - Data Verification Methods: Methods.md
-        - How to Verify Files: How-to-Verify-Data.md
-        - Log2Timeline Export: Log2Timeline-Export.md
-        - Command Line Options: Command-line-options.md
-        - How to Test Kumodd: How-to-Test-Kumodd.md
-        - Example Metadata: Example-Metadata.md
-        - References: References.md
+        - Usage Examples: guide/How-to-Use-Kumodd.md
+        - How to Install: guide/How-to-Install.md
+        - How to Configure: guide/How-to-Configure.md
+        - Default Configuration: guide/Default-configuration.md
+        - Google Drive Metadata: guide/Metadata.md
+        - How to Search for Files: guide/Search-Query.md
+        - Data Verification Methods: guide/Methods.md
+        - How to Verify Files: guide/How-to-Verify-Data.md
+        - Log2Timeline Export: guide/Log2Timeline-Export.md
+        - Command Line Options: guide/Command-line-options.md
+        - How to Test Kumodd: guide/How-to-Test-Kumodd.md
+        - Example Metadata: guide/Example-Metadata.md
+        - References: guide/References.md
     - Developers:
-        - How to Build: How-to-Build.md
-        - Limitations: Limitations.md
+        - How to Build: devel/How-to-Build.md
+        - Limitations: devel/Limitations.md
