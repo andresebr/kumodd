@@ -76,6 +76,11 @@ file, look in the keys of the exportLinks value in the file's metadata.
 
 ## Completeness
 
+Google Drive folders can hold multiple files with the same name, differing by their
+version number. The trash may hold additional files having the same name, and different
+version numbers.  If the version number is greater than 1, _(v\<version\>) is appended
+before the file extension, such as filename_(v8).doc.
+
 By default, every available revision is downloaded unless --norevisions is specified, in
 which case only the current file (latest revision) is downloaded.  Previous
 revisions are saved as filename_(r\<revision id\>_\<last modified date\>).
@@ -92,4 +97,4 @@ Results exclude certain native types such as google maps that are not exportable
 cannot be downloaded.
 
 Results will not include Google Photos or application data.  To obtain them, see [Scope
-in How to Search for Files](../Search-Query/#scope).
+in How to Search for Files](../Search-Query#scope).
