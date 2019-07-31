@@ -42,6 +42,6 @@ Drive API.
 
 Google Drive folders can hold duplicate file names that are differentiated by their
 version number. Unix and Windows file systems require filenames within a folder are
-unique.  So, for version number > 1, kumodd appends '(version)' before the extension.
-For example: ./My Drive/Untitled document(12).pdf
+unique.  So, for version number except 1, kumodd appends '_(v<version>)' before the file
+extension.  For example: ./My Drive/Untitled document_(v12).pdf
 

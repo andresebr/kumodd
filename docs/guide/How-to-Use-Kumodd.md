@@ -44,13 +44,6 @@ Download (-d) all PDF files to path (-p) /home/user/Desktop/:
 
     kumodd -d pdf -p /home/user/Desktop/
 
-By default, native Google Apps files (docs, sheets and slides) are downloaded in PDF
-format. To instead download them in LibreOffice format, use the '--nopdf' option.
-
-By default, every available revision is downloaded unless --norevisions is specified, in
-which case only the current file (latest revision) is downloaded.  Previous
-revisions are saved as filename_(revision id_last modified date).
-
 To download all of the files listed in a previously generated CSV file, use:
 
     kumodd -csv ./filelist-username.csv
@@ -59,3 +52,44 @@ To verify the files' MD5, size, Last Modified, and Last Accessed time, and MD5 o
 metadata, use:
 
     kumodd -verify -col verify
+
+## Export Google Apps Files
+
+Native Google Apps files, such as docs, sheets, slides and drawings, must be converted
+upon download.  The default conversion format is PDF. To download them in
+LibreOffice format, use the '-convert opendocument' option.  To download them in MS
+Office format, use the '-convert officedocument' option.  Other valid conversion formats
+include epub, rtf, zip, html, and plain (.txt).
+
+Option			| Google<br/>Docs | Google<br/>Sheets | Google<br/>Slides | Google<br/>Drawings
+:------			| :-----------	  | :-----------  | :----------- | :-----------
+-convert pdf		| .pdf	| .pdf	| .pdf	| .pdf
+-convert opendocument	| .odt	| .ods	| .odp	| .odg
+-convert officedocument	| .docx	| .xlsx	| .pptx	| .pdf
+-convert epub		| .epub	| .pdf	| .pdf	| .pdf
+-convert rtf		| .rtf	| .pdf	| .pdf	| .pdf
+-convert html		| .html	| .pdf	| .pdf	| .pdf
+-convert plain		| .txt 	| .pdf	| .txt	| .pdf
+
+The -convert option also supports mime types.  For a list of mime types for any given
+file, look in the keys of the exportLinks value in the file's metadata.
+
+## Completeness
+
+By default, every available revision is downloaded unless --norevisions is specified, in
+which case only the current file (latest revision) is downloaded.  Previous
+revisions are saved as filename_(r\<revision id\>_\<last modified date\>).
+
+Results include files in the trash. Files from the trash have the metadata attribute,
+labels.trashed == true.
+
+Results will include malware or other abusive files if present. Kumodd does this by
+setting acknowledgeAbuse=true when downloading files from Google Drive.
+
+Results will include files in Team drives and Shared drives.
+
+Results exclude certain native types such as google maps that are not exportable, and
+cannot be downloaded.
+
+Results will not include Google Photos or application data.  To obtain them, see [Scope
+in How to Search for Files](Search-Query#Scope).

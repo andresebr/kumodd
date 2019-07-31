@@ -65,10 +65,10 @@ if platform.system() == 'Windows':
 FLAGS = flags.FLAGS
 flags.DEFINE_boolean('browser', True, 'open a web browser to authorize access to the google drive account' )
 flags.DEFINE_string('config', 'config/config.yml', 'config file', short_name='c')
-flags.DEFINE_string('col', 'normal', 'column set defined under csv_columns in config.yml that specifies table and CSV format', short_name='o')
+flags.DEFINE_string('col', 'normal', 'column set defined under column_sets in config.yml that specifies table and CSV format', short_name='o')
 flags.DEFINE_boolean('diffs', True, 'Show differences metadata.')
 flags.DEFINE_boolean('revisions', True, 'Download every revision of each file.')
-flags.DEFINE_boolean('pdf', True, 'Convert all native Google Apps files to PDF.')
+flags.DEFINE_string('convert', 'pdf', 'Convert all native Google Apps files to PDF by default. Specify a mime type or a file type such as: pdf, epub, rtf, zip, html, plain, opendocument, officedocument.')
 flags.DEFINE_string('gdrive_auth', None, 'Google Drive account authorization file.  Configured in config/config.yml if not specified on command line.')
 flags.DEFINE_string('folder', None, 'source folder within Google Drive', short_name='f')
 flags.DEFINE_string('query', None, 'metadata query (filter)', short_name='q')
@@ -196,6 +196,8 @@ def MD5_of_yaml_of(dict_in):
 # methods to handle dynamically generated MD5, size of converted files, etc.
 
 def dget( d, key_list ):
+    if d is None or key_list is None:
+        return None
     if isinstance(key_list, str):
         key_list = key_list.split('.')
     for key in key_list:
@@ -482,7 +484,7 @@ def download_file_and_metadata(ctx, drive_file, path, writer, metadata_names, ou
     if writer:
         writer.writerow( data )
     if output_format:
-        print( output_format.format( *[str(i) for i in data] ))
+        print( output_format.format( *[str(i) for i in data] ).rstrip())
     if (FLAGS.diffs and
         drive_file.get('yamlMD5Match') == 'MISMATCH' ):
         print_obj_diffs( drive_file, file_attr.metadata_file )
@@ -510,8 +512,8 @@ def download_listed_files(ctx, config, metadata_names=None, output_format=None):
     with open(FLAGS.usecsv[0], 'rt') as csv_handle:
         reader = csv.reader(csv_handle)
         header = next(reader, None)
-        index_of_path = header.index( config.get('csv_title',{}).get('path'))
-        index_of_id = header.index( config.get('csv_title',{}).get('id'))
+        index_of_path = header.index( config.get('column_titles',{}).get('path'))
+        index_of_id = header.index( config.get('column_titles',{}).get('id'))
         for row in reader:
             path = dirname(row[index_of_path])
             try:
@@ -547,38 +549,27 @@ def get_ext(drive_file, revision=None):
     if not revision:
         revision = drive_file
     if is_native_google_apps(drive_file):
-        if FLAGS.pdf:
-            extension = 'pdf'
-        elif drive_file['mimeType'] == 'application/vnd.google-apps.document':
-            extension = 'odt'
-        elif drive_file['mimeType'] == 'application/vnd.google-apps.presentation':
-            extension = 'odp'
-        elif drive_file['mimeType'] == 'application/vnd.google-apps.spreadsheet':
-            extension = 'ods'
-        elif drive_file['mimeType'] == 'application/vnd.google-apps.drawing':
-            extension = 'odg'
-        else:
-            extension = '.pdf'
-    else:
-        extension = ''
+        exportLinks = drive_file.get('exportLinks')
+        if exportLinks is None:
+            return 'pdf'
+        mimeType = get_export_mime_type(drive_file, revision)
+        link = exportLinks.get(mimeType)
+        if link and link.rfind('='):
+            return link[1 + link.rfind('='):]
     return extension
 
-def get_mime_type(drive_file, revision=None):
+def get_export_mime_type(drive_file, revision=None):
     if not revision:
         revision = drive_file
+    if drive_file.get('exportLinks') is None:
+        return 'application/pdf'
     if is_native_google_apps(drive_file):
-        if FLAGS.pdf:
-            return 'application/pdf'
-        elif drive_file['mimeType'] == 'application/vnd.google-apps.document':
-            return 'application/vnd.oasis.opendocument.text'
-        elif drive_file['mimeType'] == 'application/vnd.google-apps.presentation':
-            return 'application/vnd.oasis.opendocument.presentation'
-        elif drive_file['mimeType'] == 'application/vnd.google-apps.spreadsheet':
-            return 'application/vnd.oasis.opendocument.spreadsheet'
-        elif drive_file['mimeType'] == 'application/vnd.google-apps.drawing':
-            return 'application/vnd.oasis.opendocument.graphics'
-        else:
-            return 'application/pdf'
+        for mimeType, link in drive_file.get('exportLinks').items():
+            if FLAGS.convert in mimeType:
+                return mimeType
+            elif '='+FLAGS.convert in link:
+                return mimeType
+        return 'application/pdf'
     return drive_file['mimeType']
 
 def local_data_dir( drive_file, username ):
@@ -586,12 +577,12 @@ def local_data_dir( drive_file, username ):
 
 def file_name( drive_file, revision=None ):
     name = drive_file['originalFilename']
-    if drive_file.get('fileExtension'):
+    if drive_file.get('fileExtension') and name.rfind('.' + drive_file['fileExtension']) > 0:
         name = name[0:name.rfind('.' + drive_file['fileExtension'])]
     if int(drive_file.get('version', 1)) > 1:
-        name += f"({drive_file['version']})"
+        name += f"_(v{drive_file['version']})"
     if revision:
-        name += f"_({revision['id']:0>4}_{revision['modifiedTime']})"
+        name += f"_(r{revision['id']:0>4}_{revision['modifiedTime']})"
     if drive_file.get('fileExtension'):
         name += '.' + drive_file['fileExtension']
     return name
@@ -604,7 +595,7 @@ from pprint import pprint
 def download_file_and_do_md5(ctx, drive_file, path, acknowledgeAbuse=False):
     if drive_file['mimeType'].startswith( 'application/vnd.google-apps' ):
         request = ctx.service.files().export_media(fileId=drive_file['id'],
-                                                   mimeType=get_mime_type(drive_file))
+                                                   mimeType=get_export_mime_type(drive_file))
     else:
         request = ctx.service.files().get_media(fileId=drive_file['id'],
                                                 acknowledgeAbuse=acknowledgeAbuse)
@@ -642,20 +633,32 @@ def download_file( ctx, drive_file, revision=None ):
             for rev in revision_list:
                 download_file( ctx, drive_file, rev )
 
+    acknowledgeAbuse = False
     while True:
         try:
-            size, md5_of_data = download_file_and_do_md5( ctx, drive_file, file_path )
+            size, md5_of_data = download_file_and_do_md5(
+                ctx, drive_file, file_path, acknowledgeAbuse=acknowledgeAbuse )
         except errors.HttpError as e:
             if e.resp.status == 403:
-                size, md5_of_data = download_file_and_do_md5( ctx, drive_file, file_path, acknowledgeAbuse=True )
-                pass
+                errs = dget(json.loads(e.content), 'error.errors')
+                if errs is None:
+                    print( f"Exception {e} while downloading {file_path}. Retrying...")
+                    continue
+                elif 'fileNotExportable' in [dget(err, 'reason') for err in errs]:
+                    logging.critical( f"File not exportable: {file_path}")
+                    return
+                elif 'cannotDownloadAbusiveFile' in [dget(err, 'reason') for err in errs]:
+                    logging.critical( f"File flagged as malware or spam: {file_path}")
+                    acknowledgeAbuse = True
+                    continue
+                else:
+                    logging.critical( f"cannot download {file_path}: " + ' '.join([i['message'] for i in errs]))
+                    return
             else:
                 logging.critical( f"Exception {e} while downloading {file_path}. Retrying...", exc_info=True)
-                print( f"Exception {e} while downloading {file_path}. Retrying...", exc_info=True)
                 continue
         except Exception as e:
             logging.critical( f"Exception {e} while downloading {file_path}. Retrying...", exc_info=True)
-            print( f"Exception {e} while downloading {file_path}. Retrying...", exc_info=True)
             continue
         ctx.downloaded += 1
         if revision:
@@ -737,6 +740,7 @@ def walk_folders( ctx, folder, handle_item, path=None ):
         'supportsTeamDrives': True,
         'corpora': FLAGS.corpora,
         'spaces': FLAGS.spaces,
+        'pageSize': 1000,
     }
     while True: # repeat for each page
         try:
@@ -757,11 +761,10 @@ def walk_folders( ctx, folder, handle_item, path=None ):
             logging.critical( f"Could not get contents of folder {folder['name']} with query {query}", exc_info=True)
             break
         filename = folder['name'].replace( '/', '_' )
-        for item in sorted(file_list['files'], key=lambda i:i['name']):
-            if is_folder( item ):
-                walk_folders( ctx, item, handle_item, path + '/' + filename )
-            elif is_file( item ):
-                handle_item( ctx, item, path )
+        for item in sorted(filter(is_file, file_list['files']), key=lambda i:i['name']):
+            handle_item( ctx, item, path )
+        for item in sorted(filter(is_folder, file_list['files']), key=lambda i:i['name']):
+            walk_folders( ctx, item, handle_item, path + '/' + filename )
         if file_list.get('nextPageToken'):
             param['pageToken'] = file_list.get('nextPageToken')
         else:
@@ -781,12 +784,12 @@ def walk_local_metadata( ctx, handle_item, path ):
                 logging.critical( msg, exc_info=True)
 
 def get_titles( config, metadata_names ):
-    return [ config.get('csv_title').get(name) or name for name in metadata_names ]
+    return [ dget(config, f'gdrive.column_titles.{name}') or name for name in metadata_names ]
 
 def get_gdrive_folder( ctx, path=None, file_id='root' ):
     if path:
         for folder_name in path.split('/'):
-            file_list = ctx.service.files().list( **{'q': f"'{file_id}' in parents and title='{folder_name}'"} ).execute()
+            file_list = ctx.service.files().list( **{'q': f"'{file_id}' in parents and name='{folder_name}'"} ).execute()
             drive_file = file_list['files'][0]
         return drive_file
     else:
@@ -822,7 +825,7 @@ gdrive:
   gdrive_auth: config/gdrive_config.json
   oauth_id: config/gdrive.dat
   csv_prefix: ./filelist-
-  csv_columns:
+  column_sets:
     short:
     - [status, 7]
     - [version, 7]
@@ -877,7 +880,7 @@ gdrive:
     - [status, 7]
     - [name, 60]
 
-csv_title:
+column_titles:
   accTimeMatch: AccTimeOK
   app: Application
   appDataContents: App Data
@@ -946,10 +949,15 @@ csv_title:
         httplib2.debuglevel = -1
     logging.getLogger().setLevel(FLAGS.log)
 
-    metadata_names = [match.value for match in parse( f'gdrive.csv_columns.{FLAGS.col}[*][0]' ).find( config )]
-
-    output_format = ' '.join([f'{{{i}:{width}.{width}}}' for i, width in
-            enumerate([match.value for match in parse( f'gdrive.csv_columns.{FLAGS.col}[*][1]' ).find( config )])])
+    colunm_set = dget( config, f'gdrive.column_sets.{FLAGS.col}' )
+    if colunm_set is None:
+        logging.critical( f"column set {FLAGS.col} not found." )
+        return -1
+    metadata_names = [col[0] for col in colunm_set]
+    colunm_widths = [col[1] for col in colunm_set]
+    output_format = ' '.join([f'{{{i}:{width}.{width}}}' for i, width in enumerate(colunm_widths[:len(colunm_widths)-1])])
+    # don't truncate the trailing column
+    output_format += f' {{{len(colunm_widths) - 1}}}'
 
     if FLAGS.verify:
         ctx = Ctx( None )
@@ -1027,7 +1035,7 @@ csv_title:
         start_time = datetime.now()
         if FLAGS.list:
             ensure_dir(FLAGS.destination + '/' + ctx.user)
-            print( output_format.format( *[ config.get('csv_title',{}).get(name) or name for name in metadata_names ]))
+            print( output_format.format( *[ dget(config, f'gdrive.column_titles.{name}') or name for name in metadata_names ]).rstrip())
             csv_prefix = config.get('gdrive',{}).get('csv_prefix')
             if csv_prefix.find('/'):
                 ensure_dir(dirname(csv_prefix))
@@ -1044,7 +1052,7 @@ csv_title:
 
         elif FLAGS.download:
             ensure_dir(FLAGS.destination + '/' + ctx.user)
-            print( output_format.format( *[ config.get('csv_title').get(name) or name for name in metadata_names ]))
+            print( output_format.format( *[ dget(config, 'gdrive.column_titles').get(name) or name for name in metadata_names ]).rstrip())
             path=FLAGS.folder
             gdrive_folder = get_gdrive_folder( ctx, path )
             with open(config.get('gdrive',{}).get('csv_prefix') + ctx.user + '.csv', 'w') as csv_handle:
@@ -1059,13 +1067,13 @@ csv_title:
 
         elif FLAGS.usecsv:
             ensure_dir(FLAGS.destination + '/' + ctx.user)
-            header = output_format.format( *get_titles( config, metadata_names ))
+            header = output_format.format( *get_titles( config, metadata_names )).rstrip()
             print( header )
             download_listed_files( ctx, config, metadata_names, output_format)
             print(f"\n{ctx.downloaded} files downloaded from {ctx.user}")
 
         elif FLAGS.verify:
-            header = output_format.format( *get_titles( config, metadata_names ))
+            header = output_format.format( *get_titles( config, metadata_names )).rstrip()
             print( header )
             for dirent in os.scandir( FLAGS.metadata_destination ):
                 ctx.user = dirent.name
@@ -1088,7 +1096,7 @@ csv_title:
                         if writer:
                             writer.writerow( data )
                         if output_format:
-                            print( output_format.format( *[str(i) for i in data] ))
+                            print( output_format.format( *[str(i) for i in data] ).rstrip())
                         if (FLAGS.diffs and
                             drive_file.get('yamlMD5Match') == 'MISMATCH' ):
                             print_obj_diffs( drive_file, file_attr.metadata_file )

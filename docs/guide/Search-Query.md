@@ -36,9 +36,12 @@ Results include files in the trash. Files from the trash have the metadata attri
 labels.trashed == true.
 
 Results will include malware or other abusive files if present. Kumodd does this by
-setting acknowledgeAbuse=true when downloading files from Google Drive.
+setting acknowledgeAbuse=true when downloading such files from Google Drive.
 
 Results will include files in Team drives and Shared drives.
+
+Results will not include Google Photos or application data.  To obtain them, see scope
+and spaces below.
 
 ## Equivalent Filters
 
