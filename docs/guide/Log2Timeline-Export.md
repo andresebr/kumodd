@@ -1,4 +1,4 @@
-# Log2Timeline
+# Log2Timeline Export
 
 [log2timeline](https://www.forensicswiki.org/wiki/Log2timeline) is a framework for
 artifact timeline creation and analysis. There are both commercial and open source
