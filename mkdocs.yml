@@ -13,7 +13,8 @@ theme:
     - python
 markdown_extensions:
     - toc:
-        permalink: 
+        permalink: True
+    - smarty
     - admonition
     - def_list
 
