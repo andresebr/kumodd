@@ -4,36 +4,36 @@ site_author: Rich Murphey
 copyright: Copyright &copy; 2019 Caery Richard Murphey
 edit_uri: ""
 plugins:
-  - search
+    - search
 theme:
-  name: mkdocs
-  highlightjs: true
-  hljs_languages:
-    - yaml
-    - python
+    name: mkdocs
+    highlightjs: true
+    hljs_languages:
+        - yaml
+        - python
 markdown_extensions:
-  - toc:
-      permalink: True
-  - smarty
-  - admonition
-  - def_list
+    - toc:
+        permalink: True
+    - smarty
+    - admonition
+    - def_list
 
 nav:
-  - Home: Home.md
-  - User Guide:
-    - Usage Examples: How-to-Use-Kumodd.md
-    - How to Install: How-to-Install.md
-    - How to Configure: How-to-Configure.md
-    - Default Configuration: Default-configuration.md
-    - Google Drive Metadata: Metadata.md
-    - How to Search for Files: Search-Query.md
-    - Data Verification Methods: Methods.md
-    - How to Verify Files: How-to-Verify-Data.md
-    - Log2Timeline Export: Log2Timeline-Export.md
-    - Command Line Options: Command-line-options.md
-    - How to Test Kumodd: How-to-Test-Kumodd.md
-    - Example Metadata: Example-Metadata.md
-    - References: References.md
-  - Developers:
-    - How to Build: How-to-Build.md
-    - Limitations: Limitations.md
+    - Home: Home.md
+    - User Guide:
+        - Usage Examples: How-to-Use-Kumodd.md
+        - How to Install: How-to-Install.md
+        - How to Configure: How-to-Configure.md
+        - Default Configuration: Default-configuration.md
+        - Google Drive Metadata: Metadata.md
+        - How to Search for Files: Search-Query.md
+        - Data Verification Methods: Methods.md
+        - How to Verify Files: How-to-Verify-Data.md
+        - Log2Timeline Export: Log2Timeline-Export.md
+        - Command Line Options: Command-line-options.md
+        - How to Test Kumodd: How-to-Test-Kumodd.md
+        - Example Metadata: Example-Metadata.md
+        - References: References.md
+    - Developers:
+        - How to Build: How-to-Build.md
+        - Limitations: Limitations.md
