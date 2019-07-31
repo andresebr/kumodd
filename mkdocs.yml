@@ -1,10 +1,7 @@
-site_name: Kumodd - Cloud Drive Forensics
-repo_url: https://github.com/rich-murphey/kumodd
-# edit_uri: docs
-site_description: Kumodd - Cloud Forensics
+site_name: Kumodd - Google Drive Forensics
+site_description: Kumodd - Google Drive Forensics
 site_author: Rich Murphey
-copyright: Rich Murphey
-docs_dir: docs
+copyright: (C) 2019 Rich Murphey
 nav:
 - 'Overview'			: Home.md
 - 'Usage Examples'		: How-to-Use-Kumodd.md
