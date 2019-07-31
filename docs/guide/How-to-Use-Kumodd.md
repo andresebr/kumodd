@@ -55,11 +55,11 @@ metadata, use:
 
 ## Export Google Apps Files
 
-Native Google Apps files, such as docs, sheets, slides and drawings, must be converted
-upon download.  The default conversion format is PDF. To download them in
-LibreOffice format, use the '-convert opendocument' option.  To download them in MS
-Office format, use the '-convert officedocument' option.  Other valid conversion formats
-include epub, rtf, zip, html, and plain (.txt).
+The default conversion format is PDF.  Native Google Apps files, such as docs, sheets,
+slides and drawings, must be converted upon download.  To download them in LibreOffice
+format, use the '-convert opendocument' option.  To download them in MS Office format,
+use the '-convert officedocument' option.  Other valid conversion formats include epub,
+rtf, zip, html, and plain (.txt).
 
 Option			| Google<br/>Docs | Google<br/>Sheets | Google<br/>Slides | Google<br/>Drawings
 :------			| :-----------	  | :-----------  | :----------- | :-----------
@@ -92,4 +92,4 @@ Results exclude certain native types such as google maps that are not exportable
 cannot be downloaded.
 
 Results will not include Google Photos or application data.  To obtain them, see [Scope
-in How to Search for Files](Search-Query/#scope).
+in How to Search for Files](/guide/Search-Query/#scope).
