@@ -535,7 +535,8 @@ def download_revisions_metadata( ctx, drive_file ):
         try:
             result = ctx.revisions.list( fileId=drive_file['id'], fields='*',
                                         pageSize=1000, pageToken=pageToken ).execute()
-            revisions.extend(result.get('revisions'))
+            if result.get('revisions') and len(result.get('revisions')) > 0:
+                revisions.extend(result.get('revisions'))
             if not result.get('nextPageToken'):
                 break
             pageToken=result.get('nextPageToken')
