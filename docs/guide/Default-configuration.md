@@ -8,7 +8,7 @@ gdrive:
   gdrive_auth: config/gdrive_config.json
   oauth_id: config/gdrive.dat
   csv_prefix: ./filelist-
-  csv_columns:
+  column_sets:
     short:
     - [status, 7]
     - [version, 7]
@@ -63,57 +63,57 @@ gdrive:
     - [status, 7]
     - [name, 60]
 
-csv_title:
-  accTimeMatch: AccTimeOK
-  app: Application
-  appDataContents: App Data
-  capabilities: Capabilities
-  category: Category
-  copyRequiresWriterPermission: CopyRequiresWriterPermission
-  copyable: Copyable
-  createdTime: Created (UTC)
-  downloadUrl: Download
-  editable: Editable
-  embedLink: Embed
-  explicitlyTrashed: Was Trashed
-  exportLinks: Export
-  fileExtension: EXT
-  fullpath: Full Path
-  headRevisionId: HeadRevisionId
-  iconLink: Icon Link
-  id: File Id
-  kind: Kind
-  labels: Labels
-  lastModifyingUserName: Last Mod By
-  lastViewedByMeTime: My Last View
-  'lastModifyingUser.emailAddress': Last Mod Email
-  local_path: Local Path
-  md5Checksum: MD5 of File
-  md5Match: MD5OK
-  mimeType: MIME Type
-  modTimeMatch: ModTimeOK
-  modifiedByMeTime: My Last Mod (UTC)
-  modifiedTime: Last Modified (UTC)
-  name: Name
-  originalFilename: Original File Name
-  ownerNames: Owner
-  owners: Owners
-  'owners[*].emailAddress':  Owners
-  parents: Parents
-  path: Path
-  quotaBytesUsed: Quota Used
-  revision: Revisions
-  selfLink: Self Link
-  shared: Shared
-  size: Size(bytes)
-  sizeMatch: SizeOK
-  spaces: Spaces
-  status: Status
-  trashed: In Trash
-  user: User
-  userPermission: User Permission
-  version: Version
-  webContentLink: Web Link
-  writersCanShare: CanShare
-  yamlMetadataMD5: MD5 of Metadata
+  column_titles:
+    accTimeMatch: AccTimeOK
+    app: Application
+    appDataContents: App Data
+    capabilities: Capabilities
+    category: Category
+    copyRequiresWriterPermission: CopyRequiresWriterPermission
+    copyable: Copyable
+    createdTime: Created (UTC)
+    downloadUrl: Download
+    editable: Editable
+    embedLink: Embed
+    explicitlyTrashed: Was Trashed
+    exportLinks: Export
+    fileExtension: EXT
+    fullpath: Full Path
+    headRevisionId: HeadRevisionId
+    iconLink: Icon Link
+    id: File Id
+    kind: Kind
+    labels: Labels
+    lastModifyingUserName: Last Mod By
+    lastViewedByMeTime: My Last View
+    'lastModifyingUser.emailAddress': Last Mod Email
+    local_path: Local Path
+    md5Checksum: MD5 of File
+    md5Match: MD5OK
+    mimeType: MIME Type
+    modTimeMatch: ModTimeOK
+    modifiedByMeTime: My Last Mod (UTC)
+    modifiedTime: Last Modified (UTC)
+    name: Name
+    originalFilename: Original File Name
+    ownerNames: Owner
+    owners: Owners
+    'owners[*].emailAddress':  Owners
+    parents: Parents
+    path: Path
+    quotaBytesUsed: Quota Used
+    revision: Revisions
+    selfLink: Self Link
+    shared: Shared
+    size: Size(bytes)
+    sizeMatch: SizeOK
+    spaces: Spaces
+    status: Status
+    trashed: In Trash
+    user: User
+    userPermission: User Permission
+    version: Version
+    webContentLink: Web Link
+    writersCanShare: CanShare
+    yamlMetadataMD5: MD5 of Metadata
 ```

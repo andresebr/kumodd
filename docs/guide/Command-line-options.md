@@ -43,7 +43,7 @@ video	| Video files
 
     --[no]browser: open a web browser to authorize access to the google drive account
       (default: 'true')
-    -o,--col: column set defined under csv_columns in config.yml that specifies table and CSV format
+    -o,--col: column set defined under column_sets in config.yml that specifies table and CSV format
       (default: 'normal')
     -c,--config: config file
       (default: 'config/config.yml')

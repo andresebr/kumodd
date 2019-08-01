@@ -12,7 +12,7 @@ File](https://github.com/rich-murphey/kumodd/wiki/Default-configuration).
 
 ``` yaml
 gdrive:
-  csv_columns:
+  column_sets:
     normal:
     - [title, 20]
     - [category, 4]
@@ -28,21 +28,23 @@ addresses. 20 is the fixed width of the column on standard output.
 
 ``` yaml
 gdrive:
-  csv_columns:
+  column_sets:
     owners:
     - [status, 7]
     - ['owners[*].emailAddress', 20]
     - [fullpath, 50]
 ```
 
-Column titles are specified under the csv_title key, below.  Each item translates a
+Column titles are specified under the column_titles key, below.  Each item translates a
 column value to a column title.  Names containing spaces or delimiters must be quoted.
 
 ``` yaml
-csv_title:
-  status:  Status
-  'owners[*].emailAddress':  Owners
-  fullpath:  Full Path
+gdrive:
+  column_titles:
+    status:  Status
+    'owners[*].emailAddress':  Owners
+    fullpath:  Full Path
+    ...
 ```
 
 ## Metadata Names
