@@ -49,15 +49,18 @@ the Google API, and 2) an authorization for the specifiic Google Drive account.
     1. Click the down arrow icon at far right of the new ID.  The ID will download.
     1. Copy the downloaded ID it to kumodd/config/gdrive.json.
 
+
 1. Authorize kumodd to access the specific Google Drive account:
 
     The first time kumodd is used (e.g. kumodd -l all), it will open the
     login page in a web browser.
+
     1. Login to the cloud account. Next, it will request approval.
-    1. Click "Approve". Next, kumodd stores the Oauth token in config/gdrive.dat.  
+    1. Click "Approve". Next, kumodd stores the Oauth token in config/gdrive.dat.
     
     If there is no local browser, or if --nobrowser is used, kumodd will
     instead print a URL of the login page.
+
     1. Copy the URL and paste it into a browser.  
     1. Login to the cloud account.  Next, it will request approval.
     1. Click "Approve". Next, the page will show an access token.
