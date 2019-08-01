@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# -*- compile-command: "cd ..; ./kumodd -c config/test.yml -col test -d all"; -*-
+# -*- compile-command: "cd ..; ./kumodd -c config/test.yml -col short -d all"; -*-
 """
 Copyright (C) 2019  Andres Barreto and Rich Murphey
 
@@ -428,8 +428,6 @@ def output_lt2_csv(ctx, df, writer):
 
 def print_file_metadata(ctx, drive_file, path, writer, metadata_names, output_format=None):
     supplement_drive_file_metadata(ctx, drive_file, path)
-    if FLAGS.revisions:
-        drive_file['revisions'] = retrieve_revisions(ctx, drive_file['id'])
     file_attr = FileAttr( drive_file, ctx.user )
     file_attr.compare_metadata_to_local_file( drive_file )
     file_attr.compare_YAML_metadata_MD5( drive_file )
@@ -451,9 +449,10 @@ def print_file_metadata(ctx, drive_file, path, writer, metadata_names, output_fo
     
 def download_file_and_metadata(ctx, drive_file, path, writer, metadata_names, output_format=None):
     supplement_drive_file_metadata(ctx, drive_file, path)
-    if FLAGS.revisions:
-        drive_file['revisions'] = retrieve_revisions(ctx, drive_file['id'])
     file_attr = FileAttr( drive_file, ctx.user )
+
+    if not dget( drive_file, 'capabilities.canDownload'):
+        return
 
     if not file_attr.valid:
         ensure_dir(FLAGS.destination + '/' + ctx.user + '/' + path)
@@ -463,12 +462,6 @@ def download_file_and_metadata(ctx, drive_file, path, writer, metadata_names, ou
         file_attr.compare_metadata_to_local_file( drive_file )
         update_yamlMetadataMD5( drive_file )
         save_metadata( drive_file, ctx.user )
-
-        # print("\n")
-        # dump_yaml( drive_file, sys.stdout )
-        # print("\n")
-        # dump( file_attr )
-        # print("\n")
 
     else:
         if drive_file['mimeType'].startswith( 'application/vnd.google-apps' ):
@@ -517,13 +510,15 @@ def download_listed_files(ctx, config, metadata_names=None, output_format=None):
         for row in reader:
             path = dirname(row[index_of_path])
             try:
-                drive_file = ctx.service.files().get(fileId=row[index_of_id]).execute()
+                drive_file = ctx.files.get(fileId=row[index_of_id]).execute()
             except Exception as e:
                 print( f'cautght: {e}' )
                 logging.critical( f"Request Failed for: {row}", exc_info=True)
+            if FLAGS.revisions:
+                download_revisions_metadata(ctx, drive_file)
             download_file_and_metadata( ctx, drive_file, path, None, metadata_names, output_format)
 
-def retrieve_revisions( ctx, file_id ):
+def download_revisions_metadata( ctx, drive_file ):
     """Retrieve a list of revisions.
 
     Args:
@@ -532,15 +527,23 @@ def retrieve_revisions( ctx, file_id ):
     Returns:
     List of revisions.
     """
-    try:
-        revisions = ctx.service.revisions().list(fileId=file_id).execute()
-    except Exception as e:
-        print( f'cautght: {e}' )
-        logging.critical( f"Request Failed for: {file_id}", exc_info=True)
-    if len(revisions.get('files', [])) > 1:
-        return revisions.get('files', [])
-    return None
-
+    if not dget( drive_file, 'capabilities.canReadRevisions'):
+        return
+    revisions = []
+    pageToken = None
+    while True: # repeat for each page
+        try:
+            result = ctx.revisions.list( fileId=drive_file['id'], fields='*',
+                                        pageSize=1000, pageToken=pageToken ).execute()
+            revisions.extend(result.get('revisions'))
+            if not result.get('nextPageToken'):
+                break
+            pageToken=result.get('nextPageToken')
+        except Exception as e:
+            logging.critical( f"Error: cannot download revisions for {drive_file['name']}: {e.content}")
+            break
+    if len(revisions) > 0:
+        drive_file['revisions'] = revisions
 
 def is_native_google_apps(drive_file):
     return drive_file['mimeType'].startswith( 'application/vnd.google-apps' )
@@ -592,13 +595,40 @@ def local_metadata_dir( drive_file, username ):
 
 from pprint import pprint
 
-def download_file_and_do_md5(ctx, drive_file, path, acknowledgeAbuse=False):
+def download_rev_and_do_md5(ctx, drive_file, rev, file_path):
+    if not rev:
+        return False
+    if not rev.get('exportLinks'):
+        return False
+    download_url = rev.get('exportLinks').get( get_export_mime_type(drive_file))
+    if not download_url:
+        if Flags.log == 'DEBUG':
+            print(get_export_mime_type(drive_file))
+            dump_yaml( rev, sys.stdout )
+        return False
+    while True:
+        try:
+            resp, content = ctx.http.request(download_url)
+        except Exception as e:
+            logging.critical( f"Exception {e} while reading {file_path}. Retrying...", exc_info=True)
+            continue
+        if resp.status == 200:
+            rev['md5Checksum'] = md5hex( content )
+            try:
+                with open( file_path, 'wb+' ) as handle:
+                    handle.write( content )
+                    return True
+            except Exception as e:
+                logging.critical( f"Cannot open {file_path} for writing: {e}", exc_info=True)
+                return False
+
+def download_file_and_do_md5(ctx, drive_file, rev, path, acknowledgeAbuse=False):
     if drive_file['mimeType'].startswith( 'application/vnd.google-apps' ):
-        request = ctx.service.files().export_media(fileId=drive_file['id'],
-                                                   mimeType=get_export_mime_type(drive_file))
+        request = ctx.files.export_media(fileId=drive_file['id'],
+                                         mimeType=get_export_mime_type(drive_file))
     else:
-        request = ctx.service.files().get_media(fileId=drive_file['id'],
-                                                acknowledgeAbuse=acknowledgeAbuse)
+        request = ctx.files.get_media(fileId=drive_file['id'],
+                                      acknowledgeAbuse=acknowledgeAbuse)
         size = int(drive_file['size'])
     m = md5()
     with open(path, 'wb+') as f, io.BytesIO() as fh:
@@ -627,17 +657,18 @@ def download_file( ctx, drive_file, revision=None ):
 
     file_path = local_data_dir( drive_file, ctx.user ) + '/' + file_name(drive_file, revision)
 
-    if FLAGS.revisions and not revision:
-        revision_list = drive_file.get('revisions')
-        if revision_list:
-            for rev in revision_list:
-                download_file( ctx, drive_file, rev )
+    if FLAGS.revisions and not revision and drive_file.get('revisions'):
+        for rev in drive_file.get('revisions'):
+            dump_yaml( rev, sys.stdout )
+            download_rev_and_do_md5(
+                ctx, drive_file, rev, 
+                local_data_dir( drive_file, ctx.user ) + '/' + file_name(drive_file, rev) )
 
     acknowledgeAbuse = False
     while True:
         try:
             size, md5_of_data = download_file_and_do_md5(
-                ctx, drive_file, file_path, acknowledgeAbuse=acknowledgeAbuse )
+                ctx, drive_file, rev, file_path, acknowledgeAbuse=acknowledgeAbuse )
         except errors.HttpError as e:
             if e.resp.status == 403:
                 errs = dget(json.loads(e.content), 'error.errors')
@@ -744,7 +775,7 @@ def walk_folders( ctx, folder, handle_item, path=None ):
     }
     while True: # repeat for each page
         try:
-            file_list = ctx.service.files().list(**param).execute()
+            file_list = ctx.files.list(**param).execute()
         except errors.HttpError as e:
             if e.resp.status == 400:
                 msg = f"Google Drive API Error: {dget(json.loads(e.content), 'error.message')}"
@@ -786,22 +817,29 @@ def walk_local_metadata( ctx, handle_item, path ):
 def get_titles( config, metadata_names ):
     return [ dget(config, f'gdrive.column_titles.{name}') or name for name in metadata_names ]
 
-def get_gdrive_folder( ctx, path=None, file_id='root' ):
-    if path:
-        for folder_name in path.split('/'):
-            file_list = ctx.service.files().list( **{'q': f"'{file_id}' in parents and name='{folder_name}'"} ).execute()
+def get_gdrive_folder( ctx, path_in=None, file_id='root' ):
+    if path_in:
+        for folder_name in path_in.split('/'):
+            file_list = ctx.files.list( **{'q': f"'{file_id}' in parents and name='{folder_name}'"} ).execute()
             drive_file = file_list['files'][0]
-        return drive_file
+            if FLAGS.scope.startswith('https://www.googleapis.com/auth/drive'):
+                path = 'My Drive/' + path_in
+            else:
+                path = path_in
+            return drive_file, path
     else:
-        return ctx.service.files().get( fileId=file_id ).execute()
+        return ctx.files.get( fileId=file_id ).execute(), '.'
 
 class Ctx( object ):
-    def __init__( self, service ):
+    def __init__( self, http, service ):
+        self.http = http
         self.service = service
         if self.service:
             try:
                 about = self.service.about().get(fields='user').execute()
                 self.user = about['user']['emailAddress']
+                self.files = self.service.files()
+                self.revisions = self.service.revisions()
             except errors.HttpError as e:
                 print( f'Request for google about() failed: {e}' )
                 self.user = '(nouser)'
@@ -948,7 +986,6 @@ column_titles:
         logging.getLogger().addHandler(handler)
         httplib2.debuglevel = -1
     logging.getLogger().setLevel(FLAGS.log)
-
     colunm_set = dget( config, f'gdrive.column_sets.{FLAGS.col}' )
     if colunm_set is None:
         logging.critical( f"column set {FLAGS.col} not found." )
@@ -1029,7 +1066,7 @@ column_titles:
             credentials = run_flow(FLOW, storage, oflags, http)
         http2 = credentials.authorize(http2)
         service = build("drive", "v3", http=http2)
-        ctx = Ctx( service )
+        ctx = Ctx( http2, service )
 
     try:
         start_time = datetime.now()
@@ -1042,27 +1079,29 @@ column_titles:
             with open(config.get('gdrive',{}).get('csv_prefix') + ctx.user + '.csv', 'w') as csv_handle:
                 writer = csv.writer(csv_handle, delimiter=',')
                 writer.writerow( get_titles( config, metadata_names ) )
-                path=FLAGS.folder
-                gdrive_folder = get_gdrive_folder( ctx, path )
+                gdrive_folder, path = get_gdrive_folder( ctx, FLAGS.folder )
 
-                def handle_item( ctx, item, path ):
-                    print_file_metadata( ctx, item, path, writer, metadata_names, output_format)
+                def handle_item( ctx, drive_file, path ):
+                    if FLAGS.revisions:
+                        download_revisions_metadata(ctx, drive_file )
+                    print_file_metadata( ctx, drive_file, path, writer, metadata_names, output_format)
 
-                walk_folders( ctx, gdrive_folder, handle_item)
+                walk_folders( ctx, gdrive_folder, handle_item, path )
 
         elif FLAGS.download:
             ensure_dir(FLAGS.destination + '/' + ctx.user)
             print( output_format.format( *[ dget(config, 'gdrive.column_titles').get(name) or name for name in metadata_names ]).rstrip())
-            path=FLAGS.folder
-            gdrive_folder = get_gdrive_folder( ctx, path )
+            gdrive_folder, path = get_gdrive_folder( ctx, FLAGS.folder )
             with open(config.get('gdrive',{}).get('csv_prefix') + ctx.user + '.csv', 'w') as csv_handle:
                 writer = csv.writer(csv_handle, delimiter=',')
                 writer.writerow( get_titles( config, metadata_names ) )
 
-                def handle_item( ctx, item, path ):
-                    download_file_and_metadata( ctx, item, path, writer, metadata_names, output_format)
+                def handle_item( ctx, drive_file, path ):
+                    if FLAGS.revisions:
+                        download_revisions_metadata(ctx, drive_file )
+                    download_file_and_metadata( ctx, drive_file, path, writer, metadata_names, output_format)
 
-                walk_folders( ctx, gdrive_folder, handle_item )
+                walk_folders( ctx, gdrive_folder, handle_item, path )
             print(f"\n{ctx.downloaded} files downloaded from {ctx.user}")
 
         elif FLAGS.usecsv:
