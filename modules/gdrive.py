@@ -660,7 +660,6 @@ def download_file( ctx, drive_file, revision=None ):
 
     if FLAGS.revisions and not revision and drive_file.get('revisions'):
         for rev in drive_file.get('revisions'):
-            dump_yaml( rev, sys.stdout )
             download_rev_and_do_md5(
                 ctx, drive_file, rev, 
                 local_data_dir( drive_file, ctx.user ) + '/' + file_name(drive_file, rev) )
