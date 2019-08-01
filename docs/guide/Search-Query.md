@@ -62,8 +62,7 @@ Filter | Equivalent Query
 -d audio | -d all -q "mimeType contains 'audio/'"
 -d video | -d all -q "mimeType contains 'video/'"
 
-Google Apps can open mimeTypes listed here:
-https://developers.google.com/drive/api/v3/mime-types
+Google Apps can open mimeTypes listed here: (https://developers.google.com/drive/api/v3/mime-types).
 
 An extensive list of mimeTypes is listed in [MimeType.cs](https://github.com/google/google-drive-proxy/blob/master/DriveProxy/API/MimeType.cs).
 

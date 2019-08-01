@@ -6,15 +6,15 @@
 
     -p,--destination: Destination folder location
       (default: './download')
-    -d,--download: <all|doc|xls|ppt|text|pdf|office|image|audio|video|other>: Download files, optionally filter, and verify MD5 on disk
+    -d,--download: all|doc|xls|ppt|text|pdf|office|image|audio|video|other: Download files, optionally filter, and verify MD5 on disk
     --[no]l2t: generate log2timeline CSV files from cached metadata.
       (default: 'false')
-    -l,--list: <all|doc|xls|ppt|text|pdf|office|image|audio|video|other>: List files in google drive and verify files on disk match MD5
-    --log: <DEBUG|INFO|WARNING|ERROR|CRITICAL>: Set the level of logging detail.
+    -l,--list: all|doc|xls|ppt|text|pdf|office|image|audio|video|other: List files in google drive and verify files on disk match MD5
+    --log: DEBUG|INFO|WARNING|ERROR|CRITICAL: Set the level of logging detail.
       (default: 'ERROR')
     -m,--metadata_destination: Destination folder for metadata information
       (default: './download/metadata')
-    -s,--service: <gdrive|dropbox|box|onedrive>: Service to use
+    -s,--service: gdrive|dropbox|box|onedrive: Service to use
       (default: 'gdrive')
     -csv,--usecsv: Download files listed in a previously generated CSV file, and verify MD5 of files on disk
       (a comma separated list)
