@@ -78,12 +78,12 @@ file, look in the keys of the exportLinks value in the file's metadata.
 
 Google Drive folders can hold multiple files with the same name, differing by their
 version number. The trash may hold additional files having the same name, and different
-version numbers.  If the version number is greater than 1, _(v*VERSION*) is appended
-before the file extension, such as filename_(v8).doc.
+version numbers.  If the version number is greater than 1, \_(v*VERSION*) is appended
+before the file extension, such as filename\_(v8).doc.
 
 By default, every available revision is downloaded unless --norevisions is specified, in
 which case only the current file (latest revision) is downloaded.  Previous
-revisions are saved as filename_(r*REVISION ID*_*LAST MODIFIED DATE*).
+revisions are saved as filename\_(r*REVISION ID*\_*LAST MODIFIED DATE*).
 
 Results include files in the trash. Files from the trash have the metadata attribute trashed == true.
 

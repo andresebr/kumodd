@@ -34,7 +34,7 @@ gdrive:
     - [fullpath, 50]
 ```
 
-Column titles are specified under the column_titles key, below.  Each item translates a
+Column titles are specified under the column\_titles key, below.  Each item translates a
 column value to a column title.  Names containing spaces or delimiters must be quoted.
 
 ``` yaml
@@ -75,8 +75,8 @@ The configuration file also specifies the location of credentials for Google Dri
 
 Name		| Description
 :-----		| :-----
-gdrive_auth	| file path of Google Drive account authorization. Ignored if provided on command line.
-oauth_id	| file path of Google Oauth Client ID credentials. (App's permission to use API).
+gdrive\_auth	| file path of Google Drive account authorization. Ignored if provided on command line.
+oauth\_id	| file path of Google Oauth Client ID credentials. (App's permission to use API).
 
 See the [Default YAML Configuration File](https://github.com/rich-murphey/kumodd/wiki/Default-configuration) for more details.
 
