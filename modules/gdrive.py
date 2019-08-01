@@ -1031,7 +1031,6 @@ column_titles:
                 print(f"\nCannot connect to proxy at: {proxy_uri}.  Please check your network.\n\n")
                 return
             http2 = httplib2.Http(
-                disable_ssl_certificate_validation=True,
                 proxy_info = httplib2.ProxyInfo(
                     httplib2.socks.PROXY_TYPE_HTTP,
                     proxy_host = proxy.get('host'),
