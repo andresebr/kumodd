@@ -23,8 +23,8 @@
     --[no]version: Print version number and exit.
       (default: 'false')
 
-The -d and -l options take a filter argument that selects a category of files.  A file's
-category is determined its mime type.
+The __-download__ and __-list__ options take a filter argument that selects a category of files.
+A file's category is determined its mime type.
 
 Filter	| Description 
 :------	| :-----------
@@ -101,6 +101,6 @@ video	| Video files
       (default: '-1')
       (an integer)
     
-Use 'kumodd --helpfull' to get a list of all flags.
+Use __kumodd --helpfull__ to get a list of all flags.
     
     

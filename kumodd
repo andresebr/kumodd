@@ -59,15 +59,12 @@ def main(argv):
         
     if not (FLAGS.verify or FLAGS.usecsv or FLAGS.download or FLAGS.list or FLAGS.l2t):
         print(f"""
-Kumodd version is a command line utility.
+Kumodd version is a command line utility that perserves google drive data.
 
 Usage: {argv[0]} [ARGS...]
 
 {FLAGS}
-
-press any key to exit.
 """)
-        sys.stdin.read(1)
         sys.exit(1)
 
     if FLAGS.version:
@@ -89,3 +86,4 @@ press any key to exit.
     
 if __name__ == '__main__':
     app.run(main)
+

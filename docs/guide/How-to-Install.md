@@ -53,8 +53,8 @@ Step 1) Obtain config/gdrive_config.json (permission to access the Google API):
 
 Step 2) Obtain config/gdrive.dat (permission to access a specific user's Google Drive account):
 
-The first time kumodd is used (e.g. kumodd -list all), it will open the
-login page in a web browser.
+The first time kumodd is used (e.g. __kumodd -list all__), kumodd will open the Google
+Drive login page in a browser.
 
     1. Login to the cloud account. Next, it will request approval.
     1. Click "Approve". Next, kumodd stores the Oauth token in config/gdrive.dat.

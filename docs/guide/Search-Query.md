@@ -72,9 +72,9 @@ The default scope is https://www.googleapis.com/auth/drive.readonly.  This provi
 only access to all files and metadata in the user's 'My Drive' folder. This excludes the
 Application Data folder.
 
-For photos, select: --scope https://www.googleapis.com/auth/drive.photos.readonly
+For photos, use option: __--scope https://www.googleapis.com/auth/drive.photos.readonly__
 
-For app data, select: --scope https://www.googleapis.com/auth/drive.appdata
+For app data, use option: __--scope https://www.googleapis.com/auth/drive.appdata__
 
 ## Corpus
 
@@ -87,6 +87,6 @@ The allDrives corpus includes all files in shared drives that the user is a memb
 
 ## Spaces
 
-The default space is 'drive'.  Use the --spaces option to select a comma-separated list
+The default space is 'drive'.  Use the __--spaces__ option to select a comma-separated list
 of spaces to query within the corpus. Supported values are 'drive', 'appDataFolder' and
 'photos'.
