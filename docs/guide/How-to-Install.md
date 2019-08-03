@@ -33,8 +33,8 @@ On Debian or Ubuntu:
 
 To access Google Drive, Kumodd requires two credential files:
 
-* __config/google_api_credentials.json__ - permission to access the Google API  
-* __config/google_drive_account_credentials.json__ - permission to access a user's Google Drive account
+__config/google_api_credentials.json__ - permission to access the Google API  
+__config/google_drive_account_credentials.json__ - permission to access a user's Google Drive account
 
 1. Obtain __google_api_credentials.json__ (permission to access the Google API):
 
