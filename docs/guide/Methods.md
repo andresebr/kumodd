@@ -1,21 +1,22 @@
 # Data Verification Methods
 
 Kumodd verifies both data and metadata. Files are verified by comparing the MD5, size,
-and Last Modified time.  Kumodd can report whether each matches the metadata, as shown
-in [How to Verify Data](https://github.com/rich-murphey/kumodd/wiki/How-to-Verify-Data).
+and Last Modified time.  The -verify option reports whether each value matches the
+metadata, as shown in [How to Verify
+Data](https://github.com/rich-murphey/kumodd/wiki/How-to-Verify-Data).
 
-Metadata		| Description
+Metadata added <br/>by Kumodd		| Description
 :----			| :----
 md5Checksum		| MD5 of the data.
-md5Match		| match if MD5 on disk = from Google Drive.
+md5Match		| is 'match' if local MD5 = MD5 in Google Drive, else 'MISMATCH'.
 fileSize		| Size (bytes) of the data from Google Drive.
-sizeMatch		| match if local size = size in google drive, else MISMATCH.
+sizeMatch		| is 'match' if local size = size in google drive, else MISMATCH.
 modifiedDate		| Last Modified time (UTC) of the data in Google Drive.
-modTimeMatch		| match if Last Modified time on disk = in Google Drive.
+modTimeMatch		| is 'match' if Last Modified time on disk = in Google Drive.
 lastViewedByMeDate	| Last Viewed By Account User (UTC) on disk = in Google Drive.
-accTimeMatch		| match if lastViewedByMeDate and FS Last Access Time are equal.
+accTimeMatch		| is 'match' if local Last Access Time = lastViewedByMeDate.
 yamlMetadataMD5		| MD5 of the redacted metadata.
-yamlMD5Match		| match if metadata MD5 on disk = data from Google Drive.
+yamlMD5Match		| 'match' if local metadata MD5 = metadata from Google Drive.
 
 Google Drive has several native file formats, including Docs, Sheets, Slides, Forms, and
 Drawings. These native formats are always converted by Google Drive during upload or
