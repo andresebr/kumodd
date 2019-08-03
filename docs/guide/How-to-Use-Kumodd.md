@@ -8,7 +8,7 @@ specify what action to take.
 
 To list all documents (google doc, .doc, .docx, .odt etc), use:
 ``` shell
-kumodd -l doc
+kumodd -list doc
 Created (UTC)            Last Modified (UTC)      Remote Path                   Revision   Modified by      Owner            MD5                       
 2019-06-24T05:04:47.055Z 2019-06-24T05:41:17.095Z My Drive/Untitled document    3          Johe Doe         Johe Doe         -
 2019-05-18T06:16:19.084Z 2019-05-18T06:52:49.972Z My Drive/notes.docx           1          Johe Doe         Johe Doe         1376e9bf5fb781c3e428356b4b9aa21c
@@ -18,8 +18,8 @@ Created (UTC)            Last Modified (UTC)      Remote Path                   
 
 ## Filter files by category
 
-The filter option limits output to a selected category of files.  A file's category is
-determined its mime type.
+To limits files to a selected category, use one of the filters below.  A file's category
+is determined its mime type.
 
 Filter	| Description 
 :------	| :-----------
@@ -36,13 +36,13 @@ video	| Video files
 
 ## Download Files
 
-Download (-d) all documents to ./download (the default location):
+Download all documents to ./download (the default location):
 
-    kumodd -d doc
+    kumodd -download doc
 
-Download (-d) all PDF files to path (-p) /home/user/Desktop/:
+Download all PDF files to path (-p) /home/user/Desktop/:
 
-    kumodd -d pdf -p /home/user/Desktop/
+    kumodd -download pdf -path /home/user/Desktop/
 
 To download all of the files listed in a previously generated CSV file, use:
 
@@ -61,7 +61,7 @@ format, use the '-convert opendocument' option.  To download them in MS Office f
 use the '-convert officedocument' option.  Other valid conversion formats include epub,
 rtf, zip, html, and plain (.txt).
 
-Option			| Google<br/>Docs | Google<br/>Sheets | Google<br/>Slides | Google<br/>Drawings
+Download<br/>Conversion<br/>Option			| Google<br/>Docs<br/>as | Google<br/>Sheets<br/>as | Google<br/>Slides<br/>as | Google<br/>Drawings<br/>as
 :------			| :-----------	  | :-----------  | :----------- | :-----------
 -convert pdf		| .pdf	| .pdf	| .pdf	| .pdf
 -convert opendocument	| .odt	| .ods	| .odp	| .odg
@@ -71,8 +71,21 @@ Option			| Google<br/>Docs | Google<br/>Sheets | Google<br/>Slides | Google<br/>
 -convert html		| .html	| .pdf	| .pdf	| .pdf
 -convert plain		| .txt 	| .pdf	| .txt	| .pdf
 
-The -convert option also supports mime types.  For a list of mime types for any given
-file, look in the keys of the exportLinks value in the file's metadata.
+The -convert option also accepts mime types.  For a list of valid mime types for any given
+file, look in the keys of the exportLinks value in the file's metadata. Below are mime
+types for a Google Doc, including application/epub+zip through text/plain. For this
+file, -convert application/epub+zip is a valid option.
+
+``` yaml
+exportLinks: {application/epub+zip: 'https://docs.google.com/feeds/download/documents/export/Export?id=1ut6_Od8NcNo1Lh-QOgNmMZxvbsK14sMnoo&exportFormat=epub',
+  application/pdf: 'https://docs.google.com/feeds/download/documents/export/Export?id=1ut6_Od8NcNo1Lh-QOgNmMZxvbsK14sMnoo&exportFormat=pdf',
+  application/rtf: 'https://docs.google.com/feeds/download/documents/export/Export?id=1ut6_Od8NcNo1Lh-QOgNmMZxvbsK14sMnoo&exportFormat=rtf',
+  application/vnd.oasis.opendocument.text: 'https://docs.google.com/feeds/download/documents/export/Export?id=1ut6_Od8NcNo1Lh-QOgNmMZxvbsK14sMnoo&exportFormat=odt',
+  application/vnd.openxmlformats-officedocument.wordprocessingml.document: 'https://docs.google.com/feeds/download/documents/export/Export?id=1ut6_Od8NcNo1Lh-QOgNmMZxvbsK14sMnoo&exportFormat=docx',
+  application/zip: 'https://docs.google.com/feeds/download/documents/export/Export?id=1ut6_Od8NcNo1Lh-QOgNmMZxvbsK14sMnoo&exportFormat=zip',
+  text/html: 'https://docs.google.com/feeds/download/documents/export/Export?id=1ut6_Od8NcNo1Lh-QOgNmMZxvbsK14sMnoo&exportFormat=html',
+  text/plain: 'https://docs.google.com/feeds/download/documents/export/Export?id=1ut6_Od8NcNo1Lh-QOgNmMZxvbsK14sMnoo&exportFormat=txt'}
+```
 
 ## Completeness
 
@@ -85,15 +98,16 @@ By default, every available revision is downloaded unless --norevisions is speci
 which case only the current file (latest revision) is downloaded.  Previous
 revisions are saved as filename\_(r*REVISION ID*\_*LAST MODIFIED DATE*).
 
-Results include files in the trash. Files from the trash have the metadata attribute trashed == true.
+Results include files in the trash. Files from the trash have the metadata attribute
+trashed == true.
 
 Results will include malware or other abusive files if present. Kumodd does this by
-setting acknowledgeAbuse=true when downloading these files from Google Drive.
+setting acknowledgeAbuse=true when downloading them files from Google Drive.
 
 Results will include files in Team drives and Shared drives.
 
 Results exclude certain native types such as google maps that are not exportable, and
 cannot be downloaded.
 
-Results will not include Google Photos or application data.  To obtain them, see [Scope
-in How to Search for Files](../Search-Query#scope).
+By default, results will not include Google Photos or application data.  To obtain them,
+see [Scope in How to Search for Files](../Search-Query#scope).

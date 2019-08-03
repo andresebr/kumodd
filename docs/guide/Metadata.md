@@ -25,12 +25,13 @@ Last Access times can be altered by subsequent access to downloaded files.  This
 avoided on Linux using the noatime mount option.  It can be avoided on Windows using
 fsutil behavior set disablelastaccess 1.
 
-Created Time can be set on Windows NTFS; however, setting the Created time in python via
-the win32 API has proven unreliable.  On Unix, certain more recent file systems have a
-created time stamp, including Ext4, UFS2, Hammer, LFS, and ZFS (*see* [Wikipedia
-Comparison of File Systems](https://en.wikipedia.org/wiki/Comparison_of_file_systems)).
-However, the Linux kernel provides no method (e.g. system call or library) to read or
-write the Created time, so Created time is not available to kumodd on Linux.
+Kumodd sets the created time only on Windows; however, setting the Created time in
+python via the win32 API has proven unreliable.  On Unix, certain more recent file
+systems have a created time stamp, including Ext4, UFS2, Hammer, LFS, and ZFS (*see*
+[Wikipedia Comparison of File
+Systems](https://en.wikipedia.org/wiki/Comparison_of_file_systems)).  However, the Linux
+kernel provides no method (e.g. system call or library) to read or write the Created
+time, so Created time is not available to kumodd on Linux.
 
 If file system time stamps are to be used in analysis, the -verify option can be used to
 verify they are consistent with the metadata.  External tools can be used as well for
@@ -40,8 +41,9 @@ Drive API.
 
 ## Duplicate File Names
 
-Google Drive folders can hold duplicate file names that are differentiated by their
-version number. Unix and Windows file systems require filenames within a folder are
-unique.  So, for version number except 1, kumodd appends '_(v*VERSION*)' before the file
-extension.  For example: ./My Drive/Untitled document_(v12).pdf
+In Google Drive folders, files can have duplicate (identical) names. Those files will
+differ by their version number. Unix and Windows file systems require filenames within a
+folder are unique.  So, when the file's version number is greater than one (1), kumodd
+appends '_(v*VERSION*)' before the file extension.  For example: ./My Drive/Untitled
+document_(v12).pdf
 

@@ -6,27 +6,27 @@ Use search query to limit results by the file's metadata.
 
 Download all files names that match \*2014\*:
 
-	./kumodd -d all -q "title contains '2014'"
+	./kumodd -download all -q "title contains '2014'"
 
 Download all files except files names that match \*hello\*:
 
-	./kumodd -d all -q "not name contains 'hello'"
+	./kumodd -download all -q "not name contains 'hello'"
 
 Download all files that contain the word 'thorax'. This is a full text search of file contents.
 
-	./kumodd -d all -q "fullText contains 'thorax'"
+	./kumodd -download all -q "fullText contains 'thorax'"
 
 Download all files edited by a given user:
 
-	./kumodd -d all -q "'john.doe@gmail.com' in writers"
+	./kumodd -download all -q "'john.doe@gmail.com' in writers"
 
 Download all files modified on or after 1/1/2012 00:00:00 UTC:
 
-	./kumodd -d all -q "modifiedTime > '2012-01-01T00:00:00'"
+	./kumodd -download all -q "modifiedTime > '2012-01-01T00:00:00'"
 
 List all PDFs viewed by the account holder on or after 1/1/2012 00:00:00 UTC:
 
-	./kumodd -d pdf -q "viewedByMeTime > '2012-01-01T00:00:00'"
+	./kumodd -download pdf -q "viewedByMeTime > '2012-01-01T00:00:00'"
 
 Dates are in RFC3339 format, and the default timezone is UTC.
 
@@ -53,14 +53,14 @@ Each filter has an equivalent query, as follows.
 
 Filter | Equivalent Query
 :----- | :-----
--d doc | -d all -q "mimeType = 'application/msword'<br/>or  mimeType = 'application/vnd.openxmlformats-officedocument.wordprocessingml'<br/>or mimeType = 'application/vnd.ms-word'<br/>or mimeType = 'application/vnd.google-apps.document'"
--d  xls | -d all -q "mimeType = 'application/vnd.ms-excel'<br/>or mimeType = 'application/vnd.openxmlformats-officedocument.spreadsheetml'<br/>or mimeType = 'application/vnd.google-apps.spreadsheet'"
--d ppt | -d all -q "mimeType = 'application/vnd.ms-powerpoint'<br/>or mimeType = 'application/vnd.openxmlformats-officedocument.presentationml'<br/>or mimeType = 'application/vnd.google-apps.presentation'"
--d pdf |  -d all -q "mimeType = 'application/pdf'"
--d text | -d all -q "mimeType contains 'text/'"
--d image | -d all -q "mimeType contains 'image/'"
--d audio | -d all -q "mimeType contains 'audio/'"
--d video | -d all -q "mimeType contains 'video/'"
+-download doc | -download all -q "mimeType = 'application/msword'<br/>or  mimeType = 'application/vnd.openxmlformats-officedocument.wordprocessingml'<br/>or mimeType = 'application/vnd.ms-word'<br/>or mimeType = 'application/vnd.google-apps.document'"
+-download  xls | -download all -q "mimeType = 'application/vnd.ms-excel'<br/>or mimeType = 'application/vnd.openxmlformats-officedocument.spreadsheetml'<br/>or mimeType = 'application/vnd.google-apps.spreadsheet'"
+-download ppt | -download all -q "mimeType = 'application/vnd.ms-powerpoint'<br/>or mimeType = 'application/vnd.openxmlformats-officedocument.presentationml'<br/>or mimeType = 'application/vnd.google-apps.presentation'"
+-download pdf |  -download all -q "mimeType = 'application/pdf'"
+-download text | -download all -q "mimeType contains 'text/'"
+-download image | -download all -q "mimeType contains 'image/'"
+-download audio | -download all -q "mimeType contains 'audio/'"
+-download video | -download all -q "mimeType contains 'video/'"
 
 Google Apps can open mimeTypes listed here: (https://developers.google.com/drive/api/v3/mime-types).
 
