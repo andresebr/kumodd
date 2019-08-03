@@ -71,7 +71,7 @@ flags.DEFINE_string('col', 'normal', 'column set defined under column_sets in co
 flags.DEFINE_boolean('diffs', True, 'Show differences metadata.')
 flags.DEFINE_boolean('revisions', True, 'Download every revision of each file.')
 flags.DEFINE_string('convert', 'pdf', 'Convert all native Google Apps files to PDF by default. Specify a mime type or a file type such as: pdf, epub, rtf, zip, html, plain, opendocument, officedocument.')
-flags.DEFINE_string('gdrive_auth', None, 'Google Drive account authorization file.  Configured in config/config.yml if not specified on command line.')
+flags.DEFINE_string('user_cred', None, 'Google Drive user account authorization file.  Configured in config/config.yml if not specified on command line.')
 flags.DEFINE_string('folder', None, 'source folder within Google Drive', short_name='f')
 flags.DEFINE_string('query', None, 'metadata query (filter)', short_name='q')
 flags.DEFINE_string('scope', 'https://www.googleapis.com/auth/drive.readonly', 'Google Drive scope')
@@ -507,8 +507,8 @@ def download_listed_files(ctx, config, metadata_names=None, output_format=None):
     with open(FLAGS.usecsv[0], 'rt') as csv_handle:
         reader = csv.reader(csv_handle)
         header = next(reader, None)
-        index_of_path = header.index( config.get('column_titles',{}).get('path'))
-        index_of_id = header.index( config.get('column_titles',{}).get('id'))
+        index_of_path = header.index( dget(config, 'column_titles.path'))
+        index_of_id = header.index( dget(config, 'column_titles.id'))
         for row in reader:
             path = dirname(row[index_of_path])
             try:
@@ -862,8 +862,9 @@ def main(argv):
         # catch issues in the bundled config early by decoding and encoding
         yaml.dump(yaml.safe_load('''
 gdrive:
-  gdrive_auth: config/gdrive_config.json
-  oauth_id: config/gdrive.dat
+  config_dir: config
+  user_cred: google_drive_user_credentials.json
+  api_cred: google_api_credentials.json
   csv_prefix: ./filelist-
   column_sets:
     short:
@@ -981,7 +982,7 @@ column_titles:
 
     # Set the logging according to the command-line flag
     logging.basicConfig(level=FLAGS.log, format='%(asctime)s %(levelname)s %(message)s', datefmt='%y-%b-%d %H:%M:%S')
-    if config.get('log_to_stdout'):
+    if dget(config, 'log_to_stdout'):
         handler = logging.StreamHandler(sys.stdout)
         handler.setLevel(FLAGS.log)
         handler.setFormatter(logging.Formatter('%(levelname)s: %(message)s'))
@@ -1001,23 +1002,21 @@ column_titles:
     if FLAGS.verify:
         ctx = Ctx( None )
     else:
-        api_credentials_file = FLAGS.gdrive_auth or config.get('gdrive',{}).get('gdrive_auth')
-
+        api_cred = dget(config, 'gdrive.api_cred')
         # Set up a Flow object that opens a web browser or prints a URL for
         # approval of access to the given google drive account.
         # See: https://developers.google.com/drive/api/v3/about-auth
 
-        FLOW = flow_from_clientsecrets(api_credentials_file,
+        FLOW = flow_from_clientsecrets(api_cred,
                                        scope=FLAGS.scope,
                                        message= f"""
-    ERROR: missing OAuth 2.0 credentials.
+    ERROR: missing Google API OAuth 2.0 credentials.
 
-    To use kumodd, you must download a Google a API credentials file and store it as:
+    To obtain credentials, see Step 1 of 'Setup Kmodd on Windows or Unix':
+    https://kumodd.readthedocs.io/en/latest/guide/How-to-Install/#setup-kmodd-on-windows-or-unix
 
-    {os.path.join(os.path.dirname(__file__), api_credentials_file)}
-
-    To setup the credentials file, see the kumodd user guide:
-    https://github.com/rich-murphey/kumodd/wiki/How-to-Install
+    Save the credentials as:
+    {api_cred}
 
     """)
         # Create an httplib2.Http object to handle our HTTP requests and authorize it
@@ -1052,19 +1051,19 @@ column_titles:
 
         # If the Google Drive credentials don't exist or are invalid run the client
         # flow, and store the credentials.
-        oauth_id = config.get('gdrive',{}).get('oauth_id')
+        user_cred = FLAGS.user_cred or dget(config, 'gdrive.user_cred')
         try:
-            storage = Storage(oauth_id)
+            storage = Storage(user_cred)
             credentials = storage.get()
         except:
-            open(oauth_id, "a+").close()     # ensure oauth_id exists
-            storage = Storage(oauth_id)
+            open(user_cred, "a+").close()     # ensure user_cred file exists
+            storage = Storage(user_cred)
             credentials = None
 
         if credentials is None or credentials.invalid:
             oflags = argparser.parse_args([])
             oflags.noauth_local_webserver = not FLAGS.browser
-            credentials = run_flow(FLOW, storage, oflags, http)
+            credentials = run_flow(FLOW, storage, oflags, http2)
         http2 = credentials.authorize(http2)
         service = build("drive", "v3", http=http2)
         ctx = Ctx( http2, service )
@@ -1074,10 +1073,10 @@ column_titles:
         if FLAGS.list:
             ensure_dir(FLAGS.destination + '/' + ctx.user)
             print( output_format.format( *[ dget(config, f'gdrive.column_titles.{name}') or name for name in metadata_names ]).rstrip())
-            csv_prefix = config.get('gdrive',{}).get('csv_prefix')
+            csv_prefix = dget(config, 'gdrive.csv_prefix')
             if csv_prefix.find('/'):
                 ensure_dir(dirname(csv_prefix))
-            with open(config.get('gdrive',{}).get('csv_prefix') + ctx.user + '.csv', 'w') as csv_handle:
+            with open(dget(config, 'gdrive.csv_prefix') + ctx.user + '.csv', 'w') as csv_handle:
                 writer = csv.writer(csv_handle, delimiter=',')
                 writer.writerow( get_titles( config, metadata_names ) )
                 gdrive_folder, path = get_gdrive_folder( ctx, FLAGS.folder )
@@ -1093,7 +1092,7 @@ column_titles:
             ensure_dir(FLAGS.destination + '/' + ctx.user)
             print( output_format.format( *[ dget(config, 'gdrive.column_titles').get(name) or name for name in metadata_names ]).rstrip())
             gdrive_folder, path = get_gdrive_folder( ctx, FLAGS.folder )
-            with open(config.get('gdrive',{}).get('csv_prefix') + ctx.user + '.csv', 'w') as csv_handle:
+            with open(dget(config, 'gdrive.csv_prefix') + ctx.user + '.csv', 'w') as csv_handle:
                 writer = csv.writer(csv_handle, delimiter=',')
                 writer.writerow( get_titles( config, metadata_names ) )
 
@@ -1117,7 +1116,7 @@ column_titles:
             print( header )
             for dirent in os.scandir( FLAGS.metadata_destination ):
                 ctx.user = dirent.name
-                with open(config.get('gdrive',{}).get('csv_prefix') + ctx.user + '.csv', 'w') as csv_handle:
+                with open(dget(config, 'gdrive.csv_prefix') + ctx.user + '.csv', 'w') as csv_handle:
                     writer = csv.writer(csv_handle, delimiter=',')
                     writer.writerow( get_titles( config, metadata_names ) )
 
@@ -1147,7 +1146,7 @@ column_titles:
             for dirent in os.scandir( FLAGS.metadata_destination ):
                 if dirent.is_dir():
                     ctx.user = dirent.name
-                    with open(config.get('gdrive',{}).get('csv_prefix') + 'l2t.' + ctx.user + '.csv', 'w') as csv_handle:
+                    with open(dget(config, 'gdrive.csv_prefix') + 'l2t.' + ctx.user + '.csv', 'w') as csv_handle:
                         writer = csv.writer(csv_handle, delimiter=',')
                         writer.writerow( ['date', 'time', 'timezone', 'MACB',
                                         'source', 'sourcetype', 'type', 'user',

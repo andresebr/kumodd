@@ -33,10 +33,11 @@ On Debian or Ubuntu:
 
 To access Google Drive, Kumodd requires two credential files:
 
-      config/gdrive_config.json - permission to access the Google API
-      config/gdrive.dat - permission to access a specific user's Google Drive account
+      config/google_api_permission.json - permission to access the Google API
+      config/google_drive_account_permission.json - permission to access a user's Google Drive account
 
-Step 1) Obtain config/gdrive_config.json (permission to access the Google API):
+Step 1) Obtain google_api_permission.json (permission to access the Google API):
+
 
     1. [Create a free google cloud account](https://cloud.google.com/billing/docs/how-to/manage-billing-account#create_a_new_billing_account).  
     1. [Login to your Google cloud account](https://console.cloud.google.com).
@@ -51,16 +52,18 @@ Step 1) Obtain config/gdrive_config.json (permission to access the Google API):
     1. Click the down arrow icon at far right of the new ID.  The ID will download.
     1. Copy the downloaded ID it to kumodd/config/gdrive.json.
 
-Step 2) Obtain config/gdrive.dat (permission to access a specific user's Google Drive account):
+Step 2) Obtain google_drive_account_permission.json (permission to access a specific user's Google Drive account):
 
 The first time kumodd is used (e.g. __kumodd -list all__), kumodd will open the Google
 Drive login page in a browser.
 
+
     1. Login to the cloud account. Next, it will request approval.
     1. Click "Approve". Next, kumodd stores the Oauth token in config/gdrive.dat.
 
-    If there is no local browser, or if --nobrowser is used, kumodd will
-    instead print a URL of the login page.
+If there is no local browser, or if --nobrowser is used, kumodd will
+instead print a URL of the login page.
+
 
     1. Copy the URL and paste it into a browser.  
     1. Login to the cloud account.  Next, it will request approval.

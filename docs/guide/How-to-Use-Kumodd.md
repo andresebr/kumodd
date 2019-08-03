@@ -53,7 +53,7 @@ metadata, use:
 
     kumodd -verify -col verify
 
-## Export Google Apps Files
+## How to Export Google Apps Files
 
 The default conversion format is PDF.  Native Google Apps files, such as docs, sheets,
 slides and drawings, must be converted upon download.  To download them in LibreOffice
@@ -110,4 +110,30 @@ Results exclude certain native types such as google maps that are not exportable
 cannot be downloaded.
 
 By default, results will not include Google Photos or application data.  To obtain them,
-see [Scope in How to Search for Files](../Search-Query#scope).
+see set the scope and space, as discussed below.
+
+## Scope
+    
+The default scope is https://www.googleapis.com/auth/drive.readonly.  This provides read
+only access to all files and metadata in the user's 'My Drive' folder. This excludes the
+Application Data folder.
+
+For photos, use option: __--scope https://www.googleapis.com/auth/drive.photos.readonly__
+
+For app data, use option: __--scope https://www.googleapis.com/auth/drive.appdata__
+
+## Corpus
+
+The default corpus is 'user'. Select a different corpus using the __--corpera__ option.
+    
+Valid corpera options include:
+* __user__: includes all files in "My Drive" and "Shared with me".  
+* __domain__: includes all files shared to the user's domain that are searchable.  
+* __drive__: includes all files contained in a single shared drive.  
+* __allDrives__: includes all files in shared drives that the user is a member of and all files in "My Drive" and "Shared with me." Use of the allSharedDrives corpus is discouraged for efficiency reasons. Use 'drive' or 'user' for efficiency.
+
+## Spaces
+
+The default space 'drive'.  Use the __--spaces__ option to select a comma-separated list
+of spaces to query within the corpus. Supported values are 'drive', 'appDataFolder' and
+'photos'.

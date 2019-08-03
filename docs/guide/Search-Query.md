@@ -66,27 +66,4 @@ Google Apps can open mimeTypes listed here: (https://developers.google.com/drive
 
 An extensive list of mimeTypes is listed in [MimeType.cs](https://github.com/google/google-drive-proxy/blob/master/DriveProxy/API/MimeType.cs).
 
-## Scope
-    
-The default scope is https://www.googleapis.com/auth/drive.readonly.  This provides read
-only access to all files and metadata in the user's 'My Drive' folder. This excludes the
-Application Data folder.
-
-For photos, use option: __--scope https://www.googleapis.com/auth/drive.photos.readonly__
-
-For app data, use option: __--scope https://www.googleapis.com/auth/drive.appdata__
-
-## Corpus
-
-The default corpus is 'user'. Select a different corpus using the --corpera option.
-    
-The user corpus includes all files in "My Drive" and "Shared with me".  
-The domain corpus includes all files shared to the user's domain that are searchable.  
-The drive corpus includes all files contained in a single shared drive.  
-The allDrives corpus includes all files in shared drives that the user is a member of and all files in "My Drive" and "Shared with me." Use of the allSharedDrives corpus is discouraged for efficiency reasons. Prefer 'drive' or 'user' for efficiency.
-
-## Spaces
-
-The default space is 'drive'.  Use the __--spaces__ option to select a comma-separated list
-of spaces to query within the corpus. Supported values are 'drive', 'appDataFolder' and
-'photos'.
+ 
