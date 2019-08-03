@@ -37,7 +37,7 @@ kumodd -verify -col verify
 Status File MD5  Size      Mod Time  Acc Time  Metadata  fullpath
 valid  match     match     match     match     match     ./My Drive/report_1424.pdf
 ```
-To get the above columns plus the MD5s, use:
+To show different columns, use the -col option. To see the MD5s, use '-col md5s':
 ``` shell
 kumodd -verify -col md5s
 Status File MD5  Size      Mod Time  Acc Time  Metadata  MD5 of File                      MD5 of Metadata                  fullpath
