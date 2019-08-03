@@ -1,17 +1,18 @@
 # Verifying Data
 
-There are two ways Kumodd can verify data: with or without retrieving metadata from
-Google Drive.  When listing (-list or -l option), Kumodd retrieves metadata from Google
-Drive and verifies local data are consistent with Google Drive.  
+There are two ways Kumodd can verify data: by using cached metadata or with or by
+downloading current metadata from Google Drive.  When listing (-list option), Kumodd
+downloads metadata from Google Drive and verifies local data are consistent with Google Drive.  
 
-When verifying (-verify or -V option) Kumodd uses the previously saved YAML metadata on
-disk to verify whether files and metadata on disk are correct, including all downloaded
-revisions.  -verify does not require any credentials or network access and does not
-connect to the cloud.
+When verifying (-verify option) Kumodd uses the previously saved YAML metadata on disk
+to verify whether files and metadata on disk are correct. If there are multiple
+revisions, Kumodd veririees all downloaded revisions.  Because the -verify option uses
+cached metadata, it does not connect to Google Drive, and does not require any network
+access or credentials.
 
-Either way, Kumodd confirms whether the files' MD5, file size, and Last Modified and
-Last Accessed are correct.  In addition, it confirms whether the MD5 of the metadata
-matches the recorded MD5.
+Either way (-list or -verify options), Kumodd confirms whether each file's MD5, file
+size, and Last Modified and Last Accessed are correct.  In addition, it confirms whether
+the MD5 of the metadata matches the preserved MD5.
 
 ### Download Google Drive Metadata to Verify Local Data
 
@@ -91,7 +92,7 @@ show a diff on standard output that highlights the rows and columns of metadata
 that changed.  To disable reporting of differences, use -nodiffs.
 
 ``` shell
-kumodd -col short -l pdf
+kumodd -col short -list pdf
 Status  Version Full Path
 valid   4       ./My Drive/docs/paper.pdf
 valid   3       ./My Drive/docs/article.pdf

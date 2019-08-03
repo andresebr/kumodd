@@ -31,10 +31,12 @@ On Debian or Ubuntu:
 
 ## Setup Kmodd on Windows or Unix
 
-To access Google Drive, two credentails are required: 1) an Oauth ID required to access
-the Google API, and 2) an authorization for the specifiic Google Drive account.
+To access Google Drive, Kumodd requires two credential files:
 
-1. Obtain a Google Oauth client ID (required to access the Google Drive API):
+      config/gdrive_config.json - permission to access the Google API
+      config/gdrive.dat - permission to access a specific user's Google Drive account
+
+Step 1) Obtain config/gdrive_config.json (permission to access the Google API):
 
     1. [Create a free google cloud account](https://cloud.google.com/billing/docs/how-to/manage-billing-account#create_a_new_billing_account).  
     1. [Login to your Google cloud account](https://console.cloud.google.com).
@@ -49,10 +51,10 @@ the Google API, and 2) an authorization for the specifiic Google Drive account.
     1. Click the down arrow icon at far right of the new ID.  The ID will download.
     1. Copy the downloaded ID it to kumodd/config/gdrive.json.
 
-1. Authorize kumodd to access the specific Google Drive account:
+Step 2) Obtain config/gdrive.dat (permission to access a specific user's Google Drive account):
 
-    The first time kumodd is used (e.g. kumodd -l all), it will open the
-    login page in a web browser.
+The first time kumodd is used (e.g. kumodd -list all), it will open the
+login page in a web browser.
 
     1. Login to the cloud account. Next, it will request approval.
     1. Click "Approve". Next, kumodd stores the Oauth token in config/gdrive.dat.
@@ -65,6 +67,6 @@ the Google API, and 2) an authorization for the specifiic Google Drive account.
     1. Click "Approve". Next, the page will show an access token.
     1. Copy the token from the web page. Paste it into kumodd, and press enter. Next, kumodd saves the Oauth token in config/gdrive.dat.
 
-    Once authorized, the login page will not be shown again unless the token
-    expires or config/gdrive.dat is deleted.
+Once authorized, the login page will not be shown again unless the token
+expires or config/gdrive.dat is deleted.
 
