@@ -38,7 +38,6 @@ __config/google_drive_account_credentials.json__ - permission to access a user's
 
 1. Obtain __google_api_credentials.json__ (permission to access the Google API):
 
-
     1. [Create a free google clou daccount](https://cloud.google.com/billing/docs/how-to/manage-billing-account#create_a_new_billing_account).  
     1. [Login to your Google cloud account](https://console.cloud.google.com).
     1. [Create a Project](https://console.cloud.google.com/projectcreate).
@@ -52,14 +51,12 @@ __config/google_drive_account_credentials.json__ - permission to access a user's
     1. Click the down arrow icon at far right of the new ID.  The ID will download.
     1. Copy the downloaded ID it to kumodd/config/gdrive.json.
 
-  
 2. Obtain __google_drive_account_credentials.json__ (permission to access a specific user's Google Drive account):
 
     1. Run Kumodd (e.g. kumodd -list all).  Kumodd will launch a web browser to open a Google login page.
     1. Login to the user's Google Drive account. Next, it will request approval.
     1. Click "Approve". Next, kumodd stores the Oauth token in config/gdrive.dat.
 
-  
     If there is no local browser, or if --nobrowser is used:
 
     1. Open a web browser.

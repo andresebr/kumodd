@@ -779,19 +779,8 @@ def walk_folders( ctx, folder, handle_item, path=None ):
         try:
             file_list = ctx.files.list(**param).execute()
         except errors.HttpError as e:
-            if e.resp.status == 400:
-                msg = f"Google Drive API Error: {dget(json.loads(e.content), 'error.message')}"
-                print(msg)
-                print(f"\nquery:\n{query}\n")
-                print(f"\nparam:\n{param}\n")
-                logging.critical( msg + f"\n\nCould not get contents of folder {folder['name']} with query {query}\n\n", exc_info=True)
-                break
-            else:
-                logging.critical( f"Exception {e} while downloading {file_path}. Retrying...", exc_info=True)
-                print( f"Exception {e} while downloading {file_path}. Retrying...", exc_info=True)
-                continue
-        except Exception as e:
-            logging.critical( f"Could not get contents of folder {folder['name']} with query {query}", exc_info=True)
+            msg = f"Cannot list contents of folder {folder['name']}: {dget(json.loads(e.content), 'error.message')}"
+            logging.critical( msg )
             break
         filename = folder['name'].replace( '/', '_' )
         for item in sorted(filter(is_file, file_list['files']), key=lambda i:i['name']):
@@ -819,18 +808,20 @@ def walk_local_metadata( ctx, handle_item, path ):
 def get_titles( config, metadata_names ):
     return [ dget(config, f'gdrive.column_titles.{name}') or name for name in metadata_names ]
 
-def get_gdrive_folder( ctx, path_in=None, file_id='root' ):
-    if path_in:
-        for folder_name in path_in.split('/'):
-            file_list = ctx.files.list( **{'q': f"'{file_id}' in parents and name='{folder_name}'"} ).execute()
-            drive_file = file_list['files'][0]
-            if FLAGS.scope.startswith('https://www.googleapis.com/auth/drive'):
-                path = 'My Drive/' + path_in
-            else:
-                path = path_in
-            return drive_file, path
-    else:
-        return ctx.files.get( fileId=file_id ).execute(), '.'
+def get_gdrive_folder( ctx, path_in=None ):
+    if path_in is None:
+        return ctx.files.get( fileId='root' ).execute(), '.'
+    file_id = 'root'
+    path = 'My Drive'
+    for folder_name in path_in.split('/'):
+        path += '/' + folder_name
+        result = ctx.files.list( q=f"'{file_id}' in parents and name='{folder_name}'" ).execute()
+        if result.get('files') is None or len(result.get('files')) == 0:
+            print( f"Error: {path} does not exist in Google Drive." )
+            sys.exit(1)
+        drive_file = result['files'][0]
+    print(f'root={path}')
+    return drive_file, path
 
 class Ctx( object ):
     def __init__( self, http, service ):
@@ -1052,12 +1043,11 @@ column_titles:
         # If the Google Drive credentials don't exist or are invalid run the client
         # flow, and store the credentials.
         user_cred = FLAGS.user_cred or dget(config, 'gdrive.user_cred')
+        open(user_cred, "a+").close()     # ensure user_cred file exists
+        storage = Storage(user_cred)
         try:
-            storage = Storage(user_cred)
             credentials = storage.get()
         except:
-            open(user_cred, "a+").close()     # ensure user_cred file exists
-            storage = Storage(user_cred)
             credentials = None
 
         if credentials is None or credentials.invalid:
