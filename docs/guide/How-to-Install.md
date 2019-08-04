@@ -49,13 +49,13 @@ __config/google_drive_account_credentials.json__ - permission to access a user's
     1. Click "create".  Next, a dialog "OAuth client" will pop up.
     1. Click OK.  Next, it will show the list of "Oauth 2.0 client IDs".
     1. Click the down arrow icon at far right of the new ID.  The ID will download.
-    1. Copy the downloaded ID it to kumodd/config/gdrive.json.
+    1. Copy the downloaded ID it to config/google_api_credentials.json.json.
 
 2. Obtain __google_drive_account_credentials.json__ (permission to access a specific user's Google Drive account):
 
     1. Run Kumodd (e.g. kumodd -list all).  Kumodd will launch a web browser to open a Google login page.
     1. Login to the user's Google Drive account. Next, it will request approval.
-    1. Click "Approve". Next, kumodd stores the Oauth token in config/gdrive.dat.
+    1. Click "Approve". Next, kumodd stores the credentials in config/google_drive_account_credentials.json.
 
     If there is no local browser, or if --nobrowser is used:
 
@@ -64,7 +64,7 @@ __config/google_drive_account_credentials.json__ - permission to access a user's
     1. Copy the URL and paste it into a browser.  
     1. Login to the Google Drive account.  Next, it will request approval.
     1. Click "Approve". Next, the page will show an access token.
-    1. Copy the token from the web page. Paste it into kumodd, and press enter. Next, kumodd saves the Oauth token in config/gdrive.dat.
+    1. Copy the token from the web page. Paste it into kumodd, and press enter. Next, kumodd saves the credentials in config/google_drive_account_credentials.json.
 
 Once authorized, the login page will not be shown again unless the token
 expires or google_drive_account_credentials.json is deleted.

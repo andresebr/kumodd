@@ -853,7 +853,6 @@ def main(argv):
         # catch issues in the bundled config early by decoding and encoding
         yaml.dump(yaml.safe_load('''
 gdrive:
-  config_dir: config
   user_cred: google_drive_user_credentials.json
   api_cred: google_api_credentials.json
   csv_prefix: ./filelist-
