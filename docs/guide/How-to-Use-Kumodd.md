@@ -1,7 +1,7 @@
 # How to Use Kumodd
 
 Kumodd is a command line utility. To run Kumodd, open a shell window (eg. CMD or
-powershell on Windows, or xterm on linux) and invoke it with command line options to
+powershell on Windows, or xterm on linux) and invoke kit with command line options to
 specify what action to take.
 
 ## List all documents
@@ -71,11 +71,11 @@ Download<br/>Conversion<br/>Option			| Google<br/>Docs<br/>as | Google<br/>Sheet
 -convert html		| .html	| .pdf	| .pdf	| .pdf
 -convert plain		| .txt 	| .pdf	| .txt	| .pdf
 
-The -convert option also accepts mime types.  For a list of valid mime types for any given
-file, look in the keys of the exportLinks value in the file's metadata. Below are mime
-types for a Google Doc, including application/epub+zip through text/plain. For this
-file, -convert application/epub+zip is a valid option.
+The -convert option also accepts mime types.  For a list of valid mime types for any
+given file, look in the keys of the exportLinks value in the file's metadata, shown
+below. For this file, -convert application/epub+zip is a valid option.
 
+Sample of mime types for a Google Doc:
 ``` yaml
 exportLinks: {application/epub+zip: 'https://docs.google.com/feeds/download/documents/export/Export?id=1ut6_Od8NcNo1Lh-QOgNmMZxvbsK14sMnoo&exportFormat=epub',
   application/pdf: 'https://docs.google.com/feeds/download/documents/export/Export?id=1ut6_Od8NcNo1Lh-QOgNmMZxvbsK14sMnoo&exportFormat=pdf',
@@ -91,7 +91,7 @@ exportLinks: {application/epub+zip: 'https://docs.google.com/feeds/download/docu
 
 Google Drive folders can hold multiple files with the same name, differing by their
 version number. The trash may hold additional files having the same name, and different
-version numbers.  If the version number is greater than 1, \_(v*VERSION*) is appended
+version numbers.  When the version number is greater than 1, \_(v*VERSION*) is appended
 before the file extension, such as filename\_(v8).doc.
 
 By default, every available revision is downloaded unless --norevisions is specified, in
@@ -109,8 +109,8 @@ Results will include files in Team drives and Shared drives.
 Results exclude certain native types such as google maps that are not exportable, and
 cannot be downloaded.
 
-By default, results will not include Google Photos or application data.  To obtain them,
-see set the scope and space, as discussed below.
+By default, results will not include Google Photos or hidden android application data.
+To obtain them, use the scope and space options, discussed below.
 
 ## Spaces
 

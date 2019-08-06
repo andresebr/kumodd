@@ -2,13 +2,13 @@
 
 There are two ways Kumodd can verify data:
 
-* __-list__: download metadata to verify local files
+* __-list__: List metadata in google drive, and use it to verify local files if present
 * __-verify__: use local cached metadata to verify local files
 
 When listing (__-list__ option), Kumodd
-downloads metadata from Google Drive and verifies local data are consistent with Google Drive.  
+downloads metadata from Google Drive and verifies whether local data are consistent with Google Drive.  
 
-When verifying (__-verify__ option) Kumodd uses the previously saved YAML metadata on
+When verifying (__-verify__ option), Kumodd uses the previously saved YAML metadata on
 disk to verify whether files and metadata on disk are correct. If there are multiple
 revisions, Kumodd verifies all downloaded revisions.  Because it uses cached metadata,
 it does not connect to Google Drive, and does not require any network access or
