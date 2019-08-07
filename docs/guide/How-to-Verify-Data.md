@@ -22,9 +22,9 @@ from Google Drive.
 ### Download Google Drive Metadata to Verify Local Data
 
 To retrieve metadata from Google Drive and review accuracy of the data and metadata on
-disk, use the "-list" or "-l" option. 
+disk, use the __-list__ option. 
 ``` shell
-kumodd --list pdf -col verify
+kumodd -list pdf -col verify
 Status File MD5  Size      Mod Time  Acc Time  Metadata  fullpath
 valid  match     match     match     match     match     ./My Drive/report_1424.pdf
 ```
@@ -42,7 +42,8 @@ kumodd -verify -col verify
 Status File MD5  Size      Mod Time  Acc Time  Metadata  fullpath
 valid  match     match     match     match     match     ./My Drive/report_1424.pdf
 ```
-To show different columns, use the __-col__ option. To see the MD5s, use '-col md5s':
+To show different columns, use the __-col__ option. To see the MD5s, use __ -col
+md5s__. See [How to Configure](guide/How-to-Configure) for furhter usage of the __-col__ option.
 ``` shell
 kumodd -verify -col md5s
 Status File MD5  Size      Mod Time  Acc Time  Metadata  MD5 of File                      MD5 of Metadata                  fullpath
@@ -60,7 +61,7 @@ grep md5Checksum 'download/metadata/john.doe@gmail.com/My Drive/report_1424.pdf.
 md5Checksum: 5d5550259da199ca9d426ad90f87e60e
 ```
 When Kumodd saves a file, it rereads the file, and computes the MD5 digest of the
-contents.  It compares the values and reports either 'matched' or 'MISMATCHED' in the
+contents.  It compares the values and reports either __ matched__  or __ MISMATCHED__  in the
 md5Match property.
 ``` shell
 grep md5Match 'download/metadata/john.doe@gmail.com/My Drive/report_1424.pdf.yml'

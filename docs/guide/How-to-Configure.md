@@ -7,8 +7,7 @@ below.  This is also the default if no -col option is specified.
 
 Below 'normal:' is a set of columns for output. The numbers are the fixed width of
 columns on standard output (CSV export has no limit). The complete list of the column
-sets is shown in [Default YAML Configuration
-File](https://github.com/rich-murphey/kumodd/wiki/Default-configuration).
+sets is shown in [Default YAML Configuration File](guide/Default-configuration).
 
 ``` yaml
 gdrive:
