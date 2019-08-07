@@ -43,7 +43,7 @@ Status File MD5  Size      Mod Time  Acc Time  Metadata  fullpath
 valid  match     match     match     match     match     ./My Drive/report_1424.pdf
 ```
 To show different columns, use the __-col__ option. To see the MD5s, use __ -col
-md5s__. See [How to Configure](guide/How-to-Configure) for furhter usage of the __-col__ option.
+md5s__. See [How to Configure](../How-to-Configure) for furhter usage of the __-col__ option.
 ``` shell
 kumodd -verify -col md5s
 Status File MD5  Size      Mod Time  Acc Time  Metadata  MD5 of File                      MD5 of Metadata                  fullpath

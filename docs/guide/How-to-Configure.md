@@ -7,7 +7,7 @@ below.  This is also the default if no -col option is specified.
 
 Below 'normal:' is a set of columns for output. The numbers are the fixed width of
 columns on standard output (CSV export has no limit). The complete list of the column
-sets is shown in [Default YAML Configuration File](guide/Default-configuration).
+sets is shown in [Default YAML Configuration File](../Default-configuration).
 
 ``` yaml
 gdrive:
@@ -19,7 +19,7 @@ gdrive:
     ...
 ```
 
-Metadata has a tree structure (*see* [Example Metadata](Example-Metadata)).  To
+Metadata has a tree structure (*see* [Example Metadata](../Example-Metadata)).  To
 select values, use [jsonpath syntax](https://github.com/h2non/jsonpath-ng). For Example,
 in the column set below, 'owners[*].emailAddress' selects a list of the file's owner
 email addresses. 20 is the fixed width of the column on standard output.
