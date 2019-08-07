@@ -19,7 +19,7 @@ gdrive:
     ...
 ```
 
-Metadata has a tree structure (*see* [Example Metadata](guide/Example-Metadata)).  To
+Metadata has a tree structure (*see* [Example Metadata](Example-Metadata)).  To
 select values, use [jsonpath syntax](https://github.com/h2non/jsonpath-ng). For Example,
 in the column set below, 'owners[*].emailAddress' selects a list of the file's owner
 email addresses. 20 is the fixed width of the column on standard output.
