@@ -14,9 +14,10 @@ revisions, Kumodd verifies all downloaded revisions.  Because it uses cached met
 it does not connect to Google Drive, and does not require any network access or
 credentials.
 
-Either way (__-list__ or __-verify__ options), Kumodd confirms whether each file's MD5, file
-size, and Last Modified and Last Accessed are correct.  In addition, it confirms whether
-the MD5 of the metadata matches the preserved MD5.
+Either way (__-list__ or __-verify__ options), Kumodd confirms whether each file's MD5,
+file size, and Last Modified and Last Accessed are correct.  In addition, it confirms
+whether the MD5 of the metadata on disk matches the MD5 of the metadata originally read
+from Google Drive.
 
 ### Download Google Drive Metadata to Verify Local Data
 
