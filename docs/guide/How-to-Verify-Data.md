@@ -1,4 +1,4 @@
-# Verifying Data
+# How to Verify Data
 
 There are two ways Kumodd can verify data:
 

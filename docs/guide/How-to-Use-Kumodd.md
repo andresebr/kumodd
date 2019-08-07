@@ -40,7 +40,7 @@ Download all documents to ./download (the default location):
 
     kumodd -download doc
 
-Download all PDF files to path (-p) /home/user/Desktop/:
+Download all PDF files to the path /home/user/Desktop/:
 
     kumodd -download pdf -path /home/user/Desktop/
 
@@ -55,11 +55,11 @@ metadata, use:
 
 ## How to Export Google Apps Files
 
-The default conversion format is PDF.  Native Google Apps files, such as docs, sheets,
-slides and drawings, must be converted upon download.  To download them in LibreOffice
-format, use the '-convert opendocument' option.  To download them in MS Office format,
-use the '-convert officedocument' option.  Other valid conversion formats include epub,
-rtf, zip, html, and plain (.txt).
+Native Google Apps files, such as docs, sheets, slides and drawings, must be converted
+upon download. The default conversion format is PDF.  To instead download them in
+LibreOffice format, use __-convert opendocument__.  To download them in MS
+Office format, use __-convert officedocument__.  Other valid conversion formats
+include epub, rtf, zip, html, and plain (.txt).
 
 Download<br/>Conversion<br/>Option			| Google<br/>Docs<br/>as | Google<br/>Sheets<br/>as | Google<br/>Slides<br/>as | Google<br/>Drawings<br/>as
 :------			| :-----------	  | :-----------  | :----------- | :-----------
@@ -114,9 +114,9 @@ To obtain them, use the scope and space options, discussed below.
 
 ## Spaces
 
-The default space 'drive'.  Use the __--spaces__ option to select a comma-separated list
-of spaces to query within the corpus. Supported values are 'drive', 'appDataFolder' and
-'photos'.  If photos or appDataFolder are selected, they may require a different scope
+The default space __drive__.  Use the __--spaces__ option to select a comma-separated list
+of spaces to query within the corpus. Supported values are __drive__, __appDataFolder__ and
+__photos__.  If photos or appDataFolder are selected, they may require a different scope
 and may require different API credentials and different Google Drive account
 credentials.
 
@@ -129,11 +129,12 @@ and app data, see https://developers.google.com/drive/api/v3/about-auth.
 
 ## Corpus
 
-The default corpus is 'user'. Select a different corpus using the __--corpera__ option.
+The default corpus is __user__. Select a different corpus using the __--corpera__ option.
     
 Valid corpera options include:
+
 * __user__: includes all files in "My Drive" and "Shared with me".  
 * __domain__: includes all files shared to the user's domain that are searchable.  
 * __drive__: includes all files contained in a single shared drive.  
-* __allDrives__: includes all files in shared drives that the user is a member of and all files in "My Drive" and "Shared with me." Use of the allSharedDrives corpus is discouraged for efficiency reasons. Use 'drive' or 'user' for efficiency.
+* __allDrives__: includes all files in shared drives that the user is a member of and all files in "My Drive" and "Shared with me." Use of the allSharedDrives corpus is discouraged for efficiency reasons. Use 'drive' or 'user' for efficiency.  
 
