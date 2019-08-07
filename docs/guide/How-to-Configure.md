@@ -2,8 +2,8 @@
 
 ## Selecting Columns for Output
 
-The command line option, -col normal, selects the column set named 'normal' shown
-below.  This is also the default if no -col option is specified.
+The command line option, __-col normal__, selects the column set named 'normal' shown
+below.  This is also the default if no __-col__ option is specified.
 
 Below 'normal:' is a set of columns for output. The numbers are the fixed width of
 columns on standard output (CSV export has no limit). The complete list of the column
@@ -20,9 +20,10 @@ gdrive:
 ```
 
 Metadata has a tree structure (*see* [Example Metadata](../Example-Metadata)).  To
-select values, use [jsonpath syntax](https://github.com/h2non/jsonpath-ng). For Example,
+select values, use [jsonpath syntax](https://github.com/h2non/jsonpath-ng). For example,
 in the column set below, 'owners[*].emailAddress' selects a list of the file's owner
-email addresses. 20 is the fixed width of the column on standard output.
+email addresses. Numbers below are the settings of fixed widths of the columns on
+standard output.
 
 ``` yaml
 gdrive:
