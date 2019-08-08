@@ -99,10 +99,10 @@ which case only the current file (latest revision) is downloaded.  Previous
 revisions are saved as filename\_(r*REVISION ID*\_*LAST MODIFIED DATE*).
 
 Results include files in the trash. Files from the trash have the metadata attribute
-trashed == true.
+__trashed == true__.
 
 Results will include malware or other abusive files if present. Kumodd does this by
-setting acknowledgeAbuse=true when downloading them files from Google Drive.
+setting __acknowledgeAbuse=true__ when downloading them files from Google Drive.
 
 Results will include files in Team drives and Shared drives.
 
